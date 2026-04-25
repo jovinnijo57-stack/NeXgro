@@ -234,8 +234,16 @@ export default function LocationSetup() {
             </div>
           )}
 
+          {/* Loading / Checking Overlay */}
+          {state.status === "checking" && (
+            <div className="flex flex-col items-center justify-center py-12 space-y-4 bg-muted/5 rounded-2xl border border-dashed border-border mb-6">
+              <div className="w-12 h-12 border-4 border-primary/20 border-t-primary rounded-full animate-spin" />
+              <p className="text-sm font-medium text-muted-foreground">Verifying your delivery zone…</p>
+            </div>
+          )}
+
           {/* Map container */}
-          {state.status !== "out_of_range" && state.status !== "in_range" && (
+          {(state.status === "idle" || state.status === "located" || state.status === "locating" || state.status === "error") && (
              <div className="relative rounded-2xl overflow-hidden border border-border shadow-inner bg-muted/10 mb-6" style={{ height: 320 }}>
               <OSMMapPicker
                 initialLat={mapLat}
@@ -329,6 +337,17 @@ export default function LocationSetup() {
               and may expand over time.
             </p>
           </div>
+        </div>
+        <div className="mt-8 pt-6 border-t border-border/50 text-center">
+          <p className="text-xs text-muted-foreground mb-3">
+            Having trouble with the map?
+          </p>
+          <button
+            onClick={() => navigate({ to: "/home" })}
+            className="text-sm font-bold text-primary hover:underline"
+          >
+            Skip & Go to Store directly →
+          </button>
         </div>
       </div>
     </div>

@@ -1959,6 +1959,22 @@ function UsersView() {
     referrals: u.referralCode || "None"
   }));
 
+  const [selectedUser, setSelectedUser] = useState<any | null>(null);
+  const [bannedEmails, setBannedEmails] = useState<string[]>(() => 
+    JSON.parse(localStorage.getItem("nexgro_banned_users") || "[]")
+  );
+
+  const toggleBan = (email: string) => {
+    const isBanned = bannedEmails.includes(email);
+    const newBanned = isBanned 
+      ? bannedEmails.filter(e => e !== email) 
+      : [...bannedEmails, email];
+    
+    setBannedEmails(newBanned);
+    localStorage.setItem("nexgro_banned_users", JSON.stringify(newBanned));
+    toast.success(isBanned ? "User unbanned successfully" : "User banned successfully");
+  };
+
   return (
     <div data-ocid="admin.users_section">
       <h2 className="font-display text-lg font-bold text-foreground mb-4">
@@ -1972,7 +1988,7 @@ function UsersView() {
           <table className="w-full text-sm">
             <thead className="bg-muted/30 border-b border-border">
               <tr>
-                {["Name", "Email", "Joined", "Loyalty Points", "Referrals"].map(
+                {["Name", "Email", "Joined", "Loyalty Points", "Actions"].map(
                   (h) => (
                     <th
                       key={h}
@@ -1988,7 +2004,10 @@ function UsersView() {
               {users.map((u, i) => (
                 <tr
                   key={u.id}
-                  className="hover:bg-muted/20 transition-colors"
+                  className={cn(
+                    "hover:bg-muted/20 transition-colors",
+                    bannedEmails.includes(u.email) && "opacity-60 bg-destructive/5"
+                  )}
                   data-ocid={`admin.users.item.${i + 1}`}
                 >
                   <td className="px-4 py-3">
@@ -1998,9 +2017,14 @@ function UsersView() {
                           {u.name.charAt(0)}
                         </span>
                       </div>
-                      <span className="font-medium text-foreground">
-                        {u.name}
-                      </span>
+                      <div className="flex flex-col">
+                        <span className="font-medium text-foreground">
+                          {u.name}
+                        </span>
+                        {bannedEmails.includes(u.email) && (
+                          <span className="text-[10px] text-destructive font-bold uppercase tracking-tighter">Banned</span>
+                        )}
+                      </div>
                     </div>
                   </td>
                   <td className="px-4 py-3 text-muted-foreground">{u.email}</td>
@@ -2012,8 +2036,24 @@ function UsersView() {
                       {u.loyalty.toLocaleString()} pts
                     </span>
                   </td>
-                  <td className="px-4 py-3 text-muted-foreground tabular-nums">
-                    {u.referrals}
+                  <td className="px-4 py-3">
+                    <div className="flex items-center gap-3">
+                      <button
+                        onClick={() => setSelectedUser(u)}
+                        className="text-xs font-semibold text-primary hover:underline"
+                      >
+                        Details
+                      </button>
+                      <button
+                        onClick={() => toggleBan(u.email)}
+                        className={cn(
+                          "text-xs font-semibold hover:underline",
+                          bannedEmails.includes(u.email) ? "text-emerald-600" : "text-destructive"
+                        )}
+                      >
+                        {bannedEmails.includes(u.email) ? "Unban" : "Ban"}
+                      </button>
+                    </div>
                   </td>
                 </tr>
               ))}
@@ -2021,6 +2061,59 @@ function UsersView() {
           </table>
         </div>
       </div>
+
+      {/* User Details Modal */}
+      {selectedUser && (
+        <Modal title="User Details" onClose={() => setSelectedUser(null)}>
+          <div className="space-y-6">
+            <div className="flex items-center gap-4 p-4 rounded-2xl bg-muted/30 border border-border">
+              <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center text-primary text-2xl font-bold">
+                {selectedUser.name.charAt(0)}
+              </div>
+              <div>
+                <h3 className="text-xl font-bold text-foreground">{selectedUser.name}</h3>
+                <p className="text-sm text-muted-foreground">{selectedUser.email}</p>
+                <div className="flex gap-2 mt-2">
+                  <span className="text-[10px] px-2 py-0.5 rounded-full bg-primary/10 text-primary font-bold uppercase">Customer</span>
+                  {bannedEmails.includes(selectedUser.email) && (
+                    <span className="text-[10px] px-2 py-0.5 rounded-full bg-destructive/10 text-destructive font-bold uppercase">Banned</span>
+                  )}
+                </div>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-2 gap-4">
+              <div className="p-4 rounded-xl border border-border bg-card">
+                <p className="text-xs text-muted-foreground mb-1 uppercase font-bold tracking-widest">Loyalty Points</p>
+                <p className="text-2xl font-bold text-primary">{selectedUser.loyalty} pts</p>
+              </div>
+              <div className="p-4 rounded-xl border border-border bg-card">
+                <p className="text-xs text-muted-foreground mb-1 uppercase font-bold tracking-widest">Wallet Balance</p>
+                <p className="text-2xl font-bold text-emerald-600">${Number(localStorage.getItem(`wallet_balance_${selectedUser.email.toLowerCase()}`) || 0).toFixed(2)}</p>
+              </div>
+            </div>
+
+            <div>
+              <h4 className="text-sm font-bold text-foreground mb-3 flex items-center gap-2">
+                <ShoppingCart className="w-4 h-4 text-primary" /> Purchase History
+              </h4>
+              <div className="space-y-2 max-h-60 overflow-y-auto pr-1">
+                {/* Mock purchase history or fetch from localStorage orders */}
+                <div className="text-xs text-center py-8 text-muted-foreground bg-muted/10 rounded-xl border border-dashed border-border">
+                  No recent purchases found for this user.
+                </div>
+              </div>
+            </div>
+
+            <button
+              onClick={() => setSelectedUser(null)}
+              className="w-full py-3 bg-muted text-foreground rounded-xl text-sm font-bold hover:bg-muted/80 transition-all"
+            >
+              Close
+            </button>
+          </div>
+        </Modal>
+      )}
     </div>
   );
 }
@@ -4137,14 +4230,15 @@ export default function AdminDashboard() {
 
         {/* Footer links */}
         <div className="py-3 px-2 border-t border-border space-y-0.5">
-          <Link
-            to="/home"
-            className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm text-foreground/70 hover:text-foreground hover:bg-muted/60 transition-colors"
+          <button
+            type="button"
+            onClick={() => navigate({ to: "/home" })}
+            className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm text-foreground/70 hover:text-foreground hover:bg-muted/60 transition-colors"
             data-ocid="admin.back_to_store_link"
           >
             <Store className="w-4 h-4" />
             Back to Store
-          </Link>
+          </button>
           <button
             type="button"
             onClick={() => {

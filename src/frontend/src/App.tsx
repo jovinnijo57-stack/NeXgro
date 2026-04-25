@@ -76,6 +76,16 @@ const AdminSubscriptionsPage = lazy(
 function AuthGuard({ children }: { children: React.ReactNode }) {
   const { identity } = useInternetIdentity();
   const isAuthenticated = localStorage.getItem("isLoggedIn") === "true" || !!identity;
+  const currentUserEmail = localStorage.getItem("currentUserEmail");
+  const bannedEmails = JSON.parse(localStorage.getItem("nexgro_banned_users") || "[]");
+
+  if (currentUserEmail && bannedEmails.includes(currentUserEmail)) {
+    localStorage.removeItem("isLoggedIn");
+    localStorage.removeItem("currentUserEmail");
+    alert("Your account has been suspended. Please contact support.");
+    window.location.href = "/login";
+    return null;
+  }
   
   if (!isAuthenticated) {
     window.location.href = "/register";
