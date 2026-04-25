@@ -1933,28 +1933,72 @@ export function useAdminChatThreads() {
   return useQuery<ChatThread[]>({
     queryKey: ["admin-chat-threads"],
     queryFn: async () => {
-      if (!actor) return [];
-      try {
-        const fn = (actor as unknown as Record<string, unknown>)
-          .getAllChatThreads as (() => Promise<unknown>) | undefined;
-        const result = await fn?.();
-        if (!Array.isArray(result)) return [];
-        return (result as Array<Record<string, unknown>>).map((t) => ({
-          id: String(t.id ?? ""),
-          userId: String(t.userId ?? ""),
-          userName: String(t.userName ?? ""),
-          subject: String(t.subject ?? ""),
-          lastMessage: String(t.lastMessage ?? ""),
-          isResolved: Boolean(t.isResolved ?? false),
-          createdAt: BigInt((t.createdAt as bigint) ?? 0),
-          updatedAt: BigInt((t.updatedAt as bigint) ?? 0),
-        }));
-      } catch {
-        return [];
+      if (actor) {
+        try {
+          const fn = (actor as unknown as Record<string, unknown>)
+            .getAllChatThreads as (() => Promise<unknown>) | undefined;
+          const result = await fn?.();
+          if (Array.isArray(result)) {
+            return (result as Array<Record<string, unknown>>).map((t) => ({
+              id: String(t.id ?? ""),
+              userId: String(t.userId ?? ""),
+              userName: String(t.userName ?? ""),
+              subject: String(t.subject ?? ""),
+              lastMessage: String(t.lastMessage ?? ""),
+              isResolved: Boolean(t.isResolved ?? false),
+              createdAt: BigInt((t.createdAt as bigint) ?? 0),
+              updatedAt: BigInt((t.updatedAt as bigint) ?? 0),
+            }));
+          }
+        } catch {
+          /* fallback */
+        }
       }
+
+      // Local storage fallback
+      const activeEmails = JSON.parse(localStorage.getItem("nexgro_active_chats") || "[]");
+      const threads: ChatThread[] = [];
+      
+      for (const email of activeEmails) {
+        // Check both regular and banned chats
+        const regularKey = `nexgro_regular_chat_${email.toLowerCase()}`;
+        const bannedKey = `nexgro_chat_${email.toLowerCase()}`;
+        
+        const regMsgs = JSON.parse(localStorage.getItem(regularKey) || "[]");
+        const banMsgs = JSON.parse(localStorage.getItem(bannedKey) || "[]");
+        
+        if (regMsgs.length > 0) {
+          threads.push({
+            id: regularKey,
+            userId: email,
+            userName: email.split('@')[0],
+            subject: "Support Request",
+            lastMessage: regMsgs[regMsgs.length - 1].text,
+            isResolved: false,
+            createdAt: BigInt(regMsgs[0].timestamp),
+            updatedAt: BigInt(regMsgs[regMsgs.length - 1].timestamp),
+          });
+        }
+        
+        if (banMsgs.length > 0) {
+          threads.push({
+            id: bannedKey,
+            userId: email,
+            userName: `${email.split('@')[0]} (Appeal)`,
+            subject: "Banned Account Appeal",
+            lastMessage: banMsgs[banMsgs.length - 1].text,
+            isResolved: false,
+            createdAt: BigInt(banMsgs[0].timestamp),
+            updatedAt: BigInt(banMsgs[banMsgs.length - 1].timestamp),
+          });
+        }
+      }
+      
+      return threads.sort((a, b) => Number(b.updatedAt - a.updatedAt));
     },
-    enabled: !!actor && !isFetching,
+    enabled: true,
     initialData: [],
+    refetchInterval: 3000, // Poll for new messages
   });
 }
 
@@ -1963,27 +2007,45 @@ export function useGetThreadMessages(threadId: string) {
   return useQuery<ChatMessage[]>({
     queryKey: ["chat-messages", threadId],
     queryFn: async () => {
-      if (!actor || !threadId) return [];
-      try {
-        const fn = (actor as unknown as Record<string, unknown>)
-          .getThreadMessages as ((id: string) => Promise<unknown>) | undefined;
-        const result = await fn?.(threadId);
-        if (!Array.isArray(result)) return [];
-        return (result as Array<Record<string, unknown>>).map((m) => ({
-          id: String(m.id ?? ""),
-          threadId: String(m.threadId ?? ""),
-          senderId: String(m.senderId ?? ""),
-          senderName: String(m.senderName ?? ""),
-          isAdmin: Boolean(m.isAdmin ?? false),
-          text: String(m.text ?? ""),
-          createdAt: BigInt((m.createdAt as bigint) ?? 0),
-        }));
-      } catch {
-        return [];
+      if (actor && !threadId.startsWith("nexgro_")) {
+        try {
+          const fn = (actor as unknown as Record<string, unknown>)
+            .getThreadMessages as ((id: string) => Promise<unknown>) | undefined;
+          const result = await fn?.(threadId);
+          if (Array.isArray(result)) {
+            return (result as Array<Record<string, unknown>>).map((m) => ({
+              id: String(m.id ?? ""),
+              threadId: String(m.threadId ?? ""),
+              senderId: String(m.senderId ?? ""),
+              senderName: String(m.senderName ?? ""),
+              isAdmin: Boolean(m.isAdmin ?? false),
+              text: String(m.text ?? ""),
+              createdAt: BigInt((m.createdAt as bigint) ?? 0),
+            }));
+          }
+        } catch {
+          /* fallback */
+        }
       }
+
+      if (threadId.startsWith("nexgro_")) {
+        const msgs = JSON.parse(localStorage.getItem(threadId) || "[]");
+        return msgs.map((m: any) => ({
+          id: m.id,
+          threadId: threadId,
+          senderId: m.sender,
+          senderName: m.sender === "user" ? "User" : "Admin",
+          isAdmin: m.sender === "admin",
+          text: m.text,
+          createdAt: BigInt(m.timestamp),
+        }));
+      }
+
+      return [];
     },
-    enabled: !!actor && !isFetching && !!threadId,
+    enabled: !!threadId,
     initialData: [],
+    refetchInterval: 2000,
   });
 }
 
@@ -1992,15 +2054,28 @@ export function useAdminReplyToThread() {
   const { actor } = useBackendActor();
   return useMutation({
     mutationFn: async (data: { threadId: string; text: string }) => {
-      if (!actor) throw new Error("Not connected");
-      try {
-        const fn = (actor as unknown as Record<string, unknown>)
-          .adminReplyToThread as
-          | ((...a: unknown[]) => Promise<unknown>)
-          | undefined;
-        await fn?.(data.threadId, data.text);
-      } catch {
-        /* graceful fallback */
+      if (actor && !data.threadId.startsWith("nexgro_")) {
+        try {
+          const fn = (actor as unknown as Record<string, unknown>)
+            .adminReplyToThread as
+            | ((...a: unknown[]) => Promise<unknown>)
+            | undefined;
+          await fn?.(data.threadId, data.text);
+          return;
+        } catch {
+          /* fallback */
+        }
+      }
+
+      if (data.threadId.startsWith("nexgro_")) {
+        const msgs = JSON.parse(localStorage.getItem(data.threadId) || "[]");
+        const reply = {
+          id: Date.now().toString(),
+          sender: "admin",
+          text: data.text,
+          timestamp: Date.now(),
+        };
+        localStorage.setItem(data.threadId, JSON.stringify([...msgs, reply]));
       }
     },
     onSuccess: (_d, vars) => {
@@ -2241,9 +2316,10 @@ export interface SupportChatMessage {
 
 const LOCAL_SUPPORT_CHAT_KEY = "nexgro_support_chat_v2";
 
-function getSupportChat(): SupportChatMessage[] {
+function getSupportChat(email: string): SupportChatMessage[] {
   try {
-    const raw = localStorage.getItem(LOCAL_SUPPORT_CHAT_KEY);
+    const key = `nexgro_regular_chat_${email.toLowerCase()}`;
+    const raw = localStorage.getItem(key);
     return raw
       ? (JSON.parse(raw) as SupportChatMessage[])
       : [
@@ -2259,9 +2335,16 @@ function getSupportChat(): SupportChatMessage[] {
   }
 }
 
-function saveSupportChat(msgs: SupportChatMessage[]) {
+function saveSupportChat(email: string, msgs: SupportChatMessage[]) {
   try {
-    localStorage.setItem(LOCAL_SUPPORT_CHAT_KEY, JSON.stringify(msgs));
+    const key = `nexgro_regular_chat_${email.toLowerCase()}`;
+    localStorage.setItem(key, JSON.stringify(msgs));
+    
+    // Register in active chats
+    const active = JSON.parse(localStorage.getItem("nexgro_active_chats") || "[]");
+    if (!active.includes(email)) {
+      localStorage.setItem("nexgro_active_chats", JSON.stringify([...active, email]));
+    }
   } catch {
     /* noop */
   }
@@ -2269,22 +2352,27 @@ function saveSupportChat(msgs: SupportChatMessage[]) {
 
 export function useGetChatMessages() {
   const { actor } = useBackendActor();
+  const userEmail = localStorage.getItem("currentUserEmail") || "Guest";
+  
   return useQuery<SupportChatMessage[]>({
-    queryKey: ["support-chat-messages"],
+    queryKey: ["support-chat-messages", userEmail],
     queryFn: async () => {
-      if (!actor) return getSupportChat();
-      try {
-        const result = await actor.getChatMessages();
-        if (!result || result.length === 0) return getSupportChat();
-        return result.map((m: any) => ({
-          id: String(m.id),
-          text: m.text,
-          sender: "user" in m.sender ? "user" : "admin",
-          timestamp: Number(m.createdAt) / 1000000,
-        }));
-      } catch (err) {
-        return getSupportChat();
+      if (actor) {
+        try {
+          const result = await actor.getChatMessages();
+          if (result && result.length > 0) {
+            return result.map((m: any) => ({
+              id: String(m.id),
+              text: m.text,
+              sender: "user" in m.sender ? "user" : "admin",
+              timestamp: Number(m.createdAt) / 1000000,
+            }));
+          }
+        } catch (err) {
+           /* fallback */
+        }
       }
+      return getSupportChat(userEmail);
     },
     staleTime: 0,
     initialData: [],
@@ -2293,31 +2381,34 @@ export function useGetChatMessages() {
 
 export function useSendChatMessage() {
   const qc = useQueryClient();
+  const { actor } = useBackendActor();
+  const userEmail = localStorage.getItem("currentUserEmail") || "Guest";
+
   return useMutation({
     mutationFn: async (text: string) => {
       if (actor) {
         try {
           await actor.sendChatMessage(text);
-          // Don't auto-reply if connected to backend, let admins reply
           return text;
         } catch(e) {
-          console.error("Backend send chat failed", e);
+          /* fallback */
         }
       }
       
-      const msgs = getSupportChat();
+      const msgs = getSupportChat(userEmail);
       const userMsg: SupportChatMessage = {
         id: `msg-${Date.now()}`,
         text,
         sender: "user",
         timestamp: Date.now(),
       };
-      saveSupportChat([...msgs, userMsg]);
+      saveSupportChat(userEmail, [...msgs, userMsg]);
+      
+      // Fake Admin Reply for Demo
       const REPLIES = [
         "Thanks for reaching out! Our team will get back to you shortly. 😊",
         "We've received your message and will respond within 24 hours.",
         "Got it! If this is urgent, please email us at nexgrostore@gmail.com.",
-        "Thanks! Is there anything else I can help you with?",
       ];
       setTimeout(() => {
         const reply: SupportChatMessage = {
@@ -2326,13 +2417,18 @@ export function useSendChatMessage() {
           sender: "admin",
           timestamp: Date.now() + 1200,
         };
-        saveSupportChat([...getSupportChat(), reply]);
-        qc.invalidateQueries({ queryKey: ["support-chat-messages"] });
-      }, 1200);
+        const currentMsgs = getSupportChat(userEmail);
+        saveSupportChat(userEmail, [...currentMsgs, reply]);
+        qc.invalidateQueries({ queryKey: ["support-chat-messages", userEmail] });
+        qc.invalidateQueries({ queryKey: ["admin-chat-threads"] });
+      }, 2000);
+      
       return text;
     },
-    onSuccess: () =>
-      qc.invalidateQueries({ queryKey: ["support-chat-messages"] }),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["support-chat-messages", userEmail] });
+      qc.invalidateQueries({ queryKey: ["admin-chat-threads"] });
+    },
   });
 }
 
