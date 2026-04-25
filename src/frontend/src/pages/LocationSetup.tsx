@@ -83,7 +83,7 @@ export default function LocationSetup() {
       if (result.tag === "InRange" || result.tag === "withinRadius") {
         localStorage.setItem("nexgro_user_location", JSON.stringify({ lat, lng, address: state.displayAddress }));
         setState({ status: "in_range", distanceKm: (result as any).distanceKm || 0 });
-        setTimeout(() => { window.location.href = "/home"; }, 1500);
+        setTimeout(() => { navigate({ to: "/home" } as any); }, 1500);
       } else {
         setState({
           status: "out_of_range",
@@ -94,7 +94,7 @@ export default function LocationSetup() {
       // Final fallback — just go to home
       localStorage.setItem("nexgro_user_location", JSON.stringify({ lat, lng, address: state.displayAddress }));
       setState({ status: "in_range", distanceKm: 0 });
-      setTimeout(() => { window.location.href = "/home"; }, 1500);
+      setTimeout(() => { navigate({ to: "/home" } as any); }, 1500);
     }
   }
 
@@ -170,10 +170,15 @@ export default function LocationSetup() {
                 <p className="font-semibold text-foreground">
                   Great news — we deliver here! 🎉
                 </p>
-                <p className="text-sm text-muted-foreground mt-0.5">
-                  You are {state.distanceKm.toFixed(1)} km from our nearest
-                  store. Redirecting to the store…
+                <p className="text-xs text-muted-foreground mt-0.5 mb-3">
+                  Taking you to the dashboard...
                 </p>
+                <button
+                  onClick={() => navigate({ to: "/home" } as any)}
+                  className="px-4 py-1.5 bg-primary text-primary-foreground text-[10px] font-black uppercase tracking-widest rounded-lg shadow-sm hover:opacity-90 transition-all active:scale-95"
+                >
+                  Go to Dashboard Now
+                </button>
               </div>
             </div>
           )}

@@ -3,7 +3,7 @@ import { useNavigate } from "@tanstack/react-router";
 import { Gift, ShieldCheck, Star, Truck, Zap, Eye, EyeOff } from "lucide-react";
 import { useState } from "react";
 import { sendOTP } from "@/services/emailService";
-import { hashPassword } from "@/lib/auth";
+import { getRegisteredUsers, findEmailByPhone, hashPassword } from "@/lib/auth";
 import { cn } from "@/lib/utils";
 
 const features = [
@@ -82,6 +82,18 @@ export default function Register() {
     
     if (bannedEmails.includes(form.email.toLowerCase().trim()) || isDeviceRestricted) {
       window.location.href = "/banned";
+      return;
+    }
+
+    const registeredUsers = getRegisteredUsers();
+    if (registeredUsers[form.email.toLowerCase().trim()]) {
+      setErrors({ email: "This email is already registered. Please login instead." });
+      return;
+    }
+    
+    const existingEmailForPhone = findEmailByPhone(form.phone);
+    if (existingEmailForPhone) {
+      setErrors({ phone: "This phone number is already registered." });
       return;
     }
 
