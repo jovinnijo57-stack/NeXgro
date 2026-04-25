@@ -33,13 +33,15 @@ const LocationSetup = lazy(() => import("@/pages/LocationSetup"));
 const BundlesPage = lazy(() => import("@/pages/BundlesPage"));
 const BundleDetail = lazy(() => import("@/pages/BundleDetail"));
 const WalletPage = lazy(() => import("@/pages/WalletPage"));
-const RecipesPage = lazy(() => import("@/pages/RecipesPage"));
+const RecipesPage = lazy(() => import("@/pages/Recipes"));
 const SubscriptionsPage = lazy(() => import("@/pages/SubscriptionsPage"));
 const ComparisonPage = lazy(() => import("@/pages/ComparisonPage"));
+const SmartPantryPage = lazy(() => import("@/pages/SmartPantry"));
 const SharedWishlistPage = lazy(() => import("@/pages/SharedWishlistPage"));
 const ReferralsPage = lazy(() => import("@/pages/ReferralsPage"));
 const OrderTrackingPage = lazy(() => import("@/pages/OrderTrackingPage"));
 const MealPlannerPage = lazy(() => import("@/pages/MealPlannerPage"));
+const AIShopperPage = lazy(() => import("@/pages/AIShopper"));
 
 // Admin pages
 const AdminDashboard = lazy(() => import("@/pages/admin/AdminDashboard"));
@@ -149,11 +151,7 @@ const bannedSupportRoute = createRoute({
   ),
 });
 
-const AIShopperPage = lazy(() => import("@/pages/AIShopper"));
-const SubscriptionsPage = lazy(() => import("@/pages/SubscriptionsPage"));
-const RecipesPage = lazy(() => import("@/pages/Recipes"));
-const SmartPantryPage = lazy(() => import("@/pages/SmartPantry"));
-const ComparisonPage = lazy(() => import("@/pages/ComparisonPage"));
+// ─── Verify Email Route ───────────────────────────────────────────────────────
 
 const verifyEmailRoute = createRoute({
   getParentRoute: () => rootRoute,

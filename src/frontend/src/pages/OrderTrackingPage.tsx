@@ -53,28 +53,46 @@ export default function OrderTrackingPage() {
           <ArrowLeft className="w-5 h-5" />
         </Link>
 
-        {/* Driver Marker Mock */}
+        {/* Driver Marker Mock with 3D Effect */}
         <div 
-          className="absolute w-12 h-12 bg-primary rounded-full border-4 border-white shadow-xl flex items-center justify-center transition-all duration-1000 ease-in-out z-20"
+          className="absolute w-16 h-16 transition-all duration-1000 ease-in-out z-20 group"
           style={{ 
-            left: '45%', 
-            top: '40%',
+            left: `${40 + (driverPos.lat % 0.01) * 1000}%`, 
+            top: `${35 + (driverPos.lng % 0.01) * 1000}%`,
             transform: 'translate(-50%, -50%)'
           }}
         >
-          <Truck className="w-6 h-6 text-white" />
-          <div className="absolute -bottom-8 bg-white px-2 py-0.5 rounded shadow text-[10px] font-bold whitespace-nowrap">
-            Driver (Rahul)
+          {/* Pulsing Aura */}
+          <div className="absolute inset-0 bg-primary/20 rounded-full animate-ping opacity-75" />
+          
+          <div className="relative w-full h-full bg-primary rounded-2xl border-4 border-white shadow-[0_10px_20px_-5px_rgba(22,163,74,0.4)] flex items-center justify-center rotate-[-15deg] group-hover:rotate-0 transition-transform">
+            <Truck className="w-8 h-8 text-white" />
+            
+            {/* 3D Depth Shadow */}
+            <div className="absolute -bottom-2 -right-2 w-full h-full bg-black/10 rounded-2xl -z-10" />
+          </div>
+          
+          <div className="absolute -bottom-10 left-1/2 -translate-x-1/2 bg-white/90 backdrop-blur-md px-3 py-1 rounded-full shadow-lg border border-border flex items-center gap-2 whitespace-nowrap">
+            <div className="w-2 h-2 bg-primary rounded-full animate-pulse" />
+            <span className="text-[10px] font-black uppercase tracking-widest text-foreground">Rahul · Active</span>
           </div>
         </div>
 
         {/* User Marker Mock */}
         <div 
-          className="absolute w-10 h-10 bg-accent rounded-full border-4 border-white shadow-lg flex items-center justify-center z-10"
-          style={{ left: '60%', top: '60%' }}
+          className="absolute w-12 h-12 bg-accent rounded-full border-4 border-white shadow-[0_0_20px_rgba(249,115,22,0.3)] flex items-center justify-center z-10 animate-bounce"
+          style={{ left: '70%', top: '65%' }}
         >
-          <MapPin className="w-5 h-5 text-white" />
+          <MapPin className="w-6 h-6 text-white" />
         </div>
+
+        {/* Decorative Grid / Map Lines */}
+        <div className="absolute inset-0 pointer-events-none opacity-20" 
+          style={{ 
+            backgroundImage: 'radial-gradient(circle, #000 1px, transparent 1px)', 
+            backgroundSize: '30px 30px' 
+          }} 
+        />
       </div>
 
       {/* Delivery Status Card */}

@@ -131,6 +131,11 @@ function generateDeliverySlots(): { label: string; value: string }[] {
 
 const DELIVERY_SLOTS = generateDeliverySlots();
 
+const ECO_SLOTS = [
+  { id: "eco1", label: "Neighborly Drop (Today 4-5 PM)", discount: 1.0, icon: "🌿" },
+  { id: "eco2", label: "Batch Delivery (Today 7-8 PM)", discount: 0.5, icon: "📦" }
+];
+
 type PaymentMethod = "online" | "cod";
 
 export default function Checkout() {
@@ -771,6 +776,43 @@ export default function Checkout() {
                   </div>
                 </div>
               )}
+
+              {/* Eco-Friendly Slots */}
+              <div className="mt-6 p-4 bg-emerald-500/10 rounded-2xl border border-emerald-500/20 space-y-3">
+                <div className="flex items-center gap-2">
+                  <div className="w-8 h-8 bg-emerald-500 text-white rounded-lg flex items-center justify-center">
+                    <Star className="w-4 h-4 fill-white" />
+                  </div>
+                  <div>
+                    <h3 className="text-sm font-bold text-emerald-700">Eco-Friendly Slots</h3>
+                    <p className="text-[10px] text-emerald-600/80">Save money & CO2 by sharing a delivery route</p>
+                  </div>
+                </div>
+                
+                <div className="space-y-2">
+                  {ECO_SLOTS.map(slot => (
+                    <button
+                      key={slot.id}
+                      type="button"
+                      onClick={() => {
+                        setIsExpressDelivery(false);
+                        setSelectedSlot(slot.label);
+                        toast.success(`Eco-slot selected! ₹${slot.discount.toFixed(2)} saved.`);
+                      }}
+                      className={cn(
+                        "w-full flex items-center justify-between p-3 rounded-xl border-2 transition-all",
+                        selectedSlot === slot.label ? "border-emerald-500 bg-white shadow-sm" : "border-emerald-500/20 bg-emerald-500/5 hover:border-emerald-500/40"
+                      )}
+                    >
+                      <div className="flex items-center gap-3">
+                        <span className="text-lg">{slot.icon}</span>
+                        <span className="text-xs font-bold text-emerald-800">{slot.label}</span>
+                      </div>
+                      <Badge className="bg-emerald-500 text-white border-0 text-[10px]">−₹{slot.discount.toFixed(2)}</Badge>
+                    </button>
+                  ))}
+                </div>
+              </div>
 
               {/* Coupon */}
               <div className="mt-5 pt-5 border-t border-border">

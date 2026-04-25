@@ -35,6 +35,14 @@ import {
 } from "lucide-react";
 import { useCallback, useMemo, useRef, useState } from "react";
 import { toast } from "sonner";
+import { cn } from "@/lib/utils";
+import { 
+  PieChart as PieChartIcon, 
+  Users, 
+  Heart, 
+  Activity, 
+  Zap as EnergyIcon 
+} from "lucide-react";
 
 const DELIVERY_FEE = 2.0;
 const TAX_RATE = 0.08;
@@ -614,6 +622,55 @@ export default function Cart() {
               </div>
             </div>
           )}
+
+          {/* Nutritional Analytics */}
+          <div className="bg-card rounded-2xl border border-border shadow-card p-5 space-y-4">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <Activity className="w-4 h-4 text-emerald-500" />
+                <h3 className="font-semibold text-sm text-foreground">Nutritional Analytics</h3>
+              </div>
+              <Badge className="bg-emerald-500/10 text-emerald-600 border-0 text-[10px]">Healthy Cart</Badge>
+            </div>
+            
+            <div className="grid grid-cols-3 gap-2">
+              {[
+                { label: "Proteins", value: "24g", color: "bg-blue-500", icon: Heart },
+                { label: "Carbs", value: "85g", color: "bg-amber-500", icon: EnergyIcon },
+                { label: "Fats", value: "12g", color: "bg-rose-500", icon: Activity }
+              ].map(stat => (
+                <div key={stat.label} className="p-3 bg-muted/30 rounded-xl flex flex-col items-center gap-1">
+                  <stat.icon className="w-3 h-3 text-muted-foreground" />
+                  <span className="text-[10px] font-bold text-muted-foreground uppercase">{stat.label}</span>
+                  <span className="text-xs font-black">{stat.value}</span>
+                  <div className="w-full h-1 bg-muted rounded-full mt-1">
+                    <div className={cn("h-full rounded-full w-2/3", stat.color)} />
+                  </div>
+                </div>
+              ))}
+            </div>
+            <p className="text-[10px] text-muted-foreground text-center italic">"Your cart is rich in antioxidants! Good for your heart."</p>
+          </div>
+
+          {/* Shared Family Cart */}
+          <div className="bg-gradient-to-br from-primary/10 to-accent/10 rounded-2xl border border-primary/20 p-5 flex items-center justify-between group">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-xl bg-white flex items-center justify-center shadow-sm group-hover:scale-110 transition-transform">
+                <Users className="w-5 h-5 text-primary" />
+              </div>
+              <div>
+                <h3 className="font-bold text-sm text-foreground">Shared Family Cart</h3>
+                <p className="text-[10px] text-muted-foreground">Invite members to shop together</p>
+              </div>
+            </div>
+            <Button 
+              size="sm" 
+              className="bg-primary text-white rounded-xl text-[10px] font-black uppercase tracking-widest shadow-lg"
+              onClick={() => toast.success("Family Invitation Link copied to clipboard!")}
+            >
+              Invite
+            </Button>
+          </div>
         </div>
 
         {/* Right: order summary */}

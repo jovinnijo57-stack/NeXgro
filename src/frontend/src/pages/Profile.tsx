@@ -389,6 +389,24 @@ export default function Profile() {
         </div>
       </div>
 
+      {/* Achievements / Gamification */}
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3" data-ocid="profile.achievements">
+        {[
+          { label: "Pantry Master", icon: Award, color: "text-amber-500", bg: "bg-amber-500/10", desc: "Used Smart Pantry 5x" },
+          { label: "Eco-Warrior", icon: ShieldCheck, color: "text-emerald-500", bg: "bg-emerald-500/10", desc: "100% Local Produce" },
+          { label: "Flash King", icon: Zap, color: "text-blue-500", bg: "bg-blue-500/10", desc: "Bought 3 Flash Deals" },
+          { label: "Saver", icon: PiggyBank, color: "text-purple-500", bg: "bg-purple-500/10", desc: "Saved over ₹500" }
+        ].map(badge => (
+          <div key={badge.label} className="bg-card border border-border rounded-2xl p-4 flex flex-col items-center text-center group hover:-translate-y-1 transition-all">
+            <div className={cn("w-12 h-12 rounded-xl flex items-center justify-center mb-2 shadow-sm group-hover:scale-110 transition-transform", badge.bg)}>
+              <badge.icon className={cn("w-6 h-6", badge.color)} />
+            </div>
+            <span className="text-[10px] font-black uppercase tracking-wider text-foreground leading-tight">{badge.label}</span>
+            <p className="text-[8px] text-muted-foreground mt-1 leading-tight">{badge.desc}</p>
+          </div>
+        ))}
+      </div>
+
       {/* Loyalty Points Banner */}
       <div
         className="rounded-2xl p-5 shadow-elevated"
