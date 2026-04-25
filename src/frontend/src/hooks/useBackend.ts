@@ -713,7 +713,6 @@ export function usePlaceOrder() {
         params.deliverySlot ?? null,
         params.isExpressDelivery ?? false,
         BigInt(params.walletAmountToUse ?? 0),
-        BigInt(Math.round((params.tipAmount ?? 0) * 100)), // Pass tip in cents
       );
       if (result.__kind__ === "ok") {
         return { success: true, orderId: result.ok.toString() };
@@ -1045,6 +1044,7 @@ export function useAdminUsers() {
             loyaltyBalance: 0,
             walletBalance: Number(localStorage.getItem(`wallet_balance_${email.toLowerCase()}`) || 0),
             referralCode: profile.referral || "",
+            totalReferralEarnings: 0,
             createdAt: BigInt(Date.now()),
           }));
         } catch {
@@ -1927,6 +1927,33 @@ export interface ChatMessage {
   text: string;
   createdAt: bigint;
 }
+
+export function useAdminChatThreads() {
+  const { actor, isFetching } = useBackendActor();
+  return useQuery<ChatThread[]>({
+    queryKey: ["admin-chat-threads"],
+    queryFn: async () => {
+      if (actor) {
+        try {
+          const fn = (actor as unknown as Record<string, unknown>)
+            .getChatThreads as (() => Promise<unknown>) | undefined;
+          const result = await fn?.();
+          if (Array.isArray(result)) {
+            return (result as Array<Record<string, unknown>>).map((t) => ({
+              id: String(t.id ?? ""),
+              userId: String(t.userId ?? ""),
+              userName: String(t.userName ?? "User"),
+              subject: String(t.subject ?? "Support"),
+              lastMessage: String(t.lastMessage ?? ""),
+              isResolved: Boolean(t.isResolved ?? false),
+              createdAt: BigInt((t.createdAt as bigint) ?? 0),
+              updatedAt: BigInt((t.updatedAt as bigint) ?? 0),
+            }));
+          }
+        } catch {
+          /* fallback */
+        }
+      }
 
       // Local storage fallback - Scan all keys for chat patterns
       const threads: ChatThread[] = [];

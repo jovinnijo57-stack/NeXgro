@@ -9,6 +9,7 @@ import {
   useFlashDeals,
   useNewArrivals,
   useSeasonalCollections,
+  useAddToCart,
 } from "@/hooks/useBackend";
 import { type Product, SAMPLE_CATEGORIES, SAMPLE_PRODUCTS } from "@/types";
 import type { SeasonalCollection } from "@/types";
@@ -108,6 +109,7 @@ const HERO_BANNERS: HeroBanner[] = [
     subtitle: "On all bakery products this weekend. Stock up and save big.",
     cta: "Shop Bakery",
     emoji: "🍞",
+    badge: "WEEKEND OFFER",
     gradient: "linear-gradient(135deg, oklch(0.60 0.16 142) 0%, oklch(0.50 0.14 145) 100%)",
     hasTimer: false
   },

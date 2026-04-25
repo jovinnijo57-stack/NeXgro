@@ -635,7 +635,9 @@ export default function Login() {
                     {digits.map((digit, i) => (
                       <input
                         key={i}
-                        ref={(el) => (inputRefs.current[i] = el)}
+                        ref={(el) => {
+                          inputRefs.current[i] = el;
+                        }}
                         type="text"
                         inputMode="numeric"
                         maxLength={1}

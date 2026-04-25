@@ -43,6 +43,7 @@ import {
   TrendingUp,
   User,
   X,
+  Zap,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useEffect, useState } from "react";

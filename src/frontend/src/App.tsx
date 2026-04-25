@@ -98,7 +98,9 @@ function AuthGuard({ children }: { children: React.ReactNode }) {
   const isLocationPage = window.location.pathname === "/location-setup";
   const isAdminPage = window.location.pathname.startsWith("/admin");
 
-  if (!hasLocation && !isLocationPage && !isAdminPage) {
+  const isAdmin = currentUserEmail?.toLowerCase() === "admin@nexgro.com";
+  
+  if (!hasLocation && !isLocationPage && !isAdminPage && !isAdmin) {
     window.location.href = "/location-setup";
     return null;
   }

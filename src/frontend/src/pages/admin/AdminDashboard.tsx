@@ -58,6 +58,7 @@ import type {
   FlashDeal,
   OrderStatus,
   Product,
+  User,
 } from "@/types";
 import type { BuyXGetYRule, SeasonalCollection } from "@/types";
 import { SAMPLE_CATEGORIES, SAMPLE_PRODUCTS } from "@/types";
@@ -100,7 +101,7 @@ import {
   ShieldAlert,
   Map as MapIcon,
 } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 
 
 // ─── Types ────────────────────────────────────────────────────────────────────
@@ -1956,7 +1957,7 @@ function ReviewsView() {
 
 function UsersView() {
   const { data: backendUsers } = useAdminUsers();
-  const users = (backendUsers || []).map(u => ({
+  const users = ((backendUsers as User[]) || []).map(u => ({
     id: u.id,
     name: u.name,
     email: u.email,
@@ -2512,7 +2513,7 @@ function HeatmapView() {
                 <div key={p.id} className="group flex items-center justify-between p-4 bg-muted/20 rounded-2xl border border-transparent hover:border-primary/20 transition-all">
                   <div className="flex items-center gap-3">
                     <div className="w-10 h-10 bg-white rounded-xl flex items-center justify-center text-lg shadow-sm">
-                      {p.iconEmoji}
+                      {"iconEmoji" in p ? (p as any).iconEmoji : "🛒"}
                     </div>
                     <div>
                       <p className="text-sm font-bold text-foreground">{p.name}</p>
@@ -2582,6 +2583,7 @@ function HeatmapView() {
 
 function IntelligenceView() {
   const [activeTab, setActiveTab] = useState<"heatmap" | "pricing" | "fraud">("heatmap");
+  const { data: productsData } = useProducts();
 
   return (
     <div className="space-y-6" data-ocid="admin.intelligence_section">
