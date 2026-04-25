@@ -12,6 +12,7 @@ import {
   Truck,
   Zap,
   Send,
+  ChevronRight,
 } from "lucide-react";
 import { useEffect, useState, useRef } from "react";
 import { cn } from "@/lib/utils";
@@ -96,6 +97,8 @@ export default function Login() {
     inputRefs.current[focusIdx]?.focus();
   }
 
+  const [showNewPassword, setShowNewPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [isShaking, setIsShaking] = useState(false);
 
   async function handleEmailSignIn(e: React.FormEvent) {
@@ -113,21 +116,17 @@ export default function Login() {
         return;
       }
       
-      if (!users[lowerEmail]) {
-        toast.error("Account not found. Please register first.");
-        setIsShaking(true);
-        setTimeout(() => setIsShaking(false), 500);
-        return;
-      }
-
+      const storedUser = users[lowerEmail];
+      const storedPassword = typeof storedUser === "string" ? storedUser : (storedUser as any).password;
       const hashedInput = await hashPassword(password);
-      if (users[lowerEmail].password === hashedInput) {
+      
+      if (storedPassword === hashedInput) {
         localStorage.setItem("isLoggedIn", "true");
         localStorage.setItem("currentUserEmail", lowerEmail);
         toast.success("Welcome back!");
         window.location.href = "/home"; 
       } else {
-        toast.error("Invalid credentials. Please check your password.");
+        toast.error("Invalid credentials. Please check your email and password.");
         setIsShaking(true);
         setTimeout(() => setIsShaking(false), 500);
       }
@@ -708,22 +707,40 @@ export default function Login() {
             {forgotStep === "newPassword" && (
               <form onSubmit={handleResetPassword} className="space-y-4 animate-in fade-in">
                 <p className="text-sm text-muted-foreground">Set a new secure password for your account.</p>
-                <input
-                  type="password"
-                  required
-                  value={newPassword}
-                  onChange={(e) => setNewPassword(e.target.value)}
-                  placeholder="New password"
-                  className="w-full px-4 py-3 rounded-xl border border-input bg-background text-sm focus:ring-2 focus:ring-primary/20 outline-none"
-                />
-                <input
-                  type="password"
-                  required
-                  value={confirmPassword}
-                  onChange={(e) => setConfirmPassword(e.target.value)}
-                  placeholder="Confirm new password"
-                  className="w-full px-4 py-3 rounded-xl border border-input bg-background text-sm focus:ring-2 focus:ring-primary/20 outline-none"
-                />
+                <div className="relative">
+                  <input
+                    type={showNewPassword ? "text" : "password"}
+                    required
+                    value={newPassword}
+                    onChange={(e) => setNewPassword(e.target.value)}
+                    placeholder="New password"
+                    className="w-full px-4 py-3 rounded-xl border border-input bg-background text-sm focus:ring-2 focus:ring-primary/20 outline-none pr-10"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowNewPassword(!showNewPassword)}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
+                  >
+                    {showNewPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                  </button>
+                </div>
+                <div className="relative">
+                  <input
+                    type={showConfirmPassword ? "text" : "password"}
+                    required
+                    value={confirmPassword}
+                    onChange={(e) => setConfirmPassword(e.target.value)}
+                    placeholder="Confirm new password"
+                    className="w-full px-4 py-3 rounded-xl border border-input bg-background text-sm focus:ring-2 focus:ring-primary/20 outline-none pr-10"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
+                  >
+                    {showConfirmPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                  </button>
+                </div>
                 <button type="submit" className="w-full py-3 bg-primary text-primary-foreground rounded-xl text-sm font-bold shadow-lg shadow-primary/20 hover:opacity-90 active:scale-[0.98] transition-all">
                   Update Password
                 </button>

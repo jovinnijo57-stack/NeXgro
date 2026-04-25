@@ -741,6 +741,42 @@ declare module "@tanstack/react-router" {
 }
 
 export default function App() {
+  useEffect(() => {
+    // Smart Subscription Auto-Add Logic (Simulated for Monday)
+    const checkSubscription = () => {
+      const activePlan = localStorage.getItem("nexgro_active_subscription");
+      const lastAddDate = localStorage.getItem("nexgro_subscription_last_added");
+      const today = new Date();
+      const isMonday = today.getDay() === 1;
+      const todayDateStr = today.toISOString().split("T")[0];
+
+      if (activePlan === "Weekly Essentials" && isMonday && lastAddDate !== todayDateStr) {
+        const cart = JSON.parse(localStorage.getItem("nexgro_cart_v1") || "[]");
+        const essentials = [
+          { productId: "p4", qty: 1 }, // Milk
+          { productId: "p6", qty: 1 }, // Bread
+          { productId: "p10", qty: 1 } // Eggs
+        ];
+        
+        let updated = [...cart];
+        essentials.forEach(item => {
+          const existing = updated.find(i => i.productId === item.productId);
+          if (existing) {
+            existing.qty += item.qty;
+          } else {
+            updated.push(item);
+          }
+        });
+
+        localStorage.setItem("nexgro_cart_v1", JSON.stringify(updated));
+        localStorage.setItem("nexgro_subscription_last_added", todayDateStr);
+        window.dispatchEvent(new Event("storage"));
+      }
+    };
+
+    checkSubscription();
+  }, []);
+
   return (
     <ThemeProvider>
       <LanguageProvider>

@@ -32,9 +32,39 @@ import {
   Utensils,
   Zap,
   X,
+  AlertTriangle,
+  Map as MapIcon,
 } from "lucide-react";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState, useMemo } from "react";
 import { cn } from "@/lib/utils";
+import { toast } from "sonner";
+
+function CountdownTimer({ initialMinutes }: { initialMinutes: number }) {
+  const [timeLeft, setTimeLeft] = useState(initialMinutes * 60);
+
+  useEffect(() => {
+    if (timeLeft <= 0) return;
+    const timer = setInterval(() => {
+      setTimeLeft((prev) => prev - 1);
+    }, 1000);
+    return () => clearInterval(timer);
+  }, [timeLeft]);
+
+  const h = Math.floor(timeLeft / 3600);
+  const m = Math.floor((timeLeft % 3600) / 60);
+  const s = timeLeft % 60;
+
+  return (
+    <div className="flex gap-1.5 font-mono text-white">
+      {[h, m, s].map((val, i) => (
+        <div key={i} className="flex items-center">
+          <span className="bg-black/30 backdrop-blur-md px-1.5 py-0.5 rounded-md border border-white/10 w-6 text-center">{val.toString().padStart(2, "0")}</span>
+          {i < 2 && <span className="mx-0.5 opacity-50">:</span>}
+        </div>
+      ))}
+    </div>
+  );
+}
 
 interface HeroBanner {
   id: string;
@@ -451,7 +481,7 @@ function CategoryGrid() {
 
 function FlashDealsSection() {
   const { data: backendDeals, isLoading } = useFlashDeals();
-  const { h, m, s } = useCountdown(4 * 3600000 + 37 * 60000 + 14000);
+  const { h, m, s } = useCountdown(Date.now() + 4 * 3600000 + 37 * 60000 + 14000);
 
   const products: Product[] =
     backendDeals && backendDeals.length > 0

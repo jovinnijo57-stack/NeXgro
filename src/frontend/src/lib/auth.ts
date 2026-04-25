@@ -6,7 +6,7 @@ export async function hashPassword(password: string): Promise<string> {
   return hashHex;
 }
 
-export function getRegisteredUsers(): Record<string, string> {
+export function getRegisteredUsers(): Record<string, { password: string }> {
   const usersStr = localStorage.getItem("registered_users");
   if (!usersStr) return {};
   try {
@@ -19,7 +19,7 @@ export function getRegisteredUsers(): Record<string, string> {
 export function saveRegisteredUser(email: string, hashedPasswordHex: string, profile: any) {
   const users = getRegisteredUsers();
   const lowerEmail = email.toLowerCase();
-  users[lowerEmail] = hashedPasswordHex;
+  users[lowerEmail] = { password: hashedPasswordHex };
   localStorage.setItem("registered_users", JSON.stringify(users));
   
   // Save profile separately

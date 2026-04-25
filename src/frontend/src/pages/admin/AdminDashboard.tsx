@@ -92,9 +92,12 @@ import {
   ShieldCheck,
   X,
   Zap,
+  Globe,
+  ChevronRight,
+  Eye,
+  EyeOff,
 } from "lucide-react";
 import { useState } from "react";
-import { cn } from "@/lib/utils";
 
 
 // ─── Types ────────────────────────────────────────────────────────────────────
@@ -2034,6 +2037,11 @@ function UsersView() {
                         {bannedEmails.includes(u.email) && (
                           <span className="text-[10px] text-destructive font-bold uppercase tracking-tighter">Banned</span>
                         )}
+                        {(u.email.includes("test") || Number(localStorage.getItem(`cancel_count_${u.email.toLowerCase()}`) || 0) >= 2) && (
+                          <span className="text-[10px] text-orange-500 font-bold uppercase tracking-tighter flex items-center gap-1">
+                            <ShieldAlert className="w-2.5 h-2.5" /> Suspicious
+                          </span>
+                        )}
                       </div>
                     </div>
                   </td>
@@ -2121,7 +2129,6 @@ function UsersView() {
                 <ShoppingCart className="w-4 h-4 text-primary" /> Purchase History
               </h4>
               <div className="space-y-2 max-h-60 overflow-y-auto pr-1">
-                {/* Mock purchase history or fetch from localStorage orders */}
                 <div className="text-xs text-center py-8 text-muted-foreground bg-muted/10 rounded-xl border border-dashed border-border">
                   No recent purchases found for this user.
                 </div>
@@ -2144,17 +2151,33 @@ function UsersView() {
 // ─── Section: Support & Appeals ─────────────────────────────────────────────
 
 function SupportView() {
-  const activeChats = JSON.parse(localStorage.getItem("nexgro_active_chats") || "[]");
+  const [channel, setChannel] = useState<"appeals" | "regular">("appeals");
+  const activeAppeals = JSON.parse(localStorage.getItem("nexgro_active_chats") || "[]");
+  const activeRegular = JSON.parse(localStorage.getItem("nexgro_regular_active_chats") || "[]");
+  
+  const activeChats = channel === "appeals" ? activeAppeals : activeRegular;
   const [selectedChat, setSelectedChat] = useState<string | null>(null);
   const [messages, setMessages] = useState<any[]>([]);
   const [replyText, setReplyText] = useState("");
 
+  const chatKey = channel === "appeals" 
+    ? `nexgro_chat_${selectedChat?.toLowerCase()}`
+    : `nexgro_regular_chat_${selectedChat?.toLowerCase()}`;
+
   useEffect(() => {
-    if (selectedChat) {
-      const saved = JSON.parse(localStorage.getItem(`nexgro_chat_${selectedChat.toLowerCase()}`) || "[]");
-      setMessages(saved);
-    }
-  }, [selectedChat]);
+    const loadMessages = () => {
+      if (selectedChat) {
+        const saved = JSON.parse(localStorage.getItem(chatKey) || "[]");
+        if (JSON.stringify(saved) !== JSON.stringify(messages)) {
+          setMessages(saved);
+        }
+      }
+    };
+    
+    loadMessages();
+    const interval = setInterval(loadMessages, 3000);
+    return () => clearInterval(interval);
+  }, [selectedChat, messages, chatKey]);
 
   const handleSendReply = () => {
     if (!selectedChat || !replyText.trim()) return;
@@ -2164,9 +2187,10 @@ function SupportView() {
       text: replyText,
       timestamp: Date.now(),
     };
-    const updated = [...messages, newMessage];
+    const saved = JSON.parse(localStorage.getItem(chatKey) || "[]");
+    const updated = [...saved, newMessage];
     setMessages(updated);
-    localStorage.setItem(`nexgro_chat_${selectedChat.toLowerCase()}`, JSON.stringify(updated));
+    localStorage.setItem(chatKey, JSON.stringify(updated));
     setReplyText("");
     toast.success("Reply sent to user!");
   };
@@ -2176,13 +2200,25 @@ function SupportView() {
       {/* Chat List */}
       <div className="lg:col-span-3 bg-card border border-border rounded-3xl overflow-hidden flex flex-col shadow-sm">
         <div className="p-5 border-b border-border bg-muted/20">
+          <div className="flex bg-muted/50 p-1 rounded-xl mb-4">
+            <button 
+              onClick={() => { setChannel("appeals"); setSelectedChat(null); }}
+              className={cn("flex-1 py-1.5 text-[10px] font-black uppercase rounded-lg transition-all", channel === "appeals" ? "bg-card shadow-sm text-primary" : "text-muted-foreground")}
+            >Appeals</button>
+            <button 
+              onClick={() => { setChannel("regular"); setSelectedChat(null); }}
+              className={cn("flex-1 py-1.5 text-[10px] font-black uppercase rounded-lg transition-all", channel === "regular" ? "bg-card shadow-sm text-primary" : "text-muted-foreground")}
+            >Regular</button>
+          </div>
           <div className="flex items-center justify-between mb-1">
             <h3 className="font-bold text-foreground flex items-center gap-2">
-              <MessageSquare className="w-4 h-4 text-primary" /> Active Appeals
+              <MessageSquare className="w-4 h-4 text-primary" /> Active {channel === "appeals" ? "Appeals" : "Support"}
             </h3>
             <span className="text-[10px] bg-primary/10 text-primary px-2 py-0.5 rounded-full font-black uppercase">{activeChats.length}</span>
           </div>
-          <p className="text-[10px] text-muted-foreground uppercase tracking-widest font-medium">Banned User Support</p>
+          <p className="text-[10px] text-muted-foreground uppercase tracking-widest font-medium">
+            {channel === "appeals" ? "Banned User Support" : "Customer Inquiries"}
+          </p>
         </div>
         <div className="flex-1 overflow-y-auto custom-scrollbar">
           {activeChats.length === 0 ? (
@@ -2190,7 +2226,7 @@ function SupportView() {
               <div className="w-12 h-12 bg-muted rounded-2xl flex items-center justify-center mx-auto mb-4 opacity-20">
                 <MessageSquare className="w-6 h-6" />
               </div>
-              <p className="text-xs text-muted-foreground">No active appeals found.</p>
+              <p className="text-xs text-muted-foreground">No active {channel === "appeals" ? "appeals" : "chats"} found.</p>
             </div>
           ) : (
             activeChats.map((email: string) => (
@@ -2387,79 +2423,149 @@ function SupportView() {
 // ─── Section: Advanced Intelligence ──────────────────────────────────────────
 
 function HeatmapView() {
+  const { data: allOrders } = useAdminOrders();
+  const orders = allOrders || [];
+  
   return (
     <div className="space-y-6">
-      <div className="bg-card border border-border rounded-2xl p-6">
-        <h3 className="font-bold text-foreground flex items-center gap-2 mb-4">
-          <MapIcon className="w-5 h-5 text-primary" /> Live Demand Heatmap
-        </h3>
-        <div className="relative aspect-video bg-muted/30 rounded-xl overflow-hidden border border-border flex items-center justify-center">
-          <img src="https://images.unsplash.com/photo-1526778548025-fa2f459cd5c1?auto=format&fit=crop&q=80&w=1200" className="w-full h-full object-cover opacity-50 grayscale" alt="Map" />
-          <div className="absolute inset-0 flex items-center justify-center">
-             {/* Fake heatmap circles */}
-             <div className="w-32 h-32 bg-red-500/40 rounded-full blur-3xl animate-pulse absolute top-1/4 left-1/3" />
-             <div className="w-24 h-24 bg-orange-500/40 rounded-full blur-3xl animate-pulse absolute bottom-1/3 right-1/4" />
-             <div className="w-40 h-40 bg-emerald-500/40 rounded-full blur-3xl animate-pulse absolute top-1/2 left-1/2" />
+      <div className="bg-card border border-border rounded-2xl p-6 shadow-sm">
+        <div className="flex items-center justify-between mb-6">
+          <h3 className="font-bold text-foreground flex items-center gap-2">
+            <MapIcon className="w-5 h-5 text-primary" /> Live Demand Heatmap
+          </h3>
+          <div className="flex items-center gap-2 px-3 py-1 bg-emerald-500/10 text-emerald-600 rounded-full text-[10px] font-black uppercase tracking-widest border border-emerald-500/20">
+            <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-ping" /> Live Traffic
           </div>
-          <div className="absolute top-4 left-4 bg-background/80 backdrop-blur-md p-3 rounded-xl border border-border text-[10px] space-y-2">
-            <div className="flex items-center gap-2">
-              <div className="w-2 h-2 rounded-full bg-red-500" /> <span>High Demand (North Zone)</span>
+        </div>
+        
+        <div className="relative aspect-[21/9] bg-muted/30 rounded-2xl overflow-hidden border border-border flex items-center justify-center group">
+          <img 
+            src="https://images.unsplash.com/photo-1526778548025-fa2f459cd5c1?auto=format&fit=crop&q=80&w=1200" 
+            className="w-full h-full object-cover opacity-40 grayscale group-hover:grayscale-0 transition-all duration-700" 
+            alt="Map" 
+          />
+          <div className="absolute inset-0">
+             {/* Dynamic demand pulses based on simulated location clusters */}
+             <div className="w-32 h-32 bg-red-500/40 rounded-full blur-3xl animate-pulse absolute top-[20%] left-[15%]" />
+             <div className="w-24 h-24 bg-orange-500/40 rounded-full blur-3xl animate-pulse absolute bottom-[25%] right-[20%]" />
+             <div className="w-40 h-40 bg-emerald-500/40 rounded-full blur-3xl animate-pulse absolute top-[40%] left-[55%]" />
+             
+             {/* Order Pins */}
+             {orders.slice(0, 8).map((o, i) => (
+                <div 
+                  key={o.id} 
+                  className="absolute w-2 h-2 bg-primary rounded-full shadow-[0_0_10px_rgba(var(--primary),0.5)] animate-bounce"
+                  style={{ 
+                    top: `${20 + (i * 13) % 60}%`, 
+                    left: `${10 + (i * 17) % 80}%`,
+                    animationDelay: `${i * 0.2}s`
+                  }}
+                />
+             ))}
+          </div>
+          
+          <div className="absolute bottom-4 left-4 right-4 flex items-center justify-between bg-background/80 backdrop-blur-md p-4 rounded-2xl border border-border">
+            <div className="flex gap-6">
+              <div className="space-y-1">
+                <p className="text-[10px] text-muted-foreground uppercase font-black tracking-widest">Active Curriers</p>
+                <p className="text-xl font-black text-foreground">42</p>
+              </div>
+              <div className="space-y-1">
+                <p className="text-[10px] text-muted-foreground uppercase font-black tracking-widest">Live Orders</p>
+                <p className="text-xl font-black text-primary">{orders.length}</p>
+              </div>
+              <div className="space-y-1">
+                <p className="text-[10px] text-muted-foreground uppercase font-black tracking-widest">Avg. Time</p>
+                <p className="text-xl font-black text-foreground">14m</p>
+              </div>
             </div>
-            <div className="flex items-center gap-2">
-              <div className="w-2 h-2 rounded-full bg-orange-500" /> <span>Medium Demand (East Zone)</span>
+            <div className="flex flex-col gap-1.5">
+               <div className="flex items-center gap-2">
+                 <div className="w-2 h-2 rounded-full bg-red-500" /> <span className="text-[9px] font-bold uppercase">Peak Zone</span>
+               </div>
+               <div className="flex items-center gap-2">
+                 <div className="w-2 h-2 rounded-full bg-emerald-500" /> <span className="text-[9px] font-bold uppercase">Optimal Zone</span>
+               </div>
             </div>
           </div>
         </div>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        {/* Dynamic Pricing */}
-        <div className="bg-card border border-border rounded-2xl p-6">
-          <h3 className="font-bold text-foreground flex items-center gap-2 mb-4">
-            <Zap className="w-5 h-5 text-primary" /> Dynamic Pricing AI
-          </h3>
-          <div className="space-y-3">
-            {[
-              { name: "Organic Bananas", expiry: "2 days", oldPrice: 4.50, newPrice: 2.25, discount: "50%" },
-              { name: "Sourdough Bread", expiry: "1 day", oldPrice: 6.00, newPrice: 3.00, discount: "50%" },
-              { name: "Fresh Milk 1L", expiry: "3 days", oldPrice: 2.50, newPrice: 1.80, discount: "28%" },
-            ].map(p => (
-              <div key={p.name} className="flex items-center justify-between p-3 bg-muted/20 rounded-xl">
-                <div>
-                  <p className="text-sm font-bold">{p.name}</p>
-                  <p className="text-[10px] text-destructive font-black uppercase tracking-widest">Expires in {p.expiry}</p>
-                </div>
-                <div className="text-right">
-                  <p className="text-[10px] line-through text-muted-foreground">${p.oldPrice.toFixed(2)}</p>
-                  <p className="text-sm font-black text-emerald-600">${p.newPrice.toFixed(2)}</p>
-                </div>
-              </div>
-            ))}
+        {/* Dynamic Pricing AI */}
+        <div className="bg-card border border-border rounded-3xl p-6 shadow-sm flex flex-col">
+          <div className="flex items-center justify-between mb-6">
+            <h3 className="font-bold text-foreground flex items-center gap-2">
+              <Zap className="w-5 h-5 text-primary" /> Dynamic Pricing AI
+            </h3>
+            <span className="text-[10px] font-black uppercase text-muted-foreground tracking-widest">Auto-Pilot: ON</span>
           </div>
+          <div className="space-y-3 flex-1 overflow-y-auto max-h-[300px] pr-2 custom-scrollbar">
+            {SAMPLE_PRODUCTS.slice(0, 5).map((p, i) => {
+              const oldPrice = p.price;
+              const discount = 15 + (i * 7);
+              const newPrice = oldPrice * (1 - discount / 100);
+              return (
+                <div key={p.id} className="group flex items-center justify-between p-4 bg-muted/20 rounded-2xl border border-transparent hover:border-primary/20 transition-all">
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 bg-white rounded-xl flex items-center justify-center text-lg shadow-sm">
+                      {p.iconEmoji}
+                    </div>
+                    <div>
+                      <p className="text-sm font-bold text-foreground">{p.name}</p>
+                      <p className="text-[10px] text-destructive font-black uppercase tracking-widest flex items-center gap-1">
+                         <Clock className="w-3 h-3" /> Expires in {3 - (i % 3)} Days
+                      </p>
+                    </div>
+                  </div>
+                  <div className="text-right">
+                    <div className="flex items-center gap-2 justify-end mb-0.5">
+                       <span className="text-[10px] line-through text-muted-foreground">${oldPrice.toFixed(2)}</span>
+                       <span className="px-1.5 py-0.5 bg-emerald-500/10 text-emerald-600 text-[9px] font-black rounded uppercase">-{discount}%</span>
+                    </div>
+                    <p className="text-base font-black text-foreground">${newPrice.toFixed(2)}</p>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+          <button className="mt-4 w-full py-3 bg-muted text-foreground rounded-2xl text-xs font-bold hover:bg-muted/80 transition-all uppercase tracking-widest">Apply All Discounts</button>
         </div>
 
-        {/* Fraud Detection */}
-        <div className="bg-card border border-border rounded-2xl p-6">
-          <h3 className="font-bold text-foreground flex items-center gap-2 mb-4">
-            <ShieldAlert className="w-5 h-5 text-destructive" /> Fraud Detection Suite
-          </h3>
-          <div className="space-y-3">
+        {/* Fraud Detection Suite */}
+        <div className="bg-card border border-border rounded-3xl p-6 shadow-sm flex flex-col">
+          <div className="flex items-center justify-between mb-6">
+            <h3 className="font-bold text-foreground flex items-center gap-2">
+              <ShieldAlert className="w-5 h-5 text-destructive" /> Fraud Detection Suite
+            </h3>
+            <span className="px-2 py-0.5 bg-destructive/10 text-destructive text-[9px] font-black rounded uppercase">4 Alerts</span>
+          </div>
+          <div className="space-y-3 flex-1 overflow-y-auto max-h-[300px] pr-2 custom-scrollbar">
             {[
-              { type: "IP Conflict", user: "john_doe@gmail.com", detail: "3 accounts from same IP", risk: "High" },
-              { type: "Rapid Signup", user: "temp_123@yahoo.com", detail: "Joined 2 min after ban", risk: "Critical" },
-              { type: "Large Order", user: "whale_99@test.com", detail: "Unusual $1200 cart value", risk: "Medium" },
+              { type: "IP Multi-Account", user: "dev_test@gmail.com", detail: "4 accounts detected on same IP", risk: "Critical" },
+              { type: "Cancellation Loop", user: "abuser_99@yahoo.com", detail: "3 consecutive cancels in 10 mins", risk: "High" },
+              { type: "Unusual Volume", user: "whale@corp.com", detail: "Order value 15x user average", risk: "Medium" },
+              { type: "VPN Detected", user: "ghost@proton.me", detail: "Login from restricted region", risk: "High" },
             ].map((f, i) => (
-              <div key={i} className="flex items-center justify-between p-3 bg-destructive/5 border border-destructive/10 rounded-xl">
-                <div>
-                  <p className="text-sm font-bold">{f.type}</p>
-                  <p className="text-[10px] text-muted-foreground">{f.user}</p>
+              <div key={i} className="group p-4 bg-destructive/5 border border-destructive/10 rounded-2xl hover:bg-destructive/10 transition-all cursor-pointer">
+                <div className="flex items-center justify-between mb-2">
+                  <div className="flex items-center gap-2">
+                    <div className={cn("w-2 h-2 rounded-full", f.risk === "Critical" ? "bg-destructive animate-ping" : "bg-orange-500")} />
+                    <p className="text-sm font-bold text-foreground">{f.type}</p>
+                  </div>
+                  <span className={cn(
+                    "text-[9px] font-black uppercase px-2 py-0.5 rounded-md",
+                    f.risk === "Critical" ? "bg-destructive text-white" : "bg-orange-500 text-white"
+                  )}>
+                    {f.risk} RISK
+                  </span>
                 </div>
-                <span className={cn(
-                  "text-[9px] font-black uppercase px-2 py-0.5 rounded-md",
-                  f.risk === "Critical" ? "bg-destructive text-white" : "bg-orange-500 text-white"
-                )}>
-                  {f.risk}
-                </span>
+                <p className="text-[11px] text-muted-foreground mb-1 font-medium">{f.user}</p>
+                <p className="text-[10px] text-muted-foreground/60 italic">"{f.detail}"</p>
+                <div className="mt-3 flex gap-2">
+                   <button className="flex-1 py-1.5 bg-destructive text-white rounded-lg text-[10px] font-bold uppercase tracking-widest hover:opacity-90">Auto-Ban</button>
+                   <button className="flex-1 py-1.5 bg-muted text-foreground rounded-lg text-[10px] font-bold uppercase tracking-widest hover:bg-muted/80">Investigate</button>
+                </div>
               </div>
             ))}
           </div>
@@ -2539,31 +2645,41 @@ function IntelligenceView() {
 
         {activeTab === "pricing" && (
           <div className="space-y-6 animate-in slide-in-from-bottom-4">
-             <div>
-                <h3 className="text-xl font-bold text-foreground">Dynamic Pricing AI</h3>
-                <p className="text-sm text-muted-foreground">Automated discounts for products nearing expiry.</p>
+             <div className="flex items-center justify-between">
+                <div>
+                  <h3 className="text-xl font-bold text-foreground">Dynamic Pricing AI</h3>
+                  <p className="text-sm text-muted-foreground">Automated discounts for products nearing expiry.</p>
+                </div>
+                <button className="px-4 py-2 bg-primary/10 text-primary text-xs font-bold rounded-xl border border-primary/20">Scan Expiry Dates</button>
               </div>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                 {[
-                   { name: "Organic Milk", stock: 12, expiry: "2 days", discount: "25%", reason: "Expiry Near" },
-                   { name: "Fresh Strawberries", stock: 45, expiry: "1 day", discount: "40%", reason: "Overstock" },
-                   { name: "Artisan Bread", stock: 8, expiry: "Today", discount: "60%", reason: "End of Day" }
-                 ].map(p => (
-                   <div key={p.name} className="p-5 bg-card border border-border rounded-2xl space-y-4">
-                      <div className="flex justify-between">
-                        <span className="text-sm font-bold">{p.name}</span>
-                        <span className="px-2 py-0.5 bg-primary/10 text-primary text-[10px] font-black rounded-lg">-{p.discount}</span>
-                      </div>
-                      <div className="flex justify-between text-[10px] text-muted-foreground uppercase font-black">
-                        <span>Expiry: {p.expiry}</span>
-                        <span>Stock: {p.stock}</span>
-                      </div>
-                      <div className="w-full bg-muted h-1 rounded-full overflow-hidden">
-                        <div className="bg-primary h-full w-[80%]" />
-                      </div>
-                      <button className="w-full py-2 bg-foreground text-background rounded-xl text-[10px] font-bold">Auto-Price Active</button>
-                   </div>
-                 ))}
+                 {(productsData?.slice(0, 6) || SAMPLE_PRODUCTS.slice(0, 6)).map(p => {
+                   const isExpiring = Math.random() > 0.5;
+                   const discount = isExpiring ? Math.floor(Math.random() * 40 + 10) : 0;
+                   return (
+                     <div key={p.id} className="p-5 bg-card border border-border rounded-2xl space-y-4">
+                        <div className="flex justify-between items-start">
+                          <div>
+                            <span className="text-sm font-bold block">{p.name}</span>
+                            <span className="text-[10px] text-muted-foreground">${p.price.toFixed(2)} unit</span>
+                          </div>
+                          {discount > 0 && (
+                            <span className="px-2 py-0.5 bg-emerald-500/10 text-emerald-600 text-[10px] font-black rounded-lg">-{discount}% AI ADJ</span>
+                          )}
+                        </div>
+                        <div className="flex justify-between text-[10px] text-muted-foreground uppercase font-black">
+                          <span>Expiry: {isExpiring ? "2 Days" : "14 Days"}</span>
+                          <span>Stock: {p.stockQty}</span>
+                        </div>
+                        <div className="w-full bg-muted h-1 rounded-full overflow-hidden">
+                          <div className={cn("h-full", isExpiring ? "bg-orange-500" : "bg-primary")} style={{ width: `${Math.min(100, (p.stockQty / 50) * 100)}%` }} />
+                        </div>
+                        <button className={cn("w-full py-2 rounded-xl text-[10px] font-bold", isExpiring ? "bg-orange-500 text-white" : "bg-muted text-foreground")}>
+                          {isExpiring ? "Auto-Discount Active" : "Normal Pricing"}
+                        </button>
+                     </div>
+                   );
+                 })}
               </div>
           </div>
         )}

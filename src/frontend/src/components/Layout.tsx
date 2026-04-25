@@ -31,7 +31,10 @@ import {
   Sun,
   User,
   ShieldCheck,
+  Mic,
+  MicOff,
 } from "lucide-react";
+import { toast } from "sonner";
 import { useEffect, useRef, useState } from "react";
 
 interface LayoutProps {
@@ -451,6 +454,7 @@ function SearchBar({ mobile = false }: { mobile?: boolean }) {
   const { t } = useLanguage();
   const [query, setQuery] = useState("");
   const [isFocused, setIsFocused] = useState(false);
+  const [isListening, setIsListening] = useState(false);
 
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -458,6 +462,33 @@ function SearchBar({ mobile = false }: { mobile?: boolean }) {
       window.location.href = `/search?q=${encodeURIComponent(query)}`;
     }
   }
+
+  const startListening = () => {
+    const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
+    if (!SpeechRecognition) {
+      toast.error("Voice search not supported in this browser.");
+      return;
+    }
+
+    const recognition = new SpeechRecognition();
+    recognition.continuous = false;
+    recognition.interimResults = false;
+    recognition.lang = "en-US";
+
+    recognition.onstart = () => setIsListening(true);
+    recognition.onend = () => setIsListening(false);
+    recognition.onresult = (event: any) => {
+      const transcript = event.results[0][0].transcript;
+      setQuery(transcript);
+      toast.success(`Searching for: ${transcript}`);
+      // Auto submit after a delay
+      setTimeout(() => {
+        window.location.href = `/search?q=${encodeURIComponent(transcript)}`;
+      }, 1000);
+    };
+
+    recognition.start();
+  };
 
   return (
     <form
@@ -476,13 +507,24 @@ function SearchBar({ mobile = false }: { mobile?: boolean }) {
         onFocus={() => setIsFocused(true)}
         onBlur={() => setIsFocused(false)}
         className={cn(
-          "w-full pl-9 pr-4 py-2 text-sm rounded-full border bg-background text-foreground transition-all duration-200 outline-none",
+          "w-full pl-9 pr-12 py-2 text-sm rounded-full border bg-background text-foreground transition-all duration-200 outline-none",
           isFocused
             ? "border-primary ring-2 ring-primary/20"
             : "border-border hover:border-primary/40",
         )}
         data-ocid="nav.search_input"
       />
+      <button
+        type="button"
+        onClick={startListening}
+        className={cn(
+          "absolute right-3 p-1.5 rounded-full transition-colors",
+          isListening ? "bg-primary text-primary-foreground animate-pulse" : "text-muted-foreground hover:bg-muted"
+        )}
+        title="Voice Search"
+      >
+        {isListening ? <Mic className="w-3.5 h-3.5" /> : <Mic className="w-3.5 h-3.5" />}
+      </button>
     </form>
   );
 }
@@ -575,6 +617,7 @@ function MobileBottomNav() {
 
 export default function Layout({ children }: LayoutProps) {
   const { t } = useLanguage();
+  const loc = useLocation();
   const year = new Date().getFullYear();
 
   return (

@@ -19,22 +19,29 @@ export default function BannedSupport() {
   const userEmail = localStorage.getItem("currentUserEmail") || "Guest";
 
   useEffect(() => {
-    // Load existing chat from localStorage
-    const saved = JSON.parse(localStorage.getItem(`nexgro_chat_${userEmail.toLowerCase()}`) || "[]");
-    if (saved.length === 0) {
-      // Initial bot message
-      const initial: Message = {
-        id: "1",
-        sender: "admin",
-        text: `Hello. This is the NeXgro Appeals Department. We noticed your account (${userEmail}) has been suspended. How can we help you today?`,
-        timestamp: Date.now(),
-      };
-      setMessages([initial]);
-      localStorage.setItem(`nexgro_chat_${userEmail.toLowerCase()}`, JSON.stringify([initial]));
-    } else {
-      setMessages(saved);
-    }
-  }, [userEmail]);
+    const loadMessages = () => {
+      const saved = JSON.parse(localStorage.getItem(`nexgro_chat_${userEmail.toLowerCase()}`) || "[]");
+      if (saved.length === 0) {
+        const initial: Message = {
+          id: "1",
+          sender: "admin",
+          text: `Hello. This is the NeXgro Appeals Department. We noticed your account (${userEmail}) has been suspended. How can we help you today?`,
+          timestamp: Date.now(),
+        };
+        setMessages([initial]);
+        localStorage.setItem(`nexgro_chat_${userEmail.toLowerCase()}`, JSON.stringify([initial]));
+      } else {
+        // Only update if length changed or new content
+        if (JSON.stringify(saved) !== JSON.stringify(messages)) {
+          setMessages(saved);
+        }
+      }
+    };
+
+    loadMessages();
+    const interval = setInterval(loadMessages, 3000);
+    return () => clearInterval(interval);
+  }, [userEmail, messages]);
 
   useEffect(() => {
     scrollRef.current?.scrollIntoView({ behavior: "smooth" });

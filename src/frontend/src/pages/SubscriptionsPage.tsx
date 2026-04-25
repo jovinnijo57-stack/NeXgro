@@ -40,10 +40,11 @@ const SUBSCRIPTION_PLANS = [
 
 export default function SubscriptionsPage() {
   const navigate = useNavigate();
-  const [activePlan, setActivePlan] = useState<string | null>(null);
+  const [activePlan, setActivePlan] = useState<string | null>(localStorage.getItem("nexgro_active_subscription"));
 
   const handleSubscribe = (name: string) => {
-    toast.success(`Subscription for "${name}" activated! 🚀`);
+    localStorage.setItem("nexgro_active_subscription", name);
+    toast.success(`Subscription for "${name}" activated! 🚀 Every Monday, your essentials will be auto-added to cart.`);
     setActivePlan(name);
   };
 
