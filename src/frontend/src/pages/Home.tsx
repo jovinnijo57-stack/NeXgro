@@ -12,19 +12,26 @@ import {
 } from "@/hooks/useBackend";
 import { type Product, SAMPLE_CATEGORIES, SAMPLE_PRODUCTS } from "@/types";
 import type { SeasonalCollection } from "@/types";
-import { Link } from "@tanstack/react-router";
+import { Link, useNavigate } from "@tanstack/react-router";
 import {
   CalendarRange,
   ChevronLeft,
   ChevronRight,
   Grid3X3,
+  RefreshCw,
+  ShoppingCart,
   ShoppingBag,
   Sparkles,
   Star,
+  Tag,
   Truck,
+  User,
+  Utensils,
   Zap,
+  X,
 } from "lucide-react";
 import { useCallback, useEffect, useRef, useState } from "react";
+import { cn } from "@/lib/utils";
 
 interface HeroBanner {
   id: string;
@@ -34,6 +41,8 @@ interface HeroBanner {
   emoji: string;
   badge: string;
   gradient: string;
+  hasTimer?: boolean;
+  endTime?: number;
 }
 
 const HERO_BANNERS: HeroBanner[] = [
@@ -65,9 +74,18 @@ const HERO_BANNERS: HeroBanner[] = [
     subtitle: "On all bakery products this weekend. Stock up and save big.",
     cta: "Shop Bakery",
     emoji: "🍞",
-    badge: "WEEKEND OFFER",
-    gradient:
-      "linear-gradient(135deg, oklch(0.48 0.17 270) 0%, oklch(0.38 0.14 275) 100%)",
+    gradient: "linear-gradient(135deg, oklch(0.60 0.16 142) 0%, oklch(0.50 0.14 145) 100%)",
+    hasTimer: false
+  },
+  {
+    id: "b3",
+    badge: "Loyalty Boost",
+    title: "2x Points on All Fruits",
+    subtitle: "Earn double rewards when you buy organic fruits.",
+    cta: "View Rewards",
+    emoji: "⭐",
+    gradient: "linear-gradient(135deg, #f59e0b 0%, #d97706 100%)",
+    hasTimer: false
   },
 ];
 
@@ -137,17 +155,15 @@ const FALLBACK_BEST_SELLERS: any[] = [];
 const FALLBACK_NEW_ARRIVALS: any[] = [];
 const FLASH_DEAL_PRODUCTS: any[] = [];
 
-import { X } from "lucide-react";
-
 function useCountdown(endsInMs: number) {
-  const [remaining, setRemaining] = useState(endsInMs);
+  const [remaining, setRemaining] = useState(endsInMs - Date.now());
   useEffect(() => {
     const iv = setInterval(
       () => setRemaining((r) => Math.max(0, r - 1000)),
       1000,
     );
     return () => clearInterval(iv);
-  }, []);
+  }, [endsInMs]);
   const h = String(Math.floor(remaining / 3600000)).padStart(2, "0");
   const m = String(Math.floor((remaining % 3600000) / 60000)).padStart(2, "0");
   const s = String(Math.floor((remaining % 60000) / 1000)).padStart(2, "0");
@@ -250,13 +266,16 @@ function HeroCarousel() {
               <p className="text-sm text-white/75 mb-4 max-w-xs">
                 {banner.subtitle}
               </p>
-              <Link
-                to="/search"
-                className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl font-semibold text-sm transition-all duration-200 hover:opacity-90 active:scale-[0.97] bg-white text-primary"
-                data-ocid={`banner.cta.${banner.id}`}
-              >
-                {banner.cta} →
-              </Link>
+              <div className="flex flex-wrap gap-3">
+                <Link
+                  to="/search"
+                  className="bg-white text-black px-6 py-2.5 rounded-xl font-bold text-sm shadow-lg hover:bg-white/90 active:scale-95 transition-all"
+                  data-ocid={`banner.cta.${banner.id}`}
+                >
+                  {banner.cta}
+                </Link>
+                {banner.hasTimer && <CountdownDisplay {...(useCountdown(banner.endTime || 0))} />}
+              </div>
             </div>
             <div
               className="text-[5rem] shrink-0 ml-4 select-none hidden sm:block"
@@ -835,6 +854,33 @@ function PromoStrip() {
   );
 }
 
+function FeatureQuickAccess() {
+  const navigate = useNavigate();
+  const features = [
+    { id: "ai", title: "AI Shopper", icon: Sparkles, color: "bg-purple-500", path: "/ai-shopper" },
+    { id: "recipes", title: "Recipes", icon: Utensils, color: "bg-orange-500", path: "/recipes" },
+    { id: "subs", title: "Subscriptions", icon: RefreshCw, color: "bg-blue-500", path: "/subscriptions" },
+    { id: "rewards", title: "Loyalty", icon: Star, color: "bg-amber-500", path: "/profile" }
+  ];
+
+  return (
+    <div className="grid grid-cols-4 gap-3 my-8" data-ocid="home.features_grid">
+      {features.map((f) => (
+        <button
+          key={f.id}
+          onClick={() => navigate({ to: f.path as any })}
+          className="flex flex-col items-center gap-2 group"
+        >
+          <div className={cn("w-14 h-14 rounded-2xl flex items-center justify-center text-white shadow-lg group-hover:scale-110 transition-transform", f.color)}>
+            <f.icon className="w-7 h-7" />
+          </div>
+          <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider">{f.title}</span>
+        </button>
+      ))}
+    </div>
+  );
+}
+
 export default function Home() {
   const [showFloatingVideo, setShowFloatingVideo] = useState(true);
   useBanners();
@@ -867,6 +913,7 @@ export default function Home() {
         </div>
       )}
       <HeroCarousel />
+      <FeatureQuickAccess />
       <PromoStrip />
       <CategoryGrid />
       <FlashDealsSection />

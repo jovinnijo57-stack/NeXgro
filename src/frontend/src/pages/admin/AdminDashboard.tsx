@@ -2250,6 +2250,48 @@ function SupportView() {
           </div>
         )}
       </div>
+
+      {/* User Details Panel (New) */}
+      {selectedChat && (
+        <div className="bg-card border border-border rounded-2xl overflow-hidden flex flex-col animate-in slide-in-from-right-4">
+          <div className="p-4 border-b border-border bg-muted/20">
+            <h3 className="font-bold text-foreground text-sm uppercase tracking-wider">User Profile</h3>
+          </div>
+          <div className="flex-1 overflow-y-auto p-4 space-y-6">
+            <div className="space-y-4">
+              <div>
+                <p className="text-[10px] text-muted-foreground uppercase font-black">Email</p>
+                <p className="text-sm font-bold text-foreground truncate">{selectedChat}</p>
+              </div>
+              <div className="grid grid-cols-2 gap-3">
+                <div className="p-3 bg-muted/30 rounded-xl">
+                  <p className="text-[10px] text-muted-foreground font-black uppercase">Cancels</p>
+                  <p className="text-xl font-black text-destructive">{localStorage.getItem(`cancel_count_${selectedChat.toLowerCase()}`) || 0}</p>
+                </div>
+                <div className="p-3 bg-muted/30 rounded-xl">
+                  <p className="text-[10px] text-muted-foreground font-black uppercase">Loyalty</p>
+                  <p className="text-xl font-black text-primary">850</p>
+                </div>
+              </div>
+            </div>
+
+            <div className="space-y-3">
+              <p className="text-[10px] text-muted-foreground uppercase font-black">Recent Activity</p>
+              <div className="space-y-2">
+                {[1, 2].map((i) => (
+                  <div key={i} className="p-3 bg-card border border-border rounded-xl text-xs">
+                    <div className="flex justify-between font-bold mb-1">
+                      <span className="text-foreground">Order #ORD-2024-00{i}</span>
+                      <span className="text-destructive">Cancelled</span>
+                    </div>
+                    <p className="text-muted-foreground">3 items · $45.00</p>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
