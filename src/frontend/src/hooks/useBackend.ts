@@ -1928,69 +1928,31 @@ export interface ChatMessage {
   createdAt: bigint;
 }
 
-export function useAdminChatThreads() {
-  const { actor, isFetching } = useBackendActor();
-  return useQuery<ChatThread[]>({
-    queryKey: ["admin-chat-threads"],
-    queryFn: async () => {
-      if (actor) {
-        try {
-          const fn = (actor as unknown as Record<string, unknown>)
-            .getAllChatThreads as (() => Promise<unknown>) | undefined;
-          const result = await fn?.();
-          if (Array.isArray(result)) {
-            return (result as Array<Record<string, unknown>>).map((t) => ({
-              id: String(t.id ?? ""),
-              userId: String(t.userId ?? ""),
-              userName: String(t.userName ?? ""),
-              subject: String(t.subject ?? ""),
-              lastMessage: String(t.lastMessage ?? ""),
-              isResolved: Boolean(t.isResolved ?? false),
-              createdAt: BigInt((t.createdAt as bigint) ?? 0),
-              updatedAt: BigInt((t.updatedAt as bigint) ?? 0),
-            }));
-          }
-        } catch {
-          /* fallback */
-        }
-      }
-
-      // Local storage fallback
-      const activeEmails = JSON.parse(localStorage.getItem("nexgro_active_chats") || "[]");
+      // Local storage fallback - Scan all keys for chat patterns
       const threads: ChatThread[] = [];
-      
-      for (const email of activeEmails) {
-        // Check both regular and banned chats
-        const regularKey = `nexgro_regular_chat_${email.toLowerCase()}`;
-        const bannedKey = `nexgro_chat_${email.toLowerCase()}`;
-        
-        const regMsgs = JSON.parse(localStorage.getItem(regularKey) || "[]");
-        const banMsgs = JSON.parse(localStorage.getItem(bannedKey) || "[]");
-        
-        if (regMsgs.length > 0) {
-          threads.push({
-            id: regularKey,
-            userId: email,
-            userName: email.split('@')[0],
-            subject: "Support Request",
-            lastMessage: regMsgs[regMsgs.length - 1].text,
-            isResolved: false,
-            createdAt: BigInt(regMsgs[0].timestamp),
-            updatedAt: BigInt(regMsgs[regMsgs.length - 1].timestamp),
-          });
-        }
-        
-        if (banMsgs.length > 0) {
-          threads.push({
-            id: bannedKey,
-            userId: email,
-            userName: `${email.split('@')[0]} (Appeal)`,
-            subject: "Banned Account Appeal",
-            lastMessage: banMsgs[banMsgs.length - 1].text,
-            isResolved: false,
-            createdAt: BigInt(banMsgs[0].timestamp),
-            updatedAt: BigInt(banMsgs[banMsgs.length - 1].timestamp),
-          });
+      for (let i = 0; i < localStorage.length; i++) {
+        const key = localStorage.key(i);
+        if (key && (key.startsWith("nexgro_regular_chat_") || key.startsWith("nexgro_chat_"))) {
+          try {
+            const email = key.replace("nexgro_regular_chat_", "").replace("nexgro_chat_", "");
+            const msgs = JSON.parse(localStorage.getItem(key) || "[]");
+            
+            if (Array.isArray(msgs) && msgs.length > 0) {
+              const isAppeal = key.startsWith("nexgro_chat_");
+              threads.push({
+                id: key,
+                userId: email,
+                userName: isAppeal ? `${email.split('@')[0]} (Appeal)` : email.split('@')[0],
+                subject: isAppeal ? "Banned Account Appeal" : "Support Request",
+                lastMessage: msgs[msgs.length - 1].text,
+                isResolved: false,
+                createdAt: BigInt(msgs[0].timestamp || Date.now()),
+                updatedAt: BigInt(msgs[msgs.length - 1].timestamp || Date.now()),
+              });
+            }
+          } catch (e) {
+            console.error("Error parsing chat key", key, e);
+          }
         }
       }
       
@@ -1998,7 +1960,7 @@ export function useAdminChatThreads() {
     },
     enabled: true,
     initialData: [],
-    refetchInterval: 3000, // Poll for new messages
+    refetchInterval: 2000, 
   });
 }
 
