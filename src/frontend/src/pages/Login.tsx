@@ -116,13 +116,13 @@ export default function Login() {
       }
 
       const hashedInput = await hashPassword(password);
-      if (users[lowerEmail] === hashedInput) {
+      if (users[lowerEmail].password === hashedInput) {
         localStorage.setItem("isLoggedIn", "true");
         localStorage.setItem("currentUserEmail", lowerEmail);
         toast.success("Welcome back!");
-        navigate({ to: "/location-setup" });
+        window.location.href = "/home"; // Direct to home if already located, or location-setup will guard
       } else {
-        toast.error("Incorrect password. Please try again.");
+        toast.error("Invalid credentials. Please check your password.");
       }
     } else {
       toast.error("Please enter both email and password.");

@@ -4,6 +4,7 @@ import { Gift, ShieldCheck, Star, Truck, Zap, Eye, EyeOff } from "lucide-react";
 import { useState } from "react";
 import { sendOTP } from "@/services/emailService";
 import { hashPassword } from "@/lib/auth";
+import { cn } from "@/lib/utils";
 
 const features = [
   {
@@ -32,7 +33,17 @@ export default function Register() {
     referral: "",
   });
   const [showPassword, setShowPassword] = useState(false);
+  const [passwordStrength, setPasswordStrength] = useState(0);
   const [errors, setErrors] = useState<Partial<typeof form>>({});
+
+  const checkStrength = (pass: string) => {
+    let score = 0;
+    if (pass.length >= 8) score++;
+    if (/[A-Z]/.test(pass)) score++;
+    if (/[0-9]/.test(pass)) score++;
+    if (/[!@#$%^&*]/.test(pass)) score++;
+    setPasswordStrength(score);
+  };
 
   function validate() {
     const errs: Partial<typeof form> = {};
@@ -42,14 +53,17 @@ export default function Register() {
       errs.email = "Please enter a valid @gmail.com address";
     if (!form.phone.trim() || form.phone.length < 7)
       errs.phone = "Enter a valid phone number";
-    if (!form.password || form.password.length < 6)
-      errs.password = "Password must be at least 6 characters";
+    const pass = form.password;
+    const strongRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#$%^&*])(?=.{8,})/;
+    if (!pass || !strongRegex.test(pass))
+      errs.password = "Password must be 8+ chars with uppercase, number & symbol";
     return errs;
   }
 
   function handleChange(e: React.ChangeEvent<HTMLInputElement>) {
     const { name, value } = e.target;
     setForm((prev) => ({ ...prev, [name]: value }));
+    if (name === "password") checkStrength(value);
     if (errors[name as keyof typeof errors]) {
       setErrors((prev) => ({ ...prev, [name]: undefined }));
     }
@@ -421,6 +435,36 @@ export default function Register() {
                   )}
                 </button>
               </div>
+              {/* Strength Meter */}
+              {form.password && (
+                <div className="mt-2 space-y-1.5">
+                  <div className="flex gap-1 h-1">
+                    {[1, 2, 3, 4].map((s) => (
+                      <div
+                        key={s}
+                        className={cn(
+                          "flex-1 rounded-full transition-all duration-500",
+                          s <= passwordStrength
+                            ? passwordStrength <= 2
+                              ? "bg-destructive"
+                              : passwordStrength === 3
+                              ? "bg-yellow-500"
+                              : "bg-emerald-500"
+                            : "bg-muted"
+                        )}
+                      />
+                    ))}
+                  </div>
+                  <p className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground flex justify-between">
+                    <span>Security Level</span>
+                    <span className={cn(
+                      passwordStrength <= 2 ? "text-destructive" : passwordStrength === 3 ? "text-yellow-600" : "text-emerald-600"
+                    )}>
+                      {passwordStrength <= 2 ? "Weak" : passwordStrength === 3 ? "Moderate" : "Powerful"}
+                    </span>
+                  </p>
+                </div>
+              )}
               {errors.password && (
                 <p
                   className="text-xs"
