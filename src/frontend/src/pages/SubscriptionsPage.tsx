@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { ArrowLeft, Calendar, Package, RefreshCw, Zap, CheckCircle2, ChevronRight, Clock } from "lucide-react";
+import { ArrowLeft, Calendar, Package, RefreshCw, Zap, CheckCircle, ChevronRight, Clock } from "lucide-react";
 import { useNavigate } from "@tanstack/react-router";
 import { SAMPLE_PRODUCTS } from "@/types";
 import { toast } from "sonner";
@@ -72,7 +72,7 @@ export default function SubscriptionsPage() {
             <div className="flex-1 space-y-1">
               <h3 className="font-display text-xl font-bold text-foreground flex items-center gap-2">
                 {plan.name}
-                {activePlan === plan.name && <CheckCircle2 className="w-5 h-5 text-emerald-500" />}
+                {activePlan === plan.name && <CheckCircle className="w-5 h-5 text-emerald-500" />}
               </h3>
               <p className="text-sm text-muted-foreground leading-relaxed">{plan.desc}</p>
               <div className="flex flex-wrap gap-2 pt-2">

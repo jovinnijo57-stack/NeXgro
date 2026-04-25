@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { ArrowLeft, Bell, RefreshCw, ShoppingCart, Zap, AlertTriangle, CheckCircle2, History } from "lucide-react";
+import { ArrowLeft, Bell, RefreshCw, ShoppingCart, Zap, AlertTriangle, CheckCircle, History } from "lucide-react";
 import { useNavigate } from "@tanstack/react-router";
 import { SAMPLE_PRODUCTS } from "@/types";
 import { useAddToCart } from "@/hooks/useBackend";
@@ -65,7 +65,7 @@ export default function SmartPantry() {
               "w-12 h-12 rounded-2xl flex items-center justify-center shrink-0",
               item.status === "Critical" ? "bg-destructive/10 text-destructive" : item.status === "Running Low" ? "bg-amber-500/10 text-amber-500" : "bg-emerald-500/10 text-emerald-600"
             )}>
-              {item.status === "Safe" ? <CheckCircle2 className="w-6 h-6" /> : <AlertTriangle className="w-6 h-6" />}
+              {item.status === "Safe" ? <CheckCircle className="w-6 h-6" /> : <AlertTriangle className="w-6 h-6" />}
             </div>
 
             <div className="flex-1 min-w-0">

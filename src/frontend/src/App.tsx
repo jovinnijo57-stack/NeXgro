@@ -93,6 +93,16 @@ function AuthGuard({ children }: { children: React.ReactNode }) {
     window.location.href = "/register";
     return null;
   }
+
+  const hasLocation = localStorage.getItem("nexgro_user_location");
+  const isLocationPage = window.location.pathname === "/location-setup";
+  const isAdminPage = window.location.pathname.startsWith("/admin");
+
+  if (!hasLocation && !isLocationPage && !isAdminPage) {
+    window.location.href = "/location-setup";
+    return null;
+  }
+
   return <>{children}</>;
 }
 

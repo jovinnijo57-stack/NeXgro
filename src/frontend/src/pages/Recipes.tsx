@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { ArrowLeft, Search, Clock, Users, Flame, ShoppingCart, CheckCircle2 } from "lucide-react";
+import { ArrowLeft, Search, Clock, Users, Flame, ShoppingCart, CheckCircle } from "lucide-react";
 import { useNavigate } from "@tanstack/react-router";
 import { SAMPLE_PRODUCTS } from "@/types";
 import { useAddToCart } from "@/hooks/useBackend";

@@ -4,7 +4,7 @@ import { Link, useParams } from "@tanstack/react-router";
 import {
   ArrowLeft,
   Box,
-  CheckCircle2,
+  CheckCircle,
   Clock,
   MapPin,
   Navigation,
@@ -35,7 +35,7 @@ export default function OrderTrackingPage() {
     { label: "Processing", icon: Clock, completed: true, time: "10:45 AM" },
     { label: "Shipped", icon: Truck, completed: true, time: "11:05 AM" },
     { label: "Out for Delivery", icon: Navigation, completed: true, time: "11:15 AM" },
-    { label: "Delivered", icon: CheckCircle2, completed: false, time: "Expected 11:30 AM" },
+    { label: "Delivered", icon: CheckCircle, completed: false, time: "Expected 11:30 AM" },
   ];
 
   return (
@@ -135,7 +135,7 @@ export default function OrderTrackingPage() {
                 "w-6 h-6 rounded-full border-4 border-background z-10 flex items-center justify-center shrink-0",
                 step.completed ? "bg-primary" : "bg-muted"
               )}>
-                {step.completed && <CheckCircle2 className="w-3 h-3 text-white" />}
+                {step.completed && <CheckCircle className="w-3 h-3 text-white" />}
               </div>
               <div className="flex-1">
                 <div className="flex items-center justify-between">

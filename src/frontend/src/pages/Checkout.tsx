@@ -22,7 +22,7 @@ import { SAMPLE_PRODUCTS } from "@/types";
 import { useNavigate } from "@tanstack/react-router";
 import {
   Banknote,
-  CheckCircle2,
+  CheckCircle,
   ChevronRight,
   Clock,
   CreditCard,
@@ -384,7 +384,7 @@ export default function Checkout() {
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-foreground/40 backdrop-blur-sm px-4">
           <div className="bg-card border border-border rounded-2xl p-8 max-w-sm w-full text-center shadow-elevated animate-in fade-in zoom-in duration-300">
             <div className="w-20 h-20 bg-primary/10 text-primary rounded-full flex items-center justify-center mx-auto mb-5">
-              <CheckCircle2 className="w-10 h-10" />
+              <CheckCircle className="w-10 h-10" />
             </div>
             <h2 className="font-display font-bold text-2xl text-foreground mb-2">Order Successful!</h2>
             <p className="text-sm text-muted-foreground mb-6">
@@ -427,7 +427,7 @@ export default function Checkout() {
                       : "bg-muted text-muted-foreground",
                 )}
               >
-                {i < step ? <CheckCircle2 className="w-4 h-4" /> : i + 1}
+                {i < step ? <CheckCircle className="w-4 h-4" /> : i + 1}
               </div>
               <span className="hidden sm:block">{label}</span>
             </button>
@@ -844,7 +844,7 @@ export default function Checkout() {
                   </div>
                 ) : (
                   <div className="flex items-center gap-3 p-3 bg-primary/5 border border-primary/20 rounded-lg">
-                    <CheckCircle2 className="w-4 h-4 text-primary shrink-0" />
+                    <CheckCircle className="w-4 h-4 text-primary shrink-0" />
                     <div className="flex-1">
                       <span className="text-sm font-semibold text-foreground">
                         {appliedCoupon}
@@ -1113,7 +1113,7 @@ export default function Checkout() {
               {total === 0 && useWallet && (
                 <div className="mb-5 pt-4 border-t border-border">
                   <div className="p-4 bg-primary/5 border border-primary/20 rounded-xl flex items-center gap-3">
-                    <CheckCircle2 className="w-5 h-5 text-primary" />
+                    <CheckCircle className="w-5 h-5 text-primary" />
                     <div>
                       <p className="text-sm font-semibold text-foreground">Fully Paid by Wallet</p>
                       <p className="text-xs text-muted-foreground">No additional payment required</p>

@@ -1,7 +1,7 @@
 import { useComparison } from "@/contexts/ComparisonContext";
 import { SAMPLE_PRODUCTS } from "@/types";
 import { Link } from "@tanstack/react-router";
-import { GitCompare, ShoppingCart, Trash2, CheckCircle2, XCircle } from "lucide-react";
+import { GitCompare, ShoppingCart, Trash2, CheckCircle, XCircle } from "lucide-react";
 import { useAddToCart } from "@/hooks/useBackend";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
@@ -33,7 +33,7 @@ export default function ComparisonPage() {
     { key: "price", label: "Price", format: (v: number) => `$${v.toFixed(2)}` },
     { key: "category", label: "Category", format: (v: string) => <span className="capitalize">{v}</span> },
     { key: "rating", label: "Rating", format: (v: number) => <span className="flex items-center justify-center gap-1"><StarRating rating={v} /> {v}/5</span> },
-    { key: "ageRestricted", label: "Age Restricted (18+)", format: (v: boolean) => v ? <CheckCircle2 className="w-5 h-5 text-red-500 mx-auto" /> : <XCircle className="w-5 h-5 text-muted-foreground/30 mx-auto" /> },
+    { key: "ageRestricted", label: "Age Restricted (18+)", format: (v: boolean) => v ? <CheckCircle className="w-5 h-5 text-red-500 mx-auto" /> : <XCircle className="w-5 h-5 text-muted-foreground/30 mx-auto" /> },
     { key: "stockQty", label: "Availability", format: (v: number) => v > 0 ? <span className="text-emerald-600 font-medium">In Stock</span> : <span className="text-red-500 font-medium">Out of Stock</span> },
   ];
 

@@ -2,7 +2,7 @@ import { useAddAddress, useCheckDeliveryRadius, useSetUserLocation } from "@/hoo
 import { useNavigate } from "@tanstack/react-router";
 import {
   AlertTriangle,
-  CheckCircle2,
+  CheckCircle,
   Locate,
   MapPin,
   Navigation,
@@ -81,6 +81,7 @@ export default function LocationSetup() {
       }
 
       if (result.tag === "InRange" || result.tag === "withinRadius") {
+        localStorage.setItem("nexgro_user_location", JSON.stringify({ lat, lng, address: state.displayAddress }));
         setState({ status: "in_range", distanceKm: (result as any).distanceKm || 0 });
         setTimeout(() => { window.location.href = "/home"; }, 1500);
       } else {
@@ -91,6 +92,7 @@ export default function LocationSetup() {
       }
     } catch {
       // Final fallback — just go to home
+      localStorage.setItem("nexgro_user_location", JSON.stringify({ lat, lng, address: state.displayAddress }));
       setState({ status: "in_range", distanceKm: 0 });
       setTimeout(() => { window.location.href = "/home"; }, 1500);
     }
@@ -163,7 +165,7 @@ export default function LocationSetup() {
               }}
               data-ocid="location-setup.success_state"
             >
-              <CheckCircle2 className="w-8 h-8 text-primary shrink-0" />
+              <CheckCircle className="w-8 h-8 text-primary shrink-0" />
               <div>
                 <p className="font-semibold text-foreground">
                   Great news — we deliver here! 🎉

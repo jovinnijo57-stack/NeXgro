@@ -8,7 +8,7 @@ import {
   Share2,
   Users,
   Wallet,
-  CheckCircle2,
+  CheckCircle,
   Clock,
 } from "lucide-react";
 import { useState } from "react";
@@ -69,7 +69,7 @@ export default function ReferralsPage() {
                 onClick={copyCode}
                 className="bg-white text-primary px-4 py-2 rounded-lg text-sm font-bold flex items-center gap-2 active:scale-95 transition-all shadow-lg"
               >
-                {isCopying ? <CheckCircle2 className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
+                {isCopying ? <CheckCircle className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
                 {isCopying ? "Copied" : "Copy"}
               </button>
             </div>
@@ -123,7 +123,7 @@ export default function ReferralsPage() {
                     ref.status === "completed" ? "bg-primary/10" : "bg-muted"
                   )}>
                     {ref.status === "completed" ? (
-                      <CheckCircle2 className="w-5 h-5 text-primary" />
+                      <CheckCircle className="w-5 h-5 text-primary" />
                     ) : (
                       <Clock className="w-5 h-5 text-muted-foreground" />
                     )}

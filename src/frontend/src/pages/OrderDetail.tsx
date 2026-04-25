@@ -644,7 +644,7 @@ function ReviewOrder({ orderId }: { orderId: string }) {
   if (submitted) {
     return (
       <div className="bg-emerald-50 dark:bg-emerald-500/10 border border-emerald-200 dark:border-emerald-500/20 rounded-2xl p-6 text-center animate-in fade-in duration-500">
-        <CheckCircle2 className="w-10 h-10 text-emerald-500 mx-auto mb-3" />
+        <CheckCircle className="w-10 h-10 text-emerald-500 mx-auto mb-3" />
         <p className="font-bold text-emerald-700 dark:text-emerald-400">Thanks for your feedback!</p>
       </div>
     );
@@ -699,7 +699,7 @@ function ReviewOrder({ orderId }: { orderId: string }) {
   );
 }
 
-import { CheckCircle2, Phone } from "lucide-react";
+import { CheckCircle, Phone } from "lucide-react";
 
 export default function OrderDetail() {
   const params = useParams({ strict: false }) as { orderId?: string };
