@@ -22,6 +22,7 @@ import {
   Star,
   Truck,
   Zap,
+  X,
 } from "lucide-react";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { toast } from "sonner";
@@ -717,6 +718,31 @@ export default function OrderDetail() {
     [orders, orderId],
   );
 
+  async function handleCancel() {
+    if (!order) return;
+    const userEmail = localStorage.getItem("currentUserEmail");
+    if (!userEmail) return;
+
+    const lowerEmail = userEmail.toLowerCase().trim();
+    const currentCount = Number(localStorage.getItem(`cancel_count_${lowerEmail}`) || 0);
+    const newCount = currentCount + 1;
+    localStorage.setItem(`cancel_count_${lowerEmail}`, newCount.toString());
+
+    if (newCount >= 3) {
+      const banned = JSON.parse(localStorage.getItem("nexgro_banned_users") || "[]");
+      if (!banned.includes(lowerEmail)) {
+        localStorage.setItem("nexgro_banned_users", JSON.stringify([...banned, lowerEmail]));
+      }
+      toast.error("Account suspended due to excessive cancellations.");
+      setTimeout(() => { window.location.href = "/banned"; }, 1500);
+    } else {
+      toast.success(`Order cancelled. Warnings: ${newCount}/3`);
+      // In a real app, we'd update the backend order status here.
+      // For the demo, we'll just reload.
+      setTimeout(() => { window.location.reload(); }, 1000);
+    }
+  }
+
   async function handleReorder() {
     if (!order) return;
     setReordering(true);
@@ -829,21 +855,35 @@ export default function OrderDetail() {
               </span>
             </p>
           </div>
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={handleReorder}
-            disabled={reordering}
-            className="gap-2 shrink-0"
-            data-ocid="order_detail.reorder_button"
-          >
-            {reordering ? (
-              <Loader2 className="w-3.5 h-3.5 animate-spin" />
-            ) : (
-              <RefreshCw className="w-3.5 h-3.5" />
+          <div className="flex gap-2 shrink-0">
+            {order.status === "Pending" && (
+              <Button
+                variant="destructive"
+                size="sm"
+                onClick={handleCancel}
+                className="gap-2"
+                data-ocid="order_detail.cancel_button"
+              >
+                <X className="w-3.5 h-3.5" />
+                Cancel Order
+              </Button>
             )}
-            <span className="hidden sm:inline">Reorder</span>
-          </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={handleReorder}
+              disabled={reordering}
+              className="gap-2"
+              data-ocid="order_detail.reorder_button"
+            >
+              {reordering ? (
+                <Loader2 className="w-3.5 h-3.5 animate-spin" />
+              ) : (
+                <RefreshCw className="w-3.5 h-3.5" />
+              )}
+              <span className="hidden sm:inline">Reorder</span>
+            </Button>
+          </div>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-5">

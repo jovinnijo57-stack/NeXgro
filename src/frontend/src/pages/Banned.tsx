@@ -36,13 +36,13 @@ export default function BannedPage() {
 
           {/* Actions */}
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-4">
-            <a
-              href="mailto:support@nexgro.com"
+            <button
+              onClick={() => navigate({ to: "/banned-support" })}
               className="w-full sm:w-auto flex items-center justify-center gap-3 bg-primary text-primary-foreground px-8 py-4 rounded-2xl font-bold shadow-lg shadow-primary/25 hover:bg-primary/90 transition-all active:scale-[0.98]"
             >
               <MessageSquare className="w-5 h-5" />
               Contact Support
-            </a>
+            </button>
             <button
               onClick={() => {
                 localStorage.removeItem("isLoggedIn");

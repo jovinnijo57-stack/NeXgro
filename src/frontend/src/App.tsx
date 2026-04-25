@@ -72,6 +72,7 @@ const AdminSubscriptionsPage = lazy(
   () => import("@/pages/admin/AdminSubscriptionsPage"),
 );
 const BannedPage = lazy(() => import("@/pages/Banned"));
+const BannedSupportPage = lazy(() => import("@/pages/BannedSupport"));
 
 // ─── Auth guard component ────────────────────────────────────────────────────
 function AuthGuard({ children }: { children: React.ReactNode }) {
@@ -95,15 +96,7 @@ function AuthGuard({ children }: { children: React.ReactNode }) {
 // ─── Admin guard component ────────────────────────────────────────────────────
 
 function AdminGuard({ children }: { children: React.ReactNode }) {
-  const { identity } = useInternetIdentity();
-  const isAuthenticated = localStorage.getItem("isLoggedIn") === "true" || !!identity;
-  const isAdmin = true; // Hardcoded for demo stability
-
-  if (!isAuthenticated) {
-    window.location.href = "/register";
-    return null;
-  }
-
+  // Allow access to the admin path for authentication within the dashboard
   return <>{children}</>;
 }
 
@@ -142,6 +135,16 @@ const bannedRoute = createRoute({
   component: () => (
     <Suspense fallback={<PageLoader />}>
       <BannedPage />
+    </Suspense>
+  ),
+});
+
+const bannedSupportRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: "/banned-support",
+  component: () => (
+    <Suspense fallback={<PageLoader />}>
+      <BannedSupportPage />
     </Suspense>
   ),
 });
@@ -654,6 +657,7 @@ const routeTree = rootRoute.addChildren([
   registerRoute,
   verifyEmailRoute,
   bannedRoute,
+  bannedSupportRoute,
   locationSetupRoute,
   homeRoute,
   categoryRoute,
