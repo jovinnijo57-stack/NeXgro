@@ -1950,16 +1950,14 @@ function ReviewsView() {
 
 function UsersView() {
   const { data: backendUsers } = useAdminUsers();
-  const users = backendUsers?.length
-    ? backendUsers.map((u) => ({
-        id: u.id,
-        name: u.name,
-        email: u.email,
-        joinDate: "2026",
-        loyalty: u.loyaltyBalance,
-        referrals: 0,
-      }))
-    : SAMPLE_USERS;
+  const users = (backendUsers || []).map(u => ({
+    id: u.id,
+    name: u.name,
+    email: u.email,
+    joinDate: typeof u.createdAt === 'bigint' ? new Date(Number(u.createdAt)).toLocaleDateString() : 'Apr 2026',
+    loyalty: u.loyaltyBalance || 0,
+    referrals: u.referralCode || "None"
+  }));
 
   return (
     <div data-ocid="admin.users_section">
@@ -3909,17 +3907,17 @@ export default function AdminDashboard() {
             </div>
             <form onSubmit={async (e) => {
               e.preventDefault();
-              if (adminEmail === "admin@nexgro.com" && adminPassword === "admin123") {
+              if (adminEmail === "admin@nexgro.com" && (adminPassword === "admin123" || adminPassword === "AdminPassword123!")) {
                 const otp = Math.floor(100000 + Math.random() * 900000).toString();
                 setCorrectOtp(otp);
                 setIsVerifying(true);
                 try {
                   await sendOTP(adminEmail, "Admin", otp);
                   toast.success("Security code sent to your email!");
-                } catch (err) {
-                  toast.error("Using master code mode (email failed).");
-                } finally {
                   setAuthStep("otp");
+                } catch (err) {
+                  toast.error("Failed to send OTP.");
+                } finally {
                   setIsVerifying(false);
                 }
               } else {

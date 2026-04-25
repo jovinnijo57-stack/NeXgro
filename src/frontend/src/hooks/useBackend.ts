@@ -1028,11 +1028,31 @@ export function useAdminUsers() {
   return useQuery<User[]>({
     queryKey: ["admin-users"],
     queryFn: async () => {
-      if (!actor) return [];
+      if (!actor) {
+        // Fallback to local profiles
+        const profilesStr = localStorage.getItem("user_profiles");
+        if (!profilesStr) return [];
+        try {
+          const profiles = JSON.parse(profilesStr);
+          return Object.entries(profiles).map(([email, profile]: [string, any]) => ({
+            id: email,
+            name: `${profile.firstName} ${profile.lastName}`,
+            email: email,
+            phone: profile.phone || "",
+            role: "customer",
+            loyaltyBalance: 0,
+            walletBalance: Number(localStorage.getItem(`wallet_balance_${email.toLowerCase()}`) || 0),
+            referralCode: profile.referral || "",
+            createdAt: BigInt(Date.now()),
+          }));
+        } catch {
+          return [];
+        }
+      }
       const result = await actor.getUsers();
       return result.map(adaptUser);
     },
-    enabled: !!actor && !isFetching,
+    enabled: true, // Always enable to show local users if actor is missing
     initialData: [],
   });
 }
