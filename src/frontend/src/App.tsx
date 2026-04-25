@@ -82,8 +82,9 @@ function AuthGuard({ children }: { children: React.ReactNode }) {
   const isAuthenticated = localStorage.getItem("isLoggedIn") === "true" || !!identity;
   const currentUserEmail = localStorage.getItem("currentUserEmail");
   const bannedEmails = JSON.parse(localStorage.getItem("nexgro_banned_users") || "[]");
+  const isDeviceRestricted = localStorage.getItem("nexgro_device_restricted") === "true";
 
-  if (currentUserEmail && bannedEmails.includes(currentUserEmail)) {
+  if ((currentUserEmail && bannedEmails.includes(currentUserEmail.toLowerCase())) || isDeviceRestricted) {
     window.location.href = "/banned";
     return null;
   }

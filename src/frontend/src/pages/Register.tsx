@@ -78,7 +78,9 @@ export default function Register() {
     }
 
     const bannedEmails = JSON.parse(localStorage.getItem("nexgro_banned_users") || "[]");
-    if (bannedEmails.includes(form.email.toLowerCase().trim())) {
+    const isDeviceRestricted = localStorage.getItem("nexgro_device_restricted") === "true";
+    
+    if (bannedEmails.includes(form.email.toLowerCase().trim()) || isDeviceRestricted) {
       window.location.href = "/banned";
       return;
     }

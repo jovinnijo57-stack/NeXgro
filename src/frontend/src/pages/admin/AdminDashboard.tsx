@@ -1965,14 +1965,24 @@ function UsersView() {
   );
 
   const toggleBan = (email: string) => {
-    const isBanned = bannedEmails.includes(email);
+    const lowerEmail = email.toLowerCase().trim();
+    const isBanned = bannedEmails.includes(lowerEmail);
     const newBanned = isBanned 
-      ? bannedEmails.filter(e => e !== email) 
-      : [...bannedEmails, email];
+      ? bannedEmails.filter(e => e !== lowerEmail) 
+      : [...bannedEmails, lowerEmail];
     
     setBannedEmails(newBanned);
     localStorage.setItem("nexgro_banned_users", JSON.stringify(newBanned));
-    toast.success(isBanned ? "User unbanned successfully" : "User banned successfully");
+    
+    if (isBanned) {
+      // Clear cancellation risks on unban
+      localStorage.removeItem(`cancel_count_${lowerEmail}`);
+      localStorage.removeItem("nexgro_device_restricted"); // Lift device ban
+      toast.success("User unbanned & risks cleared!");
+    } else {
+      localStorage.setItem("nexgro_device_restricted", "true"); // Apply device ban
+      toast.success("User & device restricted!");
+    }
   };
 
   return (
@@ -2162,29 +2172,42 @@ function SupportView() {
   };
 
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-4 gap-6 h-[600px]" data-ocid="admin.support_section">
+    <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 h-[700px] animate-in fade-in duration-500" data-ocid="admin.support_section">
       {/* Chat List */}
-      <div className="bg-card border border-border rounded-2xl overflow-hidden flex flex-col">
-        <div className="p-4 border-b border-border bg-muted/20">
-          <h3 className="font-bold text-foreground flex items-center gap-2">
-            <MessageSquare className="w-4 h-4 text-primary" /> Active Appeals
-          </h3>
+      <div className="lg:col-span-3 bg-card border border-border rounded-3xl overflow-hidden flex flex-col shadow-sm">
+        <div className="p-5 border-b border-border bg-muted/20">
+          <div className="flex items-center justify-between mb-1">
+            <h3 className="font-bold text-foreground flex items-center gap-2">
+              <MessageSquare className="w-4 h-4 text-primary" /> Active Appeals
+            </h3>
+            <span className="text-[10px] bg-primary/10 text-primary px-2 py-0.5 rounded-full font-black uppercase">{activeChats.length}</span>
+          </div>
+          <p className="text-[10px] text-muted-foreground uppercase tracking-widest font-medium">Banned User Support</p>
         </div>
-        <div className="flex-1 overflow-y-auto">
+        <div className="flex-1 overflow-y-auto custom-scrollbar">
           {activeChats.length === 0 ? (
-            <div className="p-8 text-center text-xs text-muted-foreground">No active appeals found.</div>
+            <div className="p-12 text-center">
+              <div className="w-12 h-12 bg-muted rounded-2xl flex items-center justify-center mx-auto mb-4 opacity-20">
+                <MessageSquare className="w-6 h-6" />
+              </div>
+              <p className="text-xs text-muted-foreground">No active appeals found.</p>
+            </div>
           ) : (
             activeChats.map((email: string) => (
               <button
                 key={email}
                 onClick={() => setSelectedChat(email)}
                 className={cn(
-                  "w-full text-left p-4 hover:bg-muted/30 border-b border-border transition-colors",
-                  selectedChat === email && "bg-primary/5 border-r-4 border-r-primary"
+                  "w-full text-left p-5 hover:bg-muted/30 border-b border-border transition-all relative group",
+                  selectedChat === email && "bg-primary/5"
                 )}
               >
-                <div className="font-bold text-foreground truncate">{email}</div>
-                <div className="text-[10px] text-muted-foreground">Suspended User</div>
+                {selectedChat === email && <div className="absolute left-0 top-0 bottom-0 w-1 bg-primary" />}
+                <div className="font-bold text-sm text-foreground truncate mb-0.5">{email}</div>
+                <div className="flex items-center justify-between">
+                  <span className="text-[10px] text-destructive font-bold uppercase tracking-tighter">Suspended Account</span>
+                  <span className="text-[9px] text-muted-foreground">2m ago</span>
+                </div>
               </button>
             ))
           )}
@@ -2192,106 +2215,171 @@ function SupportView() {
       </div>
 
       {/* Chat Window */}
-      <div className="lg:col-span-3 bg-card border border-border rounded-2xl flex flex-col overflow-hidden">
+      <div className="lg:col-span-6 bg-card border border-border rounded-3xl flex flex-col overflow-hidden shadow-sm">
         {selectedChat ? (
           <>
-            <div className="p-4 border-b border-border flex items-center justify-between bg-muted/10">
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 bg-primary/10 rounded-full flex items-center justify-center text-primary font-bold">
+            <div className="p-5 border-b border-border flex items-center justify-between bg-muted/10">
+              <div className="flex items-center gap-4">
+                <div className="w-12 h-12 bg-gradient-to-br from-primary to-primary/60 rounded-2xl flex items-center justify-center text-white font-bold text-lg shadow-lg shadow-primary/20">
                   {selectedChat.charAt(0).toUpperCase()}
                 </div>
                 <div>
-                  <h4 className="font-bold text-foreground">{selectedChat}</h4>
-                  <p className="text-[10px] text-destructive font-black uppercase tracking-widest">Risk Level: High</p>
+                  <h4 className="font-bold text-foreground text-base">{selectedChat}</h4>
+                  <div className="flex items-center gap-2">
+                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                    <p className="text-[10px] text-muted-foreground font-bold uppercase tracking-widest">User is currently active</p>
+                  </div>
                 </div>
               </div>
               <div className="flex items-center gap-2">
-                 <button className="px-3 py-1.5 rounded-lg bg-emerald-500 text-white text-[10px] font-bold">Unban User</button>
-                 <button className="px-3 py-1.5 rounded-lg bg-destructive text-white text-[10px] font-bold">View History</button>
+                 <button 
+                  onClick={() => {
+                    const banned = JSON.parse(localStorage.getItem("nexgro_banned_users") || "[]");
+                    const updated = banned.filter((e: string) => e !== selectedChat.toLowerCase());
+                    localStorage.setItem("nexgro_banned_users", JSON.stringify(updated));
+                    localStorage.removeItem(`cancel_count_${selectedChat.toLowerCase()}`);
+                    toast.success("User unbanned successfully!");
+                  }}
+                  className="px-4 py-2 rounded-xl bg-emerald-500 text-white text-xs font-bold shadow-lg shadow-emerald-200 hover:scale-105 transition-all"
+                 >
+                  Unban User
+                 </button>
               </div>
             </div>
-            <div className="flex-1 overflow-y-auto p-4 space-y-4 bg-muted/5">
+            
+            <div className="flex-1 overflow-y-auto p-6 space-y-6 bg-muted/5 custom-scrollbar">
               {messages.map((m) => (
-                <div key={m.id} className={cn("flex w-full", m.sender === "admin" ? "justify-end" : "justify-start")}>
-                  <div className={cn("max-w-[70%] px-4 py-2.5 rounded-2xl text-sm shadow-sm", 
-                    m.sender === "admin" ? "bg-primary text-white rounded-tr-none" : "bg-white border border-border text-foreground rounded-tl-none")}>
-                    {m.text}
-                    <div className="text-[9px] opacity-70 mt-1">{new Date(m.timestamp).toLocaleTimeString()}</div>
+                <div key={m.id} className={cn("flex w-full group", m.sender === "admin" ? "justify-end" : "justify-start animate-in slide-in-from-left-2")}>
+                  <div className="max-w-[80%] space-y-1">
+                    <div className={cn("px-5 py-3 rounded-2xl text-sm shadow-sm transition-all", 
+                      m.sender === "admin" 
+                        ? "bg-primary text-white rounded-tr-none" 
+                        : "bg-white border border-border text-foreground rounded-tl-none group-hover:border-primary/30")}>
+                      {m.text}
+                    </div>
+                    <div className={cn("text-[9px] font-bold uppercase tracking-widest text-muted-foreground px-1", m.sender === "admin" && "text-right")}>
+                      {m.sender === "admin" ? "Admin Support" : "User Appeal"} · {new Date(m.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                    </div>
                   </div>
                 </div>
               ))}
             </div>
-            <div className="p-4 border-t border-border bg-background flex gap-2">
-              <input
-                type="text"
-                value={replyText}
-                onChange={(e) => setReplyText(e.target.value)}
-                onKeyDown={(e) => e.key === "Enter" && handleSendReply()}
-                placeholder="Type your reply to the user..."
-                className="flex-1 bg-muted border-none rounded-xl px-4 py-2 text-sm outline-none focus:ring-2 focus:ring-primary/20"
-              />
-              <button
-                onClick={handleSendReply}
-                className="px-6 py-2 bg-primary text-white rounded-xl text-sm font-bold shadow-lg shadow-primary/25 hover:bg-primary/90"
-              >
-                Send
-              </button>
+
+            <div className="p-5 border-t border-border bg-background">
+              <div className="flex gap-3 bg-muted/50 rounded-2xl p-2 items-center border border-border/50 focus-within:border-primary/30 transition-all">
+                <input
+                  type="text"
+                  value={replyText}
+                  onChange={(e) => setReplyText(e.target.value)}
+                  onKeyDown={(e) => e.key === "Enter" && handleSendReply()}
+                  placeholder="Type your official response to the appeal..."
+                  className="flex-1 bg-transparent border-none px-4 py-2 text-sm outline-none text-foreground placeholder:text-muted-foreground/60"
+                />
+                <button
+                  onClick={handleSendReply}
+                  disabled={!replyText.trim()}
+                  className="w-10 h-10 bg-primary text-white rounded-xl flex items-center justify-center shadow-lg shadow-primary/25 hover:bg-primary/90 transition-all active:scale-95 disabled:opacity-50 disabled:grayscale"
+                >
+                  <Send className="w-4 h-4" />
+                </button>
+              </div>
             </div>
           </>
         ) : (
-          <div className="flex-1 flex flex-col items-center justify-center text-center p-12 space-y-4">
-            <div className="w-20 h-20 bg-muted rounded-full flex items-center justify-center text-muted-foreground">
-              <MessageSquare className="w-10 h-10" />
+          <div className="flex-1 flex flex-col items-center justify-center text-center p-12 space-y-6">
+            <div className="w-24 h-24 bg-muted/30 rounded-3xl flex items-center justify-center text-muted-foreground relative">
+              <MessageSquare className="w-12 h-12 opacity-20" />
+              <div className="absolute -top-2 -right-2 w-6 h-6 bg-primary rounded-full animate-ping opacity-20" />
             </div>
-            <div>
-              <h4 className="font-bold text-foreground">Select a Chat</h4>
-              <p className="text-sm text-muted-foreground">Choose an active appeal from the left to start chatting with the user.</p>
+            <div className="max-w-xs">
+              <h4 className="font-bold text-foreground text-xl">Decision Center</h4>
+              <p className="text-sm text-muted-foreground mt-2">Review restricted user appeals and investigate suspicious activity flags.</p>
             </div>
           </div>
         )}
       </div>
 
-      {/* User Details Panel (New) */}
-      {selectedChat && (
-        <div className="bg-card border border-border rounded-2xl overflow-hidden flex flex-col animate-in slide-in-from-right-4">
-          <div className="p-4 border-b border-border bg-muted/20">
-            <h3 className="font-bold text-foreground text-sm uppercase tracking-wider">User Profile</h3>
-          </div>
-          <div className="flex-1 overflow-y-auto p-4 space-y-6">
-            <div className="space-y-4">
-              <div>
-                <p className="text-[10px] text-muted-foreground uppercase font-black">Email</p>
-                <p className="text-sm font-bold text-foreground truncate">{selectedChat}</p>
-              </div>
-              <div className="grid grid-cols-2 gap-3">
-                <div className="p-3 bg-muted/30 rounded-xl">
-                  <p className="text-[10px] text-muted-foreground font-black uppercase">Cancels</p>
-                  <p className="text-xl font-black text-destructive">{localStorage.getItem(`cancel_count_${selectedChat.toLowerCase()}`) || 0}</p>
-                </div>
-                <div className="p-3 bg-muted/30 rounded-xl">
-                  <p className="text-[10px] text-muted-foreground font-black uppercase">Loyalty</p>
-                  <p className="text-xl font-black text-primary">850</p>
-                </div>
-              </div>
+      {/* User Intelligence Panel (Right Sidebar) */}
+      <div className="lg:col-span-3 space-y-6">
+        {selectedChat ? (
+          <div className="bg-card border border-border rounded-3xl overflow-hidden flex flex-col shadow-sm animate-in slide-in-from-right-4">
+            <div className="p-5 border-b border-border bg-muted/20">
+              <h3 className="font-bold text-foreground text-xs uppercase tracking-widest">User Intelligence</h3>
             </div>
-
-            <div className="space-y-3">
-              <p className="text-[10px] text-muted-foreground uppercase font-black">Recent Activity</p>
-              <div className="space-y-2">
-                {[1, 2].map((i) => (
-                  <div key={i} className="p-3 bg-card border border-border rounded-xl text-xs">
-                    <div className="flex justify-between font-bold mb-1">
-                      <span className="text-foreground">Order #ORD-2024-00{i}</span>
-                      <span className="text-destructive">Cancelled</span>
-                    </div>
-                    <p className="text-muted-foreground">3 items · $45.00</p>
+            <div className="flex-1 overflow-y-auto p-5 space-y-8 custom-scrollbar">
+              {/* Profile Card */}
+              <div className="space-y-4">
+                <div className="flex items-center justify-between">
+                  <p className="text-[10px] text-muted-foreground uppercase font-black tracking-widest">Risk Analysis</p>
+                  <span className="px-2 py-0.5 bg-destructive/10 text-destructive text-[9px] font-black rounded-lg border border-destructive/20">CRITICAL</span>
+                </div>
+                <div className="grid grid-cols-2 gap-3">
+                  <div className="p-4 bg-muted/30 rounded-2xl border border-border/50 text-center">
+                    <p className="text-[9px] text-muted-foreground font-black uppercase mb-1">Cancels</p>
+                    <p className="text-2xl font-black text-destructive">{localStorage.getItem(`cancel_count_${selectedChat.toLowerCase()}`) || 0}</p>
                   </div>
-                ))}
+                  <div className="p-4 bg-muted/30 rounded-2xl border border-border/50 text-center">
+                    <p className="text-[9px] text-muted-foreground font-black uppercase mb-1">Loyalty</p>
+                    <p className="text-2xl font-black text-primary">124</p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Order History */}
+              <div className="space-y-4">
+                <p className="text-[10px] text-muted-foreground uppercase font-black tracking-widest flex items-center gap-2">
+                  <ShoppingCart className="w-3 h-3" /> Recent Orders
+                </p>
+                <div className="space-y-2">
+                  {[1, 2, 3].map((i) => (
+                    <div key={i} className="p-4 bg-card border border-border rounded-2xl text-xs hover:border-primary/20 transition-all cursor-default">
+                      <div className="flex justify-between font-bold mb-1">
+                        <span className="text-foreground text-[11px]">#ORD-2024-0{850 + i}</span>
+                        <span className={i === 1 ? "text-destructive" : "text-emerald-600"}>{i === 1 ? "Cancelled" : "Delivered"}</span>
+                      </div>
+                      <div className="flex items-center justify-between text-muted-foreground text-[10px]">
+                        <span>April {20 + i}, 2026</span>
+                        <span className="font-bold">${(15 * i + 12).toFixed(2)}</span>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+                <button className="w-full py-2.5 text-[10px] font-bold text-primary uppercase tracking-widest hover:underline">View Full Ledger</button>
+              </div>
+
+              {/* Activity Log */}
+              <div className="space-y-4">
+                <p className="text-[10px] text-muted-foreground uppercase font-black tracking-widest flex items-center gap-2">
+                  <Zap className="w-3 h-3" /> System Logs
+                </p>
+                <div className="space-y-3 relative before:absolute before:left-2 before:top-2 before:bottom-2 before:w-[1px] before:bg-border">
+                  {[
+                    { log: "Account Suspended (Auto)", time: "2h ago", color: "bg-destructive" },
+                    { log: "3rd Cancellation detected", time: "2.1h ago", color: "bg-orange-500" },
+                    { log: "Appeal Submitted", time: "1.5h ago", color: "bg-primary" },
+                  ].map((l, i) => (
+                    <div key={i} className="pl-6 relative">
+                      <div className={cn("absolute left-[4.5px] top-1.5 w-2 h-2 rounded-full border-2 border-background", l.color)} />
+                      <p className="text-[11px] font-bold text-foreground leading-none mb-1">{l.log}</p>
+                      <p className="text-[9px] text-muted-foreground">{l.time}</p>
+                    </div>
+                  ))}
+                </div>
               </div>
             </div>
           </div>
-        </div>
-      )}
+        ) : (
+          <div className="p-6 bg-primary/5 border border-primary/10 rounded-3xl space-y-4">
+             <div className="w-10 h-10 bg-primary/20 rounded-2xl flex items-center justify-center text-primary">
+                <ShieldCheck className="w-5 h-5" />
+             </div>
+             <h4 className="text-sm font-bold text-foreground uppercase tracking-tight">Security Protocol</h4>
+             <p className="text-xs text-muted-foreground leading-relaxed">
+              Always verify order history and cancellation patterns before approving an appeal. Manual unbans bypass the safety guards for 24 hours.
+             </p>
+          </div>
+        )}
+      </div>
     </div>
   );
 }
@@ -4185,9 +4273,7 @@ function ChatView() {
   const { data: messages = [] } = useGetThreadMessages(selectedThreadId ?? "");
 
   const displayThreads = threads;
-
   const selectedThread = displayThreads.find((t) => t.id === selectedThreadId);
-
   const displayMessages = messages;
 
   async function handleSend(e: React.FormEvent) {
@@ -4202,61 +4288,64 @@ function ChatView() {
   }
 
   return (
-    <div data-ocid="admin.chat_section">
-      <h2 className="font-display text-lg font-bold text-foreground mb-4">
-        Support Chat
-      </h2>
-      <div className="grid md:grid-cols-5 gap-4 min-h-[500px]">
+    <div data-ocid="admin.chat_section" className="space-y-4">
+      <div className="flex items-center justify-between">
+        <h2 className="font-display text-lg font-bold text-foreground">
+          Support Chat
+        </h2>
+        {selectedThread && (
+           <div className="flex items-center gap-2">
+              <span className="text-[10px] bg-emerald-500/10 text-emerald-600 px-2 py-0.5 rounded-full font-black border border-emerald-500/20">LIVE: {selectedThread.userName}</span>
+           </div>
+        )}
+      </div>
+      
+      <div className="grid lg:grid-cols-12 gap-6 min-h-[600px]">
         {/* Thread list */}
-        <div className="md:col-span-2 bg-card border border-border rounded-xl overflow-hidden flex flex-col">
-          <div className="px-4 py-3 border-b border-border">
-            <p className="text-sm font-semibold text-foreground">
-              All Threads{" "}
-              <span className="text-muted-foreground font-normal">
-                ({displayThreads.length})
-              </span>
+        <div className="lg:col-span-3 bg-card border border-border rounded-2xl overflow-hidden flex flex-col shadow-sm">
+          <div className="px-4 py-4 border-b border-border bg-muted/10">
+            <p className="text-xs font-bold text-muted-foreground uppercase tracking-widest">
+              Conversations ({displayThreads.length})
             </p>
           </div>
-          <div className="overflow-y-auto flex-1 divide-y divide-border">
+          <div className="overflow-y-auto flex-1 divide-y divide-border custom-scrollbar">
             {displayThreads.map((thread, i) => (
               <button
                 key={thread.id}
                 type="button"
                 onClick={() => setSelectedThreadId(thread.id)}
                 className={cn(
-                  "w-full text-left px-4 py-3 hover:bg-muted/30 transition-colors",
+                  "w-full text-left px-4 py-4 hover:bg-muted/30 transition-all relative group",
                   selectedThreadId === thread.id
-                    ? "bg-primary/5 border-l-2 border-l-primary"
+                    ? "bg-primary/5"
                     : "",
                 )}
                 data-ocid={`admin.chat.thread.item.${i + 1}`}
               >
+                {selectedThreadId === thread.id && <div className="absolute left-0 top-0 bottom-0 w-1 bg-primary" />}
                 <div className="flex items-start justify-between gap-2">
                   <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-2">
-                      <span className="font-medium text-sm text-foreground truncate">
+                    <div className="flex items-center gap-2 mb-0.5">
+                      <span className="font-bold text-sm text-foreground truncate">
                         {thread.userName}
                       </span>
                       {!thread.isResolved && (
-                        <span className="w-2 h-2 rounded-full bg-accent shrink-0" />
+                        <span className="w-2 h-2 rounded-full bg-accent shrink-0 animate-pulse" />
                       )}
                     </div>
-                    <p className="text-xs text-muted-foreground truncate">
+                    <p className="text-xs text-muted-foreground truncate font-medium">
                       {thread.subject}
-                    </p>
-                    <p className="text-xs text-muted-foreground/70 truncate mt-0.5">
-                      {thread.lastMessage}
                     </p>
                   </div>
                   <span
                     className={cn(
-                      "text-[10px] px-1.5 py-0.5 rounded-full font-medium shrink-0",
+                      "text-[9px] px-1.5 py-0.5 rounded-full font-black uppercase shrink-0",
                       thread.isResolved
                         ? "bg-muted text-muted-foreground"
                         : "bg-accent/10 text-accent",
                     )}
                   >
-                    {thread.isResolved ? "Done" : "Open"}
+                    {thread.isResolved ? "Done" : "New"}
                   </span>
                 </div>
               </button>
@@ -4265,32 +4354,37 @@ function ChatView() {
         </div>
 
         {/* Message view */}
-        <div className="md:col-span-3 bg-card border border-border rounded-xl overflow-hidden flex flex-col">
+        <div className="lg:col-span-6 bg-card border border-border rounded-2xl overflow-hidden flex flex-col shadow-sm">
           {!selectedThread ? (
             <div
-              className="flex-1 flex items-center justify-center text-center p-8"
+              className="flex-1 flex flex-col items-center justify-center text-center p-12 space-y-4"
               data-ocid="admin.chat.empty_state"
             >
-              <div>
-                <MessageSquare className="w-10 h-10 text-muted-foreground/30 mx-auto mb-3" />
-                <p className="font-semibold text-foreground">
-                  Select a conversation
-                </p>
+              <div className="w-20 h-20 bg-muted/50 rounded-3xl flex items-center justify-center text-muted-foreground/30">
+                <MessageSquare className="w-10 h-10" />
+              </div>
+              <div className="max-w-xs">
+                <p className="font-bold text-foreground text-lg">Customer Service</p>
                 <p className="text-sm text-muted-foreground mt-1">
-                  Click a thread to view messages
+                  Select a thread from the side panel to view full conversation and user intelligence.
                 </p>
               </div>
             </div>
           ) : (
             <>
-              <div className="px-5 py-3 border-b border-border flex items-center justify-between">
-                <div>
-                  <p className="font-semibold text-sm text-foreground">
-                    {selectedThread.userName}
-                  </p>
-                  <p className="text-xs text-muted-foreground">
-                    {selectedThread.subject}
-                  </p>
+              <div className="px-5 py-4 border-b border-border flex items-center justify-between bg-muted/5">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 bg-primary/10 rounded-xl flex items-center justify-center text-primary font-bold">
+                    {selectedThread.userName.charAt(0)}
+                  </div>
+                  <div>
+                    <p className="font-bold text-sm text-foreground leading-none mb-1">
+                      {selectedThread.userName}
+                    </p>
+                    <p className="text-[10px] text-muted-foreground uppercase tracking-widest font-black">
+                      {selectedThread.subject}
+                    </p>
+                  </div>
                 </div>
                 {!selectedThread.isResolved && (
                   <button
@@ -4299,46 +4393,47 @@ function ChatView() {
                       resolveThread.mutate(selectedThread.id);
                       toast.success("Thread resolved!");
                     }}
-                    className="text-xs bg-primary/10 text-primary px-3 py-1.5 rounded-lg hover:bg-primary/20 transition-colors font-medium"
+                    className="text-[10px] bg-foreground text-background px-3 py-2 rounded-lg hover:opacity-90 transition-all font-black uppercase tracking-widest"
                     data-ocid="admin.chat.resolve_button"
                   >
-                    <CheckCircle className="w-3.5 h-3.5 inline mr-1" />
-                    Resolve
+                    Mark as Solved
                   </button>
                 )}
               </div>
 
-              <div className="flex-1 overflow-y-auto p-4 space-y-3">
+              <div className="flex-1 overflow-y-auto p-6 space-y-6 custom-scrollbar bg-muted/5">
                 {displayMessages.map((msg) => (
                   <div
                     key={msg.id}
                     className={cn(
-                      "flex gap-2",
+                      "flex gap-3",
                       msg.isAdmin ? "flex-row-reverse" : "",
                     )}
                   >
                     <div
                       className={cn(
-                        "w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold shrink-0",
+                        "w-8 h-8 rounded-full flex items-center justify-center text-[10px] font-black shrink-0",
                         msg.isAdmin
-                          ? "bg-primary text-primary-foreground"
-                          : "bg-muted text-muted-foreground",
+                          ? "bg-foreground text-background"
+                          : "bg-primary/10 text-primary border border-primary/20",
                       )}
                     >
                       {msg.isAdmin ? "A" : msg.senderName.charAt(0)}
                     </div>
-                    <div
-                      className={cn(
-                        "max-w-[75%] rounded-2xl px-3.5 py-2.5 text-sm",
-                        msg.isAdmin
-                          ? "bg-primary/10 text-foreground rounded-tr-sm"
-                          : "bg-muted text-foreground rounded-tl-sm",
-                      )}
-                    >
-                      <p className="text-xs font-semibold mb-1 text-muted-foreground">
-                        {msg.senderName}
+                    <div className={cn("max-w-[75%] space-y-1", msg.isAdmin && "items-end")}>
+                      <div
+                        className={cn(
+                          "rounded-2xl px-4 py-2.5 text-sm shadow-sm",
+                          msg.isAdmin
+                            ? "bg-primary text-primary-foreground rounded-tr-none"
+                            : "bg-white border border-border text-foreground rounded-tl-none",
+                        )}
+                      >
+                        <p>{msg.text}</p>
+                      </div>
+                      <p className="text-[9px] text-muted-foreground font-bold uppercase tracking-widest px-1">
+                        {msg.senderName} · {new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                       </p>
-                      <p>{msg.text}</p>
                     </div>
                   </div>
                 ))}
@@ -4346,27 +4441,89 @@ function ChatView() {
 
               <form
                 onSubmit={handleSend}
-                className="p-3 border-t border-border flex gap-2"
+                className="p-5 border-t border-border bg-background"
               >
-                <input
-                  type="text"
-                  value={replyText}
-                  placeholder="Type a reply…"
-                  onChange={(e) => setReplyText(e.target.value)}
-                  className="flex-1 px-3 py-2.5 text-sm border border-input rounded-xl bg-background focus:outline-none focus:ring-2 focus:ring-primary/20"
-                  data-ocid="admin.chat.reply_input"
-                />
-                <button
-                  type="submit"
-                  disabled={!replyText.trim()}
-                  className="px-4 py-2.5 bg-primary text-primary-foreground rounded-xl text-sm font-semibold hover:bg-primary/90 transition-colors disabled:opacity-50"
-                  data-ocid="admin.chat.send_button"
-                >
-                  <Send className="w-4 h-4" />
-                </button>
+                <div className="flex gap-2 bg-muted/30 p-2 rounded-2xl border border-border/50 focus-within:border-primary/30 transition-all">
+                  <input
+                    type="text"
+                    value={replyText}
+                    placeholder="Type a professional response…"
+                    onChange={(e) => setReplyText(e.target.value)}
+                    className="flex-1 bg-transparent border-none px-3 py-2 text-sm outline-none text-foreground"
+                    data-ocid="admin.chat.reply_input"
+                  />
+                  <button
+                    type="submit"
+                    disabled={!replyText.trim()}
+                    className="w-10 h-10 bg-primary text-white rounded-xl flex items-center justify-center shadow-lg shadow-primary/25 hover:bg-primary/90 transition-all disabled:opacity-50"
+                    data-ocid="admin.chat.send_button"
+                  >
+                    <Send className="w-4 h-4" />
+                  </button>
+                </div>
               </form>
             </>
           )}
+        </div>
+
+        {/* User Context Sidebar */}
+        <div className="lg:col-span-3 space-y-6">
+           {selectedThread ? (
+              <div className="bg-card border border-border rounded-2xl overflow-hidden shadow-sm animate-in slide-in-from-right-4">
+                 <div className="p-4 border-b border-border bg-muted/20">
+                    <h3 className="text-[10px] font-black text-foreground uppercase tracking-widest">User Intelligence</h3>
+                 </div>
+                 <div className="p-4 space-y-6 overflow-y-auto max-h-[600px] custom-scrollbar">
+                    {/* Security Info */}
+                    <div className="space-y-3">
+                       <p className="text-[9px] text-muted-foreground uppercase font-black">Security Profile</p>
+                       <div className="grid grid-cols-2 gap-2">
+                          <div className="p-3 bg-muted/30 rounded-xl border border-border/50">
+                             <p className="text-[8px] text-muted-foreground uppercase font-black">Cancels</p>
+                             <p className="text-lg font-black text-foreground">0</p>
+                          </div>
+                          <div className="p-3 bg-primary/10 rounded-xl border border-primary/20">
+                             <p className="text-[8px] text-primary uppercase font-black">Loyalty</p>
+                             <p className="text-lg font-black text-primary">2,450</p>
+                          </div>
+                       </div>
+                    </div>
+
+                    {/* Order History */}
+                    <div className="space-y-3">
+                       <p className="text-[9px] text-muted-foreground uppercase font-black">Order Activities</p>
+                       <div className="space-y-2">
+                          {[1, 2].map(i => (
+                             <div key={i} className="p-3 bg-card border border-border rounded-xl text-[10px]">
+                                <div className="flex justify-between font-bold mb-1">
+                                   <span>#ORD-2024-00{i}</span>
+                                   <span className="text-emerald-600 font-black">DELIVERED</span>
+                                </div>
+                                <p className="text-muted-foreground">$32.50 · 4 Items</p>
+                             </div>
+                          ))}
+                       </div>
+                    </div>
+
+                    {/* Preferences */}
+                    <div className="space-y-3">
+                       <p className="text-[9px] text-muted-foreground uppercase font-black">Dietary Preferences</p>
+                       <div className="flex flex-wrap gap-1">
+                          {["Vegan", "Organic", "Gluten-Free"].map(tag => (
+                             <span key={tag} className="px-2 py-0.5 bg-muted rounded-md text-[9px] font-bold text-muted-foreground">{tag}</span>
+                          ))}
+                       </div>
+                    </div>
+
+                    <button className="w-full py-2.5 bg-muted text-foreground text-[10px] font-black uppercase tracking-widest rounded-xl hover:bg-muted/80 transition-colors">View Full Profile</button>
+                 </div>
+              </div>
+           ) : (
+              <div className="p-6 bg-muted/20 border border-dashed border-border rounded-2xl flex flex-col items-center text-center space-y-3">
+                 <ShieldCheck className="w-8 h-8 text-muted-foreground/30" />
+                 <p className="text-[10px] text-muted-foreground font-medium uppercase tracking-widest">Awaiting Selection</p>
+              </div>
+           )}
         </div>
       </div>
     </div>

@@ -1,8 +1,27 @@
 import { ShieldAlert, MessageSquare, ArrowLeft } from "lucide-react";
 import { useNavigate } from "@tanstack/react-router";
+import { useEffect } from "react";
+import { toast } from "sonner";
 
 export default function BannedPage() {
   const navigate = useNavigate();
+
+  useEffect(() => {
+    const checkBanStatus = () => {
+      const currentUserEmail = localStorage.getItem("currentUserEmail");
+      const bannedEmails = JSON.parse(localStorage.getItem("nexgro_banned_users") || "[]");
+      
+      if (currentUserEmail && !bannedEmails.includes(currentUserEmail.toLowerCase())) {
+        toast.success("Welcome back! Your restriction has been lifted.");
+        window.location.href = "/home";
+      }
+    };
+
+    checkBanStatus();
+    // Also check every 5 seconds in case unbanned while on page
+    const interval = setInterval(checkBanStatus, 5000);
+    return () => clearInterval(interval);
+  }, []);
 
   return (
     <div className="min-h-screen bg-background flex items-center justify-center p-6">

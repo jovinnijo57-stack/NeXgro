@@ -96,6 +96,8 @@ export default function Login() {
     inputRefs.current[focusIdx]?.focus();
   }
 
+  const [isShaking, setIsShaking] = useState(false);
+
   async function handleEmailSignIn(e: React.FormEvent) {
     e.preventDefault();
     setDemoNote(false);
@@ -104,14 +106,17 @@ export default function Login() {
       const users = getRegisteredUsers();
       const lowerEmail = email.toLowerCase().trim();
       const bannedEmails = JSON.parse(localStorage.getItem("nexgro_banned_users") || "[]");
+      const isDeviceRestricted = localStorage.getItem("nexgro_device_restricted") === "true";
       
-      if (bannedEmails.includes(lowerEmail)) {
+      if (bannedEmails.includes(lowerEmail) || isDeviceRestricted) {
         window.location.href = "/banned";
         return;
       }
       
       if (!users[lowerEmail]) {
         toast.error("Account not found. Please register first.");
+        setIsShaking(true);
+        setTimeout(() => setIsShaking(false), 500);
         return;
       }
 
@@ -120,9 +125,11 @@ export default function Login() {
         localStorage.setItem("isLoggedIn", "true");
         localStorage.setItem("currentUserEmail", lowerEmail);
         toast.success("Welcome back!");
-        window.location.href = "/home"; // Direct to home if already located, or location-setup will guard
+        window.location.href = "/home"; 
       } else {
         toast.error("Invalid credentials. Please check your password.");
+        setIsShaking(true);
+        setTimeout(() => setIsShaking(false), 500);
       }
     } else {
       toast.error("Please enter both email and password.");
@@ -370,7 +377,7 @@ export default function Login() {
           {/* ── Email / password form ── */}
           <form
             onSubmit={handleEmailSignIn}
-            className="space-y-3"
+            className={cn("space-y-3", isShaking && "animate-shake")}
             data-ocid="login.email_form"
           >
             <div>
