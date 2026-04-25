@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <title>NeXgro — Fresh Groceries Delivered Fast</title>
+    <meta name="description" content="NeXgro — Your Instamart-style grocery store. Fresh groceries delivered to your door." />
+    <meta property="og:title" content="NeXgro — Fresh Groceries Delivered Fast" />
+    <meta property="og:description" content="Fresh groceries, flash deals, loyalty rewards. Order in minutes." />
+    <meta property="og:type" content="website" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <link rel="icon" type="image/x-icon" href="/favicon.ico" />
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBfe2445i7JhUmLU9kOSV501JooLbcoydg&libraries=places&callback=initMap" async defer></script>
+    <script>
+      window.initMap = function() {
+        console.log("Google Maps API loaded successfully.");
+      };
+      window.gm_authFailure = function() {
+        console.error("Google Maps authentication failed. Please check your API key and restrictions.");
+        const mapElements = document.querySelectorAll('[data-google-map]');
+        mapElements.forEach(el => {
+          el.innerHTML = '<div class="flex flex-col items-center justify-center h-full p-4 text-center bg-muted/20 text-muted-foreground"><p className="font-semibold mb-2">Map Loading Error</p><p className="text-xs">The Google Maps API key might be restricted or the Maps JS API is not enabled. Please check your Google Cloud Console.</p></div>';
+        });
+      };
+    </script>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="./src/main.tsx"></script>
+  </body>
+</html>

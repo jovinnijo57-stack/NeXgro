@@ -1,0 +1,33 @@
+{
+  "overview": "NeXgro is a full-featured Instamart-style online grocery platform with a rich customer-facing shopping experience and a comprehensive admin dashboard. It includes loyalty programs, referrals, reviews, bundles, advanced authentication, promotions, multi-language support, dark mode, QR reorder, wishlist sharing, recipe shopping, subscription boxes, age-gated products, live delivery tracking, and much more.",
+  "features": [
+    "Cart & Checkout with tip, CoD, and live savings tracker",
+    "Admin dashboard with 14 dedicated sub-pages",
+    "Enhanced promotional banners (hero, sale, category)",
+    "Dark mode toggle (persists across sessions)",
+    "Live delivery agent map (simulated GPS tracking)",
+    "Product comparison tool (up to 3 products)",
+    "QR code quick reorder",
+    "Wishlist sharing via invite link",
+    "Price drop alerts",
+    "Recipe-based shopping (auto-add ingredients)",
+    "Subscription boxes (weekly/monthly plans)",
+    "Age-gated products (alcohol/tobacco)",
+    "Multi-language support (EN, HI, ES)",
+    "Push notification prompts for order events"
+  ],
+  "category": "e-commerce",
+  "tags": [
+    "grocery",
+    "e-commerce",
+    "instamart",
+    "shopping",
+    "admin-dashboard",
+    "dark-mode",
+    "multi-language",
+    "loyalty",
+    "subscriptions",
+    "recipes"
+  ],
+  "last_updated": "2026-04-23T02:44:21.018Z"
+}
