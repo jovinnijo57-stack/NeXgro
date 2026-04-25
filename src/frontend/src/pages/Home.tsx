@@ -33,6 +33,7 @@ import {
   Zap,
   X,
   AlertTriangle,
+  Bell,
   Map as MapIcon,
 } from "lucide-react";
 import { useCallback, useEffect, useRef, useState, useMemo } from "react";

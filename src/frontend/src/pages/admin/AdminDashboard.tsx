@@ -96,6 +96,9 @@ import {
   ChevronRight,
   Eye,
   EyeOff,
+  Clock,
+  ShieldAlert,
+  Map as MapIcon,
 } from "lucide-react";
 import { useState } from "react";
 
