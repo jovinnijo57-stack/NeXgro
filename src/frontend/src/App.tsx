@@ -150,8 +150,10 @@ const bannedSupportRoute = createRoute({
 });
 
 const AIShopperPage = lazy(() => import("@/pages/AIShopper"));
-const RecipesPage = lazy(() => import("@/pages/Recipes"));
 const SubscriptionsPage = lazy(() => import("@/pages/SubscriptionsPage"));
+const RecipesPage = lazy(() => import("@/pages/Recipes"));
+const SmartPantryPage = lazy(() => import("@/pages/SmartPantry"));
+const ComparisonPage = lazy(() => import("@/pages/ComparisonPage"));
 
 const verifyEmailRoute = createRoute({
   getParentRoute: () => rootRoute,
@@ -231,29 +233,13 @@ const aiShopperRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: "/ai-shopper",
   component: () => (
-    <Suspense fallback={<PageLoader />}>
-      <AIShopperPage />
-    </Suspense>
-  ),
-});
-
-const recipesRoute = createRoute({
-  getParentRoute: () => rootRoute,
-  path: "/recipes",
-  component: () => (
-    <Suspense fallback={<PageLoader />}>
-      <RecipesPage />
-    </Suspense>
-  ),
-});
-
-const subscriptionsRoute = createRoute({
-  getParentRoute: () => rootRoute,
-  path: "/subscriptions",
-  component: () => (
-    <Suspense fallback={<PageLoader />}>
-      <SubscriptionsPage />
-    </Suspense>
+    <AuthGuard>
+      <Layout>
+        <Suspense fallback={<PageLoader />}>
+          <AIShopperPage />
+        </Suspense>
+      </Layout>
+    </AuthGuard>
   ),
 });
 
@@ -425,6 +411,19 @@ const subscriptionsRoute = createRoute({
   ),
 });
 
+const smartPantryRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: "/smart-pantry",
+  component: () => (
+    <AuthGuard>
+      <Layout>
+        <Suspense fallback={<PageLoader />}>
+          <SmartPantryPage />
+        </Suspense>
+      </Layout>
+    </AuthGuard>
+  ),
+});
 const comparisonRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: "/products/compare",
@@ -714,8 +713,7 @@ const routeTree = rootRoute.addChildren([
   walletRoute,
   referralsRoute,
   mealPlannerRoute,
-  recipesRoute,
-  subscriptionsRoute,
+  smartPantryRoute,
   adminRoute,
   adminProductsRoute,
   adminOrdersRoute,

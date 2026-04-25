@@ -2296,6 +2296,234 @@ function SupportView() {
   );
 }
 
+// ─── Section: Advanced Intelligence ──────────────────────────────────────────
+
+function HeatmapView() {
+  return (
+    <div className="space-y-6">
+      <div className="bg-card border border-border rounded-2xl p-6">
+        <h3 className="font-bold text-foreground flex items-center gap-2 mb-4">
+          <MapIcon className="w-5 h-5 text-primary" /> Live Demand Heatmap
+        </h3>
+        <div className="relative aspect-video bg-muted/30 rounded-xl overflow-hidden border border-border flex items-center justify-center">
+          <img src="https://images.unsplash.com/photo-1526778548025-fa2f459cd5c1?auto=format&fit=crop&q=80&w=1200" className="w-full h-full object-cover opacity-50 grayscale" alt="Map" />
+          <div className="absolute inset-0 flex items-center justify-center">
+             {/* Fake heatmap circles */}
+             <div className="w-32 h-32 bg-red-500/40 rounded-full blur-3xl animate-pulse absolute top-1/4 left-1/3" />
+             <div className="w-24 h-24 bg-orange-500/40 rounded-full blur-3xl animate-pulse absolute bottom-1/3 right-1/4" />
+             <div className="w-40 h-40 bg-emerald-500/40 rounded-full blur-3xl animate-pulse absolute top-1/2 left-1/2" />
+          </div>
+          <div className="absolute top-4 left-4 bg-background/80 backdrop-blur-md p-3 rounded-xl border border-border text-[10px] space-y-2">
+            <div className="flex items-center gap-2">
+              <div className="w-2 h-2 rounded-full bg-red-500" /> <span>High Demand (North Zone)</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <div className="w-2 h-2 rounded-full bg-orange-500" /> <span>Medium Demand (East Zone)</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        {/* Dynamic Pricing */}
+        <div className="bg-card border border-border rounded-2xl p-6">
+          <h3 className="font-bold text-foreground flex items-center gap-2 mb-4">
+            <Zap className="w-5 h-5 text-primary" /> Dynamic Pricing AI
+          </h3>
+          <div className="space-y-3">
+            {[
+              { name: "Organic Bananas", expiry: "2 days", oldPrice: 4.50, newPrice: 2.25, discount: "50%" },
+              { name: "Sourdough Bread", expiry: "1 day", oldPrice: 6.00, newPrice: 3.00, discount: "50%" },
+              { name: "Fresh Milk 1L", expiry: "3 days", oldPrice: 2.50, newPrice: 1.80, discount: "28%" },
+            ].map(p => (
+              <div key={p.name} className="flex items-center justify-between p-3 bg-muted/20 rounded-xl">
+                <div>
+                  <p className="text-sm font-bold">{p.name}</p>
+                  <p className="text-[10px] text-destructive font-black uppercase tracking-widest">Expires in {p.expiry}</p>
+                </div>
+                <div className="text-right">
+                  <p className="text-[10px] line-through text-muted-foreground">${p.oldPrice.toFixed(2)}</p>
+                  <p className="text-sm font-black text-emerald-600">${p.newPrice.toFixed(2)}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Fraud Detection */}
+        <div className="bg-card border border-border rounded-2xl p-6">
+          <h3 className="font-bold text-foreground flex items-center gap-2 mb-4">
+            <ShieldAlert className="w-5 h-5 text-destructive" /> Fraud Detection Suite
+          </h3>
+          <div className="space-y-3">
+            {[
+              { type: "IP Conflict", user: "john_doe@gmail.com", detail: "3 accounts from same IP", risk: "High" },
+              { type: "Rapid Signup", user: "temp_123@yahoo.com", detail: "Joined 2 min after ban", risk: "Critical" },
+              { type: "Large Order", user: "whale_99@test.com", detail: "Unusual $1200 cart value", risk: "Medium" },
+            ].map((f, i) => (
+              <div key={i} className="flex items-center justify-between p-3 bg-destructive/5 border border-destructive/10 rounded-xl">
+                <div>
+                  <p className="text-sm font-bold">{f.type}</p>
+                  <p className="text-[10px] text-muted-foreground">{f.user}</p>
+                </div>
+                <span className={cn(
+                  "text-[9px] font-black uppercase px-2 py-0.5 rounded-md",
+                  f.risk === "Critical" ? "bg-destructive text-white" : "bg-orange-500 text-white"
+                )}>
+                  {f.risk}
+                </span>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ─── Section: Intelligence (Heatmap, Dynamic Pricing, Fraud) ──────────────────
+
+function IntelligenceView() {
+  const [activeTab, setActiveTab] = useState<"heatmap" | "pricing" | "fraud">("heatmap");
+
+  return (
+    <div className="space-y-6" data-ocid="admin.intelligence_section">
+      <div className="flex bg-muted/50 p-1 rounded-2xl w-fit">
+        {[
+          { id: "heatmap", label: "Demand Map", icon: MapPin },
+          { id: "pricing", label: "AI Pricing", icon: Zap },
+          { id: "fraud", label: "Fraud Watch", icon: ShieldAlert }
+        ].map(t => (
+          <button
+            key={t.id}
+            onClick={() => setActiveTab(t.id as any)}
+            className={cn(
+              "flex items-center gap-2 px-6 py-2.5 rounded-xl text-sm font-bold transition-all",
+              activeTab === t.id ? "bg-card text-foreground shadow-sm" : "text-muted-foreground hover:text-foreground"
+            )}
+          >
+            <t.icon className="w-4 h-4" />
+            {t.label}
+          </button>
+        ))}
+      </div>
+
+      <div className="bg-card border border-border rounded-3xl p-6 min-h-[500px]">
+        {activeTab === "heatmap" && (
+          <div className="space-y-6 animate-in fade-in">
+            <div className="flex items-center justify-between">
+              <div>
+                <h3 className="text-xl font-bold text-foreground">Live Demand Heatmap</h3>
+                <p className="text-sm text-muted-foreground">Real-time order density across active service zones.</p>
+              </div>
+              <div className="flex items-center gap-2 px-3 py-1 bg-emerald-500/10 text-emerald-500 rounded-full text-[10px] font-black uppercase tracking-widest border border-emerald-500/20">
+                <div className="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-pulse" />
+                Live: 42 Active Couriers
+              </div>
+            </div>
+            
+            {/* Mock Map UI */}
+            <div className="relative aspect-video rounded-2xl bg-muted/30 overflow-hidden border border-border flex items-center justify-center">
+               <div className="absolute inset-0 opacity-20" style={{ backgroundImage: "radial-gradient(#000 1px, transparent 1px)", backgroundSize: "20px 20px" }} />
+               <div className="relative w-full h-full p-12">
+                  {/* Heatmap pulses */}
+                  <div className="absolute top-1/4 left-1/3 w-32 h-32 bg-primary/40 rounded-full blur-3xl animate-pulse" />
+                  <div className="absolute bottom-1/3 right-1/4 w-48 h-48 bg-primary/20 rounded-full blur-3xl" />
+                  <div className="absolute top-1/2 left-1/2 w-24 h-24 bg-destructive/20 rounded-full blur-3xl animate-bounce" />
+                  
+                  {/* Map Markers */}
+                  {[1,2,3,4,5].map(i => (
+                    <div key={i} className="absolute p-2 bg-primary text-white rounded-lg shadow-xl animate-bounce" style={{ top: `${20*i}%`, left: `${15*i}%` }}>
+                      <ShoppingCart className="w-4 h-4" />
+                    </div>
+                  ))}
+               </div>
+               <div className="absolute bottom-6 right-6 p-4 bg-background/80 backdrop-blur-md rounded-2xl border border-border shadow-2xl space-y-2">
+                  <p className="text-[10px] font-black uppercase text-muted-foreground">Top Zones</p>
+                  <div className="space-y-1">
+                    <p className="text-xs font-bold">1. Central Market (High)</p>
+                    <p className="text-xs font-bold">2. West Side Suites (Medium)</p>
+                  </div>
+               </div>
+            </div>
+          </div>
+        )}
+
+        {activeTab === "pricing" && (
+          <div className="space-y-6 animate-in slide-in-from-bottom-4">
+             <div>
+                <h3 className="text-xl font-bold text-foreground">Dynamic Pricing AI</h3>
+                <p className="text-sm text-muted-foreground">Automated discounts for products nearing expiry.</p>
+              </div>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                 {[
+                   { name: "Organic Milk", stock: 12, expiry: "2 days", discount: "25%", reason: "Expiry Near" },
+                   { name: "Fresh Strawberries", stock: 45, expiry: "1 day", discount: "40%", reason: "Overstock" },
+                   { name: "Artisan Bread", stock: 8, expiry: "Today", discount: "60%", reason: "End of Day" }
+                 ].map(p => (
+                   <div key={p.name} className="p-5 bg-card border border-border rounded-2xl space-y-4">
+                      <div className="flex justify-between">
+                        <span className="text-sm font-bold">{p.name}</span>
+                        <span className="px-2 py-0.5 bg-primary/10 text-primary text-[10px] font-black rounded-lg">-{p.discount}</span>
+                      </div>
+                      <div className="flex justify-between text-[10px] text-muted-foreground uppercase font-black">
+                        <span>Expiry: {p.expiry}</span>
+                        <span>Stock: {p.stock}</span>
+                      </div>
+                      <div className="w-full bg-muted h-1 rounded-full overflow-hidden">
+                        <div className="bg-primary h-full w-[80%]" />
+                      </div>
+                      <button className="w-full py-2 bg-foreground text-background rounded-xl text-[10px] font-bold">Auto-Price Active</button>
+                   </div>
+                 ))}
+              </div>
+          </div>
+        )}
+
+        {activeTab === "fraud" && (
+          <div className="space-y-6 animate-in slide-in-from-right-4">
+             <div>
+                <h3 className="text-xl font-bold text-foreground">Fraud Detection Suite</h3>
+                <p className="text-sm text-muted-foreground">System flagged accounts with suspicious activities.</p>
+              </div>
+              <div className="overflow-hidden border border-border rounded-2xl">
+                <table className="w-full text-sm">
+                  <thead className="bg-muted/50 border-b border-border">
+                    <tr className="text-[10px] text-muted-foreground uppercase font-black text-left">
+                      <th className="p-4">User</th>
+                      <th className="p-4">Flag Reason</th>
+                      <th className="p-4">Risk</th>
+                      <th className="p-4">Action</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-border">
+                    {[
+                      { user: "user42@gmail.com", reason: "Multiple Accs / Same Device", risk: "High" },
+                      { user: "scammer@proton.me", reason: "Rapid Wallet Withdrawal", risk: "Critical" },
+                      { user: "bot_tester@123.com", reason: "Automated Scripts Detected", risk: "Medium" }
+                    ].map(f => (
+                      <tr key={f.user} className="hover:bg-muted/20">
+                        <td className="p-4 font-bold">{f.user}</td>
+                        <td className="p-4 text-xs text-muted-foreground">{f.reason}</td>
+                        <td className="p-4">
+                          <span className={cn(
+                            "px-2 py-0.5 rounded-lg text-[10px] font-black uppercase",
+                            f.risk === "Critical" ? "bg-destructive text-white" : f.risk === "High" ? "bg-orange-500 text-white" : "bg-yellow-500 text-black"
+                          )}>{f.risk}</span>
+                        </td>
+                        <td className="p-4"><button className="text-primary font-bold text-xs hover:underline">Investigate</button></td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
 // ─── Section: Inventory ───────────────────────────────────────────────────────
 
 function InventoryView() {

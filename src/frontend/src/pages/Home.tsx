@@ -19,6 +19,9 @@ import {
   ChevronRight,
   Grid3X3,
   RefreshCw,
+  Mic,
+  MicOff,
+  Search,
   ShoppingCart,
   ShoppingBag,
   Sparkles,
@@ -828,6 +831,59 @@ const PROMO_ITEMS = [
   { icon: ShoppingBag, label: "Easy returns", sub: "No questions asked" },
 ];
 
+function SearchBar() {
+  const navigate = useNavigate();
+  const [isListening, setIsListening] = useState(false);
+  const addToCart = useAddToCart();
+
+  const startListening = () => {
+    const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
+    if (!SpeechRecognition) {
+      toast.error("Voice recognition not supported.");
+      return;
+    }
+    const recognition = new SpeechRecognition();
+    recognition.lang = "en-US";
+    recognition.onstart = () => setIsListening(true);
+    recognition.onresult = async (event: any) => {
+      const text = event.results[0][0].transcript.toLowerCase();
+      setIsListening(false);
+      toast.success(`Heard: "${text}"`);
+      if (text.includes("add") || text.includes("buy")) {
+        const p = SAMPLE_PRODUCTS.find(p => text.includes(p.name.toLowerCase()));
+        if (p) {
+          await addToCart.mutateAsync({ productId: p.id, qty: 1 });
+          toast.success(`Added ${p.name} to cart!`);
+        } else {
+          toast.error("Product not found.");
+        }
+      } else {
+        navigate({ to: "/search", search: { q: text } });
+      }
+    };
+    recognition.onerror = () => setIsListening(false);
+    recognition.start();
+  };
+
+  return (
+    <div className="relative group max-w-2xl mx-auto mb-6">
+      <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
+      <input
+        type="text"
+        placeholder='Say "Add milk" or search products...'
+        onFocus={() => navigate({ to: "/search" })}
+        className="w-full bg-card border-2 border-border rounded-2xl pl-12 pr-12 py-4 text-sm font-medium focus:ring-4 focus:ring-primary/10 focus:border-primary outline-none transition-all shadow-sm"
+      />
+      <button
+        onClick={(e) => { e.stopPropagation(); startListening(); }}
+        className={cn("absolute right-3 top-1/2 -translate-y-1/2 p-2 rounded-xl transition-all", isListening ? "bg-destructive text-white animate-pulse" : "bg-primary/10 text-primary hover:bg-primary/20")}
+      >
+        {isListening ? <MicOff className="w-5 h-5" /> : <Mic className="w-5 h-5" />}
+      </button>
+    </div>
+  );
+}
+
 function PromoStrip() {
   return (
     <section
@@ -859,8 +915,8 @@ function FeatureQuickAccess() {
   const features = [
     { id: "ai", title: "AI Shopper", icon: Sparkles, color: "bg-purple-500", path: "/ai-shopper" },
     { id: "recipes", title: "Recipes", icon: Utensils, color: "bg-orange-500", path: "/recipes" },
+    { id: "pantry", title: "Smart Pantry", icon: Bell, color: "bg-amber-500", path: "/smart-pantry" },
     { id: "subs", title: "Subscriptions", icon: RefreshCw, color: "bg-blue-500", path: "/subscriptions" },
-    { id: "rewards", title: "Loyalty", icon: Star, color: "bg-amber-500", path: "/profile" }
   ];
 
   return (
@@ -912,6 +968,7 @@ export default function Home() {
           />
         </div>
       )}
+      <SearchBar />
       <HeroCarousel />
       <FeatureQuickAccess />
       <PromoStrip />
