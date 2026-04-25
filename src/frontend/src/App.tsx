@@ -71,6 +71,7 @@ const AdminRecipesPage = lazy(() => import("@/pages/admin/AdminRecipesPage"));
 const AdminSubscriptionsPage = lazy(
   () => import("@/pages/admin/AdminSubscriptionsPage"),
 );
+const BannedPage = lazy(() => import("@/pages/Banned"));
 
 // ─── Auth guard component ────────────────────────────────────────────────────
 function AuthGuard({ children }: { children: React.ReactNode }) {
@@ -80,10 +81,7 @@ function AuthGuard({ children }: { children: React.ReactNode }) {
   const bannedEmails = JSON.parse(localStorage.getItem("nexgro_banned_users") || "[]");
 
   if (currentUserEmail && bannedEmails.includes(currentUserEmail)) {
-    localStorage.removeItem("isLoggedIn");
-    localStorage.removeItem("currentUserEmail");
-    alert("Your account has been suspended. Please contact support.");
-    window.location.href = "/login";
+    window.location.href = "/banned";
     return null;
   }
   
@@ -136,6 +134,16 @@ const registerRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: "/register",
   component: Register,
+});
+
+const bannedRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: "/banned",
+  component: () => (
+    <Suspense fallback={<PageLoader />}>
+      <BannedPage />
+    </Suspense>
+  ),
 });
 
 const verifyEmailRoute = createRoute({
@@ -645,6 +653,7 @@ const routeTree = rootRoute.addChildren([
   loginRoute,
   registerRoute,
   verifyEmailRoute,
+  bannedRoute,
   locationSetupRoute,
   homeRoute,
   categoryRoute,

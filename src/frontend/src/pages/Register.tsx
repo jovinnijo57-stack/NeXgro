@@ -62,6 +62,13 @@ export default function Register() {
       setErrors(errs);
       return;
     }
+
+    const bannedEmails = JSON.parse(localStorage.getItem("nexgro_banned_users") || "[]");
+    if (bannedEmails.includes(form.email.toLowerCase().trim())) {
+      window.location.href = "/banned";
+      return;
+    }
+
     setIsLoading(true);
     
     try {

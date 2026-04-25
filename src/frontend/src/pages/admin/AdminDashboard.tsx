@@ -2037,21 +2037,23 @@ function UsersView() {
                     </span>
                   </td>
                   <td className="px-4 py-3">
-                    <div className="flex items-center gap-3">
+                    <div className="flex items-center gap-2">
                       <button
                         onClick={() => setSelectedUser(u)}
-                        className="text-xs font-semibold text-primary hover:underline"
+                        className="px-3 py-1.5 rounded-lg text-xs font-bold bg-primary/10 text-primary hover:bg-primary/20 transition-colors"
                       >
                         Details
                       </button>
                       <button
                         onClick={() => toggleBan(u.email)}
                         className={cn(
-                          "text-xs font-semibold hover:underline",
-                          bannedEmails.includes(u.email) ? "text-emerald-600" : "text-destructive"
+                          "px-3 py-1.5 rounded-lg text-xs font-bold transition-all",
+                          bannedEmails.includes(u.email) 
+                            ? "bg-emerald-500 text-white hover:bg-emerald-600 shadow-sm shadow-emerald-200" 
+                            : "bg-destructive text-white hover:bg-destructive/90 shadow-sm shadow-destructive/20"
                         )}
                       >
-                        {bannedEmails.includes(u.email) ? "Unban" : "Ban"}
+                        {bannedEmails.includes(u.email) ? "Unban User" : "Ban User"}
                       </button>
                     </div>
                   </td>

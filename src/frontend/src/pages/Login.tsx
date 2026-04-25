@@ -103,6 +103,12 @@ export default function Login() {
     if (email && password) {
       const users = getRegisteredUsers();
       const lowerEmail = email.toLowerCase().trim();
+      const bannedEmails = JSON.parse(localStorage.getItem("nexgro_banned_users") || "[]");
+      
+      if (bannedEmails.includes(lowerEmail)) {
+        window.location.href = "/banned";
+        return;
+      }
       
       if (!users[lowerEmail]) {
         toast.error("Account not found. Please register first.");

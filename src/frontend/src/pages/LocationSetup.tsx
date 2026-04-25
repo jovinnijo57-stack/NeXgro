@@ -82,7 +82,7 @@ export default function LocationSetup() {
 
       if (result.tag === "InRange" || result.tag === "withinRadius") {
         setState({ status: "in_range", distanceKm: (result as any).distanceKm || 0 });
-        setTimeout(() => navigate({ to: "/home" }), 1800);
+        setTimeout(() => { window.location.href = "/home"; }, 1500);
       } else {
         setState({
           status: "out_of_range",
@@ -92,7 +92,7 @@ export default function LocationSetup() {
     } catch {
       // Final fallback — just go to home
       setState({ status: "in_range", distanceKm: 0 });
-      setTimeout(() => navigate({ to: "/home" }), 1800);
+      setTimeout(() => { window.location.href = "/home"; }, 1500);
     }
   }
 
@@ -337,17 +337,6 @@ export default function LocationSetup() {
               and may expand over time.
             </p>
           </div>
-        </div>
-        <div className="mt-8 pt-6 border-t border-border/50 text-center">
-          <p className="text-xs text-muted-foreground mb-3">
-            Having trouble with the map?
-          </p>
-          <button
-            onClick={() => navigate({ to: "/home" })}
-            className="text-sm font-bold text-primary hover:underline"
-          >
-            Skip & Go to Store directly →
-          </button>
         </div>
       </div>
     </div>
