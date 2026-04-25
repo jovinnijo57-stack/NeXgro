@@ -113,7 +113,7 @@ const rootRoute = createRootRoute();
 const introRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: "/",
-  component: Register,
+  component: IntroVideo,
 });
 
 const loginRoute = createRoute({
