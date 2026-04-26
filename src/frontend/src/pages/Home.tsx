@@ -76,7 +76,6 @@ interface HeroBanner {
   emoji: string;
   badge: string;
   gradient: string;
-  imageUrl?: string;
   hasTimer?: boolean;
   endTime?: number;
 }
@@ -90,8 +89,8 @@ const HERO_BANNERS: HeroBanner[] = [
     cta: "Shop Produce",
     emoji: "🥗",
     badge: "FRESH DEALS",
-    gradient: "linear-gradient(135deg, oklch(0.44 0.17 142) 0%, oklch(0.36 0.14 145) 100%)",
-    imageUrl: "C:\\Users\\User\\.gemini\\antigravity\\brain\\1bb6b133-96fb-4c5c-8f3e-b08eaadd9db4\\fresh_grocery_banner_1777202478204.png"
+    gradient:
+      "linear-gradient(135deg, oklch(0.44 0.17 142) 0%, oklch(0.36 0.14 145) 100%)",
   },
   {
     id: "b2",
@@ -101,18 +100,18 @@ const HERO_BANNERS: HeroBanner[] = [
     cta: "Grab Deals",
     emoji: "⚡",
     badge: "LIMITED TIME",
-    gradient: "linear-gradient(135deg, oklch(0.55 0.20 33) 0%, oklch(0.45 0.18 35) 100%)",
-    imageUrl: "C:\\Users\\User\\.gemini\\antigravity\\brain\\1bb6b133-96fb-4c5c-8f3e-b08eaadd9db4\\dairy_snacks_banner_1777202516790.png"
+    gradient:
+      "linear-gradient(135deg, oklch(0.55 0.20 33) 0%, oklch(0.45 0.18 35) 100%)",
   },
   {
     id: "b3",
-    title: "Organic Harvest Special",
-    subtitle: "On all organic products this weekend. Stock up and save big.",
-    cta: "Shop Organic",
-    emoji: "🌿",
+    title: "Buy 2 Get 1 Free",
+    subtitle: "On all bakery products this weekend. Stock up and save big.",
+    cta: "Shop Bakery",
+    emoji: "🍞",
     badge: "WEEKEND OFFER",
     gradient: "linear-gradient(135deg, oklch(0.60 0.16 142) 0%, oklch(0.50 0.14 145) 100%)",
-    imageUrl: "C:\\Users\\User\\.gemini\\antigravity\\brain\\1bb6b133-96fb-4c5c-8f3e-b08eaadd9db4\\organic_fruits_banner_1777202497036.png"
+    hasTimer: false
   },
   {
     id: "b4",
@@ -122,6 +121,7 @@ const HERO_BANNERS: HeroBanner[] = [
     cta: "View Rewards",
     emoji: "⭐",
     gradient: "linear-gradient(135deg, #f59e0b 0%, #d97706 100%)",
+    hasTimer: false
   },
 ];
 
@@ -269,20 +269,12 @@ function HeroCarousel() {
     <section data-ocid="home.banner_section" className="relative">
       <div
         className="relative overflow-hidden rounded-3xl"
-        style={{ minHeight: 280 }}
+        style={{ minHeight: 220 }}
       >
-        {banner.imageUrl && (
-          <img
-            src={banner.imageUrl}
-            alt={banner.title}
-            className="absolute inset-0 w-full h-full object-cover transition-opacity duration-300"
-            style={{ opacity: isTransitioning ? 0 : 1 }}
-          />
-        )}
         <div
-          className="relative p-7 sm:p-10 md:p-12 transition-opacity duration-300 flex flex-col justify-between min-h-[280px]"
+          className="relative p-7 sm:p-10 md:p-12 transition-opacity duration-300 flex flex-col justify-between min-h-[220px]"
           style={{
-            background: banner.imageUrl ? "linear-gradient(to right, rgba(0,0,0,0.8) 0%, rgba(0,0,0,0.2) 100%)" : banner.gradient,
+            background: banner.gradient,
             opacity: isTransitioning ? 0 : 1,
           }}
         >

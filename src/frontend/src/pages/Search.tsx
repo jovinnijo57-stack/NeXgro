@@ -28,6 +28,8 @@ export default function Search() {
   const [minRating, setMinRating] = useState(0);
   const [sort, setSort] = useState("rating");
   const [selectedCategoryId, setSelectedCategoryId] = useState("");
+  const [onlyInStock, setOnlyInStock] = useState(false);
+  const [onlyOffers, setOnlyOffers] = useState(false);
 
   // Auto-focus on mount and read URL param
   useEffect(() => {
@@ -81,6 +83,12 @@ export default function Search() {
     if (selectedCategoryId) {
       res = res.filter(p => p.categoryId === selectedCategoryId);
     }
+    if (onlyInStock) {
+      res = res.filter(p => p.stockQty > 0);
+    }
+    if (onlyOffers) {
+      res = res.filter(p => p.isFeatured || p.isBestSeller); // Assuming these have offers
+    }
     res = res.filter(p => p.price >= priceRange[0] && p.price <= priceRange[1]);
     if (minRating > 0) res = res.filter(p => p.rating >= minRating);
     
@@ -91,7 +99,7 @@ export default function Search() {
       return 0;
     });
     return res;
-  }, [query, priceRange, minRating, sort]);
+  }, [query, priceRange, minRating, sort, selectedCategoryId, onlyInStock, onlyOffers]);
 
   const results =
     apiResults && apiResults.length > 0 ? apiResults : localResults;
@@ -154,16 +162,16 @@ export default function Search() {
 
       {/* Promotional Banner */}
       <div className="max-w-6xl mx-auto px-4 py-4">
-        <div className="relative overflow-hidden rounded-2xl aspect-[21/6] md:aspect-[8/2] bg-muted shadow-md group">
+        <div className="relative overflow-hidden rounded-2xl aspect-[2/1] md:aspect-[8/2] bg-muted shadow-md group">
           <img 
             src="/assets/banner2.png" 
             alt="Search Banner" 
-            className="w-full h-full object-cover md:object-center transition-transform duration-500 group-hover:scale-105"
+            className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
             onError={(e) => {
               (e.target as HTMLImageElement).src = "https://images.unsplash.com/photo-1542838132-92c53300491e?auto=format&fit=crop&q=80&w=1200";
             }}
           />
-          <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent" />
+          <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent" />
         </div>
       </div>
 
@@ -228,8 +236,36 @@ export default function Search() {
                     ))}
                   </div>
                 </div>
+                <div>
+                  <p className="text-[10px] font-bold text-muted-foreground uppercase mb-2">Availability</p>
+                  <label className="flex items-center gap-2 cursor-pointer group mb-2">
+                    <input 
+                      type="checkbox" 
+                      checked={onlyInStock} 
+                      onChange={e => setOnlyInStock(e.target.checked)}
+                      className="w-4 h-4 rounded border-border text-primary focus:ring-primary"
+                    />
+                    <span className="text-xs text-foreground group-hover:text-primary transition-colors">In Stock Only</span>
+                  </label>
+                  <label className="flex items-center gap-2 cursor-pointer group">
+                    <input 
+                      type="checkbox" 
+                      checked={onlyOffers} 
+                      onChange={e => setOnlyOffers(e.target.checked)}
+                      className="w-4 h-4 rounded border-border text-primary focus:ring-primary"
+                    />
+                    <span className="text-xs text-foreground group-hover:text-primary transition-colors">Special Offers</span>
+                  </label>
+                </div>
                 <button 
-                  onClick={() => { setPriceRange([0, 1000]); setMinRating(0); setSort("rating"); setSelectedCategoryId(""); }}
+                  onClick={() => { 
+                    setPriceRange([0, 1000]); 
+                    setMinRating(0); 
+                    setSort("rating"); 
+                    setSelectedCategoryId(""); 
+                    setOnlyInStock(false);
+                    setOnlyOffers(false);
+                  }}
                   className="text-[10px] text-primary font-bold uppercase hover:underline"
                 >
                   Clear Filters

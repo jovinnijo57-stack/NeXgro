@@ -908,16 +908,14 @@ export default function OrderDetail() {
           </div>
           <div className="flex gap-2 shrink-0">
             {order.status === "Pending" && (
-              <Button
-                variant="destructive"
-                size="sm"
-                onClick={handleCancel}
-                className="gap-2"
-                data-ocid="order_detail.cancel_button"
+              <Link
+                to="/admin-chat" // Assuming this is the support chat route
+                className="flex items-center gap-2 px-4 py-2 bg-muted text-foreground border border-border rounded-xl text-xs font-semibold hover:bg-muted/80 transition-all"
+                data-ocid="order_detail.support_cancel_button"
               >
                 <X className="w-3.5 h-3.5" />
-                Cancel Order
-              </Button>
+                Contact Support to Cancel
+              </Link>
             )}
             <Button
               variant="outline"

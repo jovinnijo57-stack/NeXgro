@@ -1,7 +1,18 @@
 // WhatsApp Service Integration (Twilio or Meta Business API)
-// To get started:
-// 1. Twilio: Go to twilio.com, sign up, and get your Account SID, Auth Token, and WhatsApp sender number.
-// 2. Meta: Go to developers.facebook.com, create a Business App, and set up the WhatsApp product.
+// ─── HOW TO FIND YOUR API KEY ───────────────────────────────────────────────
+// 1. FOR TWILIO (Recommended for ease of use):
+//    - Go to https://www.twilio.com/try-twilio and create an account.
+//    - In the Console Dashboard, you will see 'Account SID' and 'Auth Token'.
+//    - The Auth Token is your API Key.
+//    - Go to 'Messaging' -> 'Try it out' -> 'Send a WhatsApp message' to set up your Sandbox.
+//
+// 2. FOR META WHATSAPP BUSINESS API (Professional):
+//    - Go to https://developers.facebook.com/
+//    - Create an 'App' and select 'Business' type.
+//    - Add the 'WhatsApp' product to your app.
+//    - In the WhatsApp 'Getting Started' section, you'll find a 'Temporary Access Token'.
+//    - Use the 'Permanent Token' by creating a System User in your Business Manager.
+// ─────────────────────────────────────────────────────────────────────────────
 
 const WHATSAPP_API_KEY = import.meta.env.VITE_WHATSAPP_API_KEY || "";
 const WHATSAPP_SENDER = import.meta.env.VITE_WHATSAPP_SENDER || "+14155238886"; // Default Twilio sandbox number

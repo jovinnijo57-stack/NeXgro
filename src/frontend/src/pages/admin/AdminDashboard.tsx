@@ -1,5 +1,5 @@
 import { toast } from "sonner";
-import { sendOTP, sendDeliveryNotification } from "@/services/emailService";
+import { sendOTP, sendDeliveryNotification, sendOrderCancellation } from "@/services/emailService";
 import { sendOrderUpdateWhatsApp } from "@/services/whatsappService";
 import {
   useAddShopLocation,
@@ -980,7 +980,6 @@ function CategoriesView() {
 
 // ─── Section: Orders ──────────────────────────────────────────────────────────
 
-import { sendDeliveryNotification } from "@/services/emailService";
 import { sendOrderUpdateWhatsApp } from "@/services/whatsappService";
 
 function OrdersView() {
@@ -1017,7 +1016,7 @@ function OrdersView() {
               </tr>
             </thead>
             <tbody className="divide-y divide-border">
-              {(orders as typeof SAMPLE_ORDERS_DATA).map((order, i) => (
+              {(orders as any[]).map((order, i) => (
                 <tr
                   key={order.id}
                   className="hover:bg-muted/20 transition-colors"
@@ -1063,46 +1062,73 @@ function OrdersView() {
                           });
                           toast.success(`Order ${order.id} updated to ${newStatus}`);
                           
-                          // Refund to wallet if cancelled
+                          // Complex Refund & Banning Logic
                           if (newStatus === "Cancelled") {
-                            const refundAmount = order.total;
-                            // Add to wallet balance for this user
                             const email = order.email.toLowerCase();
-                            const currentWallet = Number(localStorage.getItem(`wallet_balance_${email}`) || 0);
-                            localStorage.setItem(`wallet_balance_${email}`, (currentWallet + refundAmount).toString());
+                            const deliveryFee = order.deliveryFee || 0;
+                            const tax = order.tax || 0; // GST
                             
-                            // Add wallet transaction
-                            const txs = JSON.parse(localStorage.getItem(`wallet_transactions_${email}`) || "[]");
-                            txs.unshift({
-                              id: `REF-${Date.now()}`,
-                              amount: refundAmount,
-                              description: `Refund for order #${order.id}`,
-                              type: "Refund",
-                              createdAt: Date.now()
-                            });
-                            localStorage.setItem(`wallet_transactions_${email}`, JSON.stringify(txs));
+                            const refundAmount = Math.max(0, order.total - deliveryFee - tax);
+                            
+                            if (order.paymentMethod === "COD") {
+                              const currentPending = Number(localStorage.getItem(`pending_fees_${email}`) || 0);
+                              localStorage.setItem(`pending_fees_${email}`, (currentPending + deliveryFee + tax).toString());
+                              
+                              addNotification(
+                                "⚠️ Cancellation Penalty",
+                                `Order #${order.id} (COD) was cancelled. ₹${(deliveryFee + tax).toFixed(2)} will be added to your next order.`,
+                                "alert"
+                              );
+                            } else {
+                              const currentWallet = Number(localStorage.getItem(`wallet_balance_${email}`) || 0);
+                              localStorage.setItem(`wallet_balance_${email}`, (currentWallet + refundAmount).toString());
+                              
+                              const txs = JSON.parse(localStorage.getItem(`wallet_transactions_${email}`) || "[]");
+                              txs.unshift({
+                                id: `REF-${Date.now()}`,
+                                amount: refundAmount,
+                                description: `Partial refund for order #${order.id} (GST & Delivery Fee deducted)`,
+                                type: "Refund",
+                                createdAt: Date.now()
+                              });
+                              localStorage.setItem(`wallet_transactions_${email}`, JSON.stringify(txs));
 
-                            // Add notification
-                            addNotification(
-                              "💰 Refund Credited",
-                              `Your order #${order.id} was cancelled. ₹${refundAmount.toFixed(2)} has been credited to your wallet.`,
-                              "general"
+                              addNotification(
+                                "💰 Refund Credited",
+                                `Your order #${order.id} was cancelled. ₹${refundAmount.toFixed(2)} has been credited to your wallet.`,
+                                "general"
+                              );
+                            }
+
+                            const cancelCount = Number(localStorage.getItem(`cancel_count_${email}`) || 0) + 1;
+                            localStorage.setItem(`cancel_count_${email}`, cancelCount.toString());
+
+                            if (cancelCount >= 3) {
+                              localStorage.setItem(`is_banned_${email}`, "true");
+                              const bannedUsers = JSON.parse(localStorage.getItem("nexgro_banned_users") || "[]");
+                              if (!bannedUsers.includes(email)) {
+                                bannedUsers.push(email);
+                                localStorage.setItem("nexgro_banned_users", JSON.stringify(bannedUsers));
+                              }
+                            }
+
+                            // Send Cancellation Email
+                            sendOrderCancellation(
+                              email, 
+                              order.user, 
+                              order.id, 
+                              refundAmount, 
+                              order.paymentMethod === "COD"
                             );
-
-                            toast.success(`Refund of ₹${refundAmount.toFixed(2)} credited to user's wallet.`);
                           }
 
-                          // Send Notifications
                           if (newStatus === "Delivered") {
                             sendDeliveryNotification(order.email, order.user, order.id);
-                            sendOrderUpdateWhatsApp("Customer", order.id, "Delivered");
-                          } else {
-                            sendOrderUpdateWhatsApp("Customer", order.id, newStatus);
                           }
+                          sendOrderUpdateWhatsApp(order.user, order.id, newStatus);
                         }}
                         className="text-xs border border-border rounded-lg pl-2 pr-6 py-1.5 bg-background text-foreground appearance-none cursor-pointer hover:border-primary transition-colors"
                         aria-label={`Update status for ${order.id}`}
-                        data-ocid={`admin.orders.status_select.${i + 1}`}
                       >
                         {[
                           "Pending",

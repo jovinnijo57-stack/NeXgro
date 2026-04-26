@@ -21,6 +21,9 @@ export interface User {
   referralCode: string;
   referredBy?: string;
   totalReferralEarnings: number;
+  cancellationCount: number;
+  isBanned: boolean;
+  pendingFees: number;
   createdAt: bigint;
 }
 
@@ -141,6 +144,8 @@ export interface Order {
   deliveryAddress: SavedAddress;
   status: OrderStatus;
   statusHistory: StatusHistoryEntry[];
+  paymentMethod: "COD" | "Online";
+  paymentStatus: "Paid" | "Pending" | "Refunded";
   createdAt: bigint;
   estimatedDelivery?: bigint;
 }

@@ -200,6 +200,9 @@ function adaptUser(u: UserPublic): User {
     referralCode: u.referralCode,
     referredBy: u.referredBy?.toString(),
     totalReferralEarnings: 0,
+    cancellationCount: Number((u as any).cancellationCount || 0n),
+    isBanned: (u as any).isBanned || false,
+    pendingFees: Number((u as any).pendingFees || 0n) / 100,
     createdAt: u.createdAt,
   };
 }
@@ -639,7 +642,14 @@ export function useAddToWishlist() {
   const { actor } = useBackendActor();
   return useMutation({
     mutationFn: async (productId: string) => {
-      if (!actor) throw new Error("Not connected");
+      if (!actor) {
+        const local = JSON.parse(localStorage.getItem("nexgro_wishlist") || "[]");
+        if (!local.includes(productId)) {
+          local.push(productId);
+          localStorage.setItem("nexgro_wishlist", JSON.stringify(local));
+        }
+        return;
+      }
       await actor.addToWishlist(BigInt(productId));
     },
     onSuccess: () => qc.invalidateQueries({ queryKey: ["wishlist"] }),
@@ -651,7 +661,12 @@ export function useRemoveFromWishlist() {
   const { actor } = useBackendActor();
   return useMutation({
     mutationFn: async (productId: string) => {
-      if (!actor) throw new Error("Not connected");
+      if (!actor) {
+        const local = JSON.parse(localStorage.getItem("nexgro_wishlist") || "[]");
+        const updated = local.filter((id: string) => id !== productId);
+        localStorage.setItem("nexgro_wishlist", JSON.stringify(updated));
+        return;
+      }
       await actor.removeFromWishlist(BigInt(productId));
     },
     onSuccess: () => qc.invalidateQueries({ queryKey: ["wishlist"] }),
@@ -1071,6 +1086,9 @@ export function useAdminUsers() {
             walletBalance: Number(localStorage.getItem(`wallet_balance_${email.toLowerCase()}`) || 0),
             referralCode: profile.referral || "",
             totalReferralEarnings: 0,
+            cancellationCount: Number(localStorage.getItem(`cancel_count_${email.toLowerCase()}`) || 0),
+            isBanned: localStorage.getItem(`is_banned_${email.toLowerCase()}`) === "true",
+            pendingFees: Number(localStorage.getItem(`pending_fees_${email.toLowerCase()}`) || 0),
             createdAt: BigInt(Date.now()),
           }));
         } catch {

@@ -118,31 +118,31 @@ export async function sendOrderConfirmation(email: string, name: string, orderId
   const subject = `Order Confirmed! #${orderId} - NeXgro 🛒`;
   const textContent = `Hi ${name}, your order #${orderId} for ₹${total.toFixed(2)} has been confirmed. View details at ${SITE_URL}/orders/${orderId}`;
   const htmlContent = `
-    <div style="font-family: 'Segoe UI', sans-serif; max-width: 600px; margin: 0 auto; border: 1px solid #e2e8f0; border-radius: 16px; overflow: hidden;">
-      <div style="background: linear-gradient(135deg, #16a34a, #15803d); padding: 40px; text-align: center;">
-        <h1 style="color: #fff; margin: 0; font-size: 32px; letter-spacing: 1px;">Order Confirmed!</h1>
-        <p style="color: rgba(255,255,255,0.8); margin: 10px 0 0;">Thank you for shopping with NeXgro</p>
+    <div style="font-family: 'Segoe UI', sans-serif; max-width: 600px; margin: 0 auto; border: 1px solid #e2e8f0; border-radius: 20px; overflow: hidden; box-shadow: 0 10px 30px rgba(0,0,0,0.1);">
+      <div style="background: linear-gradient(135deg, #059669, #10b981); padding: 40px; text-align: center;">
+        <h1 style="color: #fff; margin: 0; font-size: 32px; letter-spacing: 1px; font-weight: 800;">Order Confirmed! 🛒</h1>
+        <p style="color: rgba(255,255,255,0.9); margin: 10px 0 0; font-size: 16px;">We've received your request and we're on it!</p>
       </div>
-      <div style="padding: 32px;">
-        <p style="color: #475569; font-size: 16px;">Hi ${name},</p>
-        <p style="color: #475569; line-height: 1.6;">Your order <strong>#${orderId}</strong> has been received and is currently being prepared. We'll notify you as soon as it's on its way.</p>
+      <div style="padding: 40px; background: white;">
+        <p style="color: #1e293b; font-size: 18px; font-weight: 600; margin-bottom: 8px;">Hi ${name},</p>
+        <p style="color: #475569; line-height: 1.6; font-size: 15px;">Great choice! Your order <strong>#${orderId}</strong> is officially in our system. Our team is already picking the freshest items for you.</p>
         
-        <div style="margin: 24px 0; padding: 20px; background: #f8fafc; border-radius: 12px; border: 1px solid #e2e8f0;">
-          <h3 style="margin-top: 0; color: #1e293b; font-size: 14px; text-transform: uppercase; letter-spacing: 1px;">Order Summary</h3>
-          <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
-            <span style="color: #64748b;">Order Total:</span>
-            <span style="font-weight: bold; color: #16a34a;">₹${total.toFixed(2)}</span>
+        <div style="margin: 30px 0; padding: 25px; background: #f0fdf4; border-radius: 16px; border: 1px solid #dcfce7;">
+          <h3 style="margin-top: 0; color: #065f46; font-size: 12px; text-transform: uppercase; letter-spacing: 2px; font-weight: 800;">Order Details</h3>
+          <div style="display: flex; justify-content: space-between; margin-bottom: 12px; padding-top: 10px; border-bottom: 1px solid rgba(0,0,0,0.05); padding-bottom: 10px;">
+            <span style="color: #475569;">Order ID</span>
+            <span style="font-weight: bold; color: #1e293b;">#${orderId}</span>
           </div>
-          <div style="display: flex; justify-content: space-between;">
-            <span style="color: #64748b;">Status:</span>
-            <span style="font-weight: bold; color: #3b82f6;">Processing</span>
+          <div style="display: flex; justify-content: space-between; padding-top: 10px;">
+            <span style="color: #475569;">Amount Paid</span>
+            <span style="font-size: 20px; font-weight: 800; color: #059669;">₹${total.toFixed(2)}</span>
           </div>
         </div>
 
-        <a href="${SITE_URL}/orders/${orderId}" style="display: block; text-align: center; padding: 16px; background: #16a34a; color: white; text-decoration: none; border-radius: 12px; font-weight: bold; margin-top: 32px;">Track Your Order Live →</a>
+        <a href="${SITE_URL}/orders/${orderId}" style="display: block; text-align: center; padding: 18px; background: #059669; color: white; text-decoration: none; border-radius: 14px; font-weight: 800; font-size: 16px; box-shadow: 0 4px 15px rgba(5,150,105,0.3); transition: transform 0.2s;">Track Order Progress →</a>
       </div>
       <div style="padding: 20px; background: #f8fafc; text-align: center; border-top: 1px solid #e2e8f0;">
-        <p style="margin: 0; font-size: 12px; color: #94a3b8;">Need help? Reply to this email or visit our Help Center.</p>
+        <p style="margin: 0; font-size: 12px; color: #94a3b8; font-weight: 500;">© ${new Date().getFullYear()} NeXgro Store. Freshness Guaranteed.</p>
       </div>
     </div>
   `;
@@ -171,6 +171,42 @@ export async function sendDeliveryNotification(email: string, name: string, orde
       </div>
       <div style="padding: 20px; background: #f8fafc; text-align: center; border-top: 1px solid #e2e8f0;">
         <p style="margin: 0; font-size: 12px; color: #94a3b8;">© ${new Date().getFullYear()} NeXgro Store. Fresh Groceries, Delivered.</p>
+      </div>
+    </div>
+  `;
+
+  return sendEmail({ to: email, name, subject, textContent, htmlContent });
+}
+export async function sendOrderCancellation(email: string, name: string, orderId: string, refundAmount: number, isCOD: boolean) {
+  const subject = `Order #${orderId} - Cancellation Update ⚠️`;
+  const textContent = `Hi ${name}, your order #${orderId} has been cancelled. Refund: ₹${refundAmount.toFixed(2)}`;
+  const htmlContent = `
+    <div style="font-family: 'Segoe UI', sans-serif; max-width: 600px; margin: 0 auto; border: 1px solid #fee2e2; border-radius: 20px; overflow: hidden;">
+      <div style="background: linear-gradient(135deg, #ef4444, #dc2626); padding: 40px; text-align: center;">
+        <h1 style="color: #fff; margin: 0; font-size: 32px; font-weight: 800;">Order Cancelled ⚠️</h1>
+        <p style="color: rgba(255,255,255,0.9); margin: 10px 0 0;">Important update regarding your purchase</p>
+      </div>
+      <div style="padding: 40px; background: white;">
+        <p style="color: #1e293b; font-size: 18px; font-weight: 600;">Hi ${name},</p>
+        <p style="color: #475569; line-height: 1.6;">Your order <strong>#${orderId}</strong> has been cancelled by the administrator.</p>
+        
+        <div style="margin: 30px 0; padding: 25px; background: #fef2f2; border-radius: 16px; border: 1px solid #fee2e2;">
+          <h3 style="margin-top: 0; color: #991b1b; font-size: 12px; text-transform: uppercase; letter-spacing: 2px; font-weight: 800;">Refund Status</h3>
+          <p style="color: #7f1d1d; font-size: 15px; margin: 10px 0;">
+            ${isCOD 
+              ? `Since this was a COD order, the non-refundable delivery fee and GST will be adjusted in your next order.` 
+              : `A refund of <strong>₹${refundAmount.toFixed(2)}</strong> has been credited to your wallet (GST & Delivery fees are non-refundable).`}
+          </p>
+        </div>
+
+        <div style="text-align: center;">
+          <a href="${SITE_URL}/wallet" style="display: inline-block; padding: 16px 32px; background: #dc2626; color: white; text-decoration: none; border-radius: 14px; font-weight: 800; font-size: 15px;">View Wallet Balance</a>
+        </div>
+        
+        <p style="color: #94a3b8; font-size: 13px; margin-top: 30px; text-align: center;">If you have any questions, please chat with our support team in the app.</p>
+      </div>
+      <div style="padding: 20px; background: #fef2f2; text-align: center; border-top: 1px solid #fee2e2;">
+        <p style="margin: 0; font-size: 12px; color: #991b1b;">NeXgro Platform Safety & Reliability Team</p>
       </div>
     </div>
   `;
