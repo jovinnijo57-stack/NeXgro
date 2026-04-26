@@ -356,7 +356,7 @@ interface MapCoords {
   y: number;
 }
 
-function LiveMap({ order }: { order: Order }) {
+function LiveMap({ order, deliveryLabel }: { order: Order; deliveryLabel: string }) {
   const isActive = order.status === "Shipped" || order.status === "Processing";
   const [agentPos, setAgentPos] = useState<MapCoords>({ x: 10, y: 20 });
   const [elapsed, setElapsed] = useState(0);
@@ -495,23 +495,20 @@ function LiveMap({ order }: { order: Order }) {
             opacity="0.25"
           />
 
-          {/* Delivery agent */}
+          {/* Delivery agent (Bike/Scooter Shape) */}
           {isActive && (
-            <>
-              <circle
-                cx={agentPos.x}
-                cy={agentPos.y}
-                r="2.5"
-                fill="oklch(0.55 0.20 33)"
-              />
-              <circle
-                cx={agentPos.x}
-                cy={agentPos.y}
-                r="4.5"
-                fill="oklch(0.55 0.20 33)"
-                opacity="0.25"
-              />
-            </>
+            <g style={{ transform: `translate(${agentPos.x - 3}px, ${agentPos.y - 3}px)` }}>
+               {/* Body */}
+               <path d="M1,4 L5,4 L6,2 L3,2 Z" fill="oklch(0.55 0.20 33)" />
+               <rect x="0.5" y="3.5" width="4.5" height="1.5" rx="0.5" fill="oklch(0.55 0.20 33)" />
+               {/* Wheels */}
+               <circle cx="1.5" cy="5" r="1" fill="black" />
+               <circle cx="4.5" cy="5" r="1" fill="black" />
+               {/* Delivery Box */}
+               <rect x="0" y="1" width="3" height="3" rx="0.5" fill="oklch(0.48 0.16 142)" />
+               {/* Pulsing Aura */}
+               <circle cx="3" cy="3" r="6" fill="oklch(0.55 0.20 33)" opacity="0.1" className="animate-pulse" />
+            </g>
           )}
         </svg>
 
@@ -523,7 +520,7 @@ function LiveMap({ order }: { order: Order }) {
               style={{ background: "oklch(0.48 0.16 142)" }}
             />
             <span className="text-foreground font-medium">
-              {order.deliveryAddress.label}
+              {deliveryLabel}
             </span>
           </div>
           {isActive && (
@@ -717,6 +714,32 @@ export default function OrderDetail() {
     () => orders.find((o) => o.id === orderId) ?? DEMO_ORDERS[0],
     [orders, orderId],
   );
+
+  const displayAddress = useMemo(() => {
+    const saved = localStorage.getItem("nexgro_user_location");
+    if (saved && order.deliveryAddress.street.includes("Maple Street")) {
+      try {
+        const parsed = JSON.parse(saved);
+        return {
+          ...order.deliveryAddress,
+          label: parsed.addressName || "Home",
+          street: parsed.address || order.deliveryAddress.street,
+          city: parsed.city || order.deliveryAddress.city,
+          state: parsed.state || order.deliveryAddress.state,
+          zip: parsed.zip || order.deliveryAddress.zip,
+        };
+      } catch {
+        return order.deliveryAddress;
+      }
+    }
+    return order.deliveryAddress;
+  }, [order.deliveryAddress]);
+
+  const reviewRef = useRef<HTMLDivElement>(null);
+
+  const scrollToReview = () => {
+    reviewRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  };
 
   async function handleCancel() {
     if (!order) return;
@@ -932,10 +955,10 @@ export default function OrderDetail() {
               {activeTab === "timeline" ? (
                 <StatusTimeline order={order} />
               ) : (
-                <LiveMap order={order} />
+                <LiveMap order={order} deliveryLabel={displayAddress.label} />
               )}
               {order.status === "Delivered" && (
-                <div className="mt-8 border-t border-border pt-6">
+                <div className="mt-8 border-t border-border pt-6" ref={reviewRef}>
                   <ReviewOrder orderId={order.id} />
                 </div>
               )}
@@ -1008,14 +1031,14 @@ export default function OrderDetail() {
               </div>
               <div className="text-sm text-muted-foreground space-y-0.5">
                 <p className="font-medium text-foreground">
-                  {order.deliveryAddress.label}
+                  {displayAddress.label}
                 </p>
-                <p>{order.deliveryAddress.street}</p>
+                <p>{displayAddress.street}</p>
                 <p>
-                  {order.deliveryAddress.city}, {order.deliveryAddress.state}{" "}
-                  {order.deliveryAddress.zip}
+                  {displayAddress.city}, {displayAddress.state}{" "}
+                  {displayAddress.zip}
                 </p>
-                <p className="mt-1">📞 {order.deliveryAddress.phone}</p>
+                <p className="mt-1">📞 {displayAddress.phone}</p>
               </div>
             </div>
           </div>
@@ -1074,7 +1097,7 @@ export default function OrderDetail() {
               )}
               {order.status === "Delivered" && (
                 <div className="mt-4 flex flex-col gap-2">
-                  <Button variant="default" className="w-full gap-2">
+                  <Button variant="default" className="w-full gap-2" onClick={scrollToReview}>
                     <Star className="w-3.5 h-3.5" />
                     Rate Delivery & Products
                   </Button>

@@ -5,15 +5,10 @@ import { useOrders } from "@/hooks/useBackend";
 import type { Order, OrderStatus } from "@/types";
 import { SAMPLE_PRODUCTS } from "@/types";
 import { Link } from "@tanstack/react-router";
-import {
-  ChevronRight,
-  Clock,
-  Package,
-  QrCode,
-  ShoppingBag,
-  X,
-} from "lucide-react";
 import { useMemo, useState } from "react";
+import { useAddToCart } from "@/hooks/useBackend";
+import { toast } from "sonner";
+import { ChevronRight, Clock, Loader2, Package, QrCode, RefreshCw, ShoppingBag, X } from "lucide-react";
 
 const STATUS_CONFIG: Record<OrderStatus, { label: string; className: string }> =
   {
@@ -320,8 +315,26 @@ function QRModal({
 function OrderCard({
   order,
   index,
-  onShowQR,
-}: { order: Order; index: number; onShowQR: () => void }) {
+}: { order: Order; index: number }) {
+  const addToCart = useAddToCart();
+  const [reordering, setReordering] = useState(false);
+
+  const handleReorder = async () => {
+    setReordering(true);
+    try {
+      for (const item of order.items) {
+        await addToCart.mutateAsync({
+          productId: item.productId,
+          qty: item.quantity,
+        });
+      }
+      toast.success("Items added to cart!");
+    } catch {
+      toast.error("Failed to reorder");
+    } finally {
+      setReordering(false);
+    }
+  };
   const cfg = STATUS_CONFIG[order.status] ?? STATUS_CONFIG.Pending;
   const previewItems = order.items.slice(0, 3);
   const extraCount = order.items.length - 3;
@@ -392,17 +405,18 @@ function OrderCard({
         </p>
       </Link>
 
-      {/* QR reorder button */}
+      {/* Direct reorder button */}
       <div className="mt-3 pt-3 border-t border-border flex justify-end">
-        <button
-          type="button"
-          onClick={onShowQR}
-          className="flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground border border-border rounded-lg px-3 py-1.5 hover:bg-muted/50 transition-all"
-          data-ocid={`orders.qr_button.${index + 1}`}
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={handleReorder}
+          disabled={reordering}
+          className="gap-2 text-xs h-8"
         >
-          <QrCode className="w-3.5 h-3.5" />
-          Get QR to Reorder
-        </button>
+          {reordering ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <RefreshCw className="w-3.5 h-3.5" />}
+          Reorder Items
+        </Button>
       </div>
     </div>
   );
@@ -485,7 +499,6 @@ export default function OrdersPage() {
                 key={order.id}
                 order={order}
                 index={idx}
-                onShowQR={() => setQrOrderId(order.id)}
               />
             ))}
           </div>
