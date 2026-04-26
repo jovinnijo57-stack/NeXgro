@@ -63,44 +63,7 @@ const TX_TYPE_CONFIG: Record<
 
 const QUICK_AMOUNTS = [100, 200, 500, 1000];
 
-// Sample transactions for display
-const SAMPLE_TRANSACTIONS: WalletTransaction[] = [
-  {
-    id: "wt1",
-    type: "TopUp",
-    amount: 50,
-    description: "Wallet top-up — Credit card ending 4242",
-    createdAt: BigInt(0),
-  },
-  {
-    id: "wt2",
-    type: "Bonus",
-    amount: 2.5,
-    description: "5% top-up bonus on ₹50 deposit",
-    createdAt: BigInt(0),
-  },
-  {
-    id: "wt3",
-    type: "Redemption",
-    amount: -18.4,
-    description: "Order #ORD-003 — wallet payment",
-    createdAt: BigInt(0),
-  },
-  {
-    id: "wt4",
-    type: "TopUp",
-    amount: 20,
-    description: "Wallet top-up — UPI",
-    createdAt: BigInt(0),
-  },
-  {
-    id: "wt5",
-    type: "Refund",
-    amount: 5.99,
-    description: "Refund for Order #ORD-001 — item unavailable",
-    createdAt: BigInt(0),
-  },
-];
+// Sample transactions removed for real data
 
 // ─── Transaction Row ──────────────────────────────────────────────────────────
 
@@ -156,7 +119,7 @@ function TransactionRow({
           isPositive ? "text-primary" : "text-destructive",
         )}
       >
-        {isPositive ? "+" : ""}${Math.abs(tx.amount).toFixed(2)}
+        {isPositive ? "+" : ""}₹{Math.abs(tx.amount).toFixed(2)}
       </span>
     </div>
   );
@@ -172,11 +135,8 @@ export default function WalletPage() {
   const [customAmount, setCustomAmount] = useState("");
   const [selectedQuick, setSelectedQuick] = useState<number | null>(50);
 
-  const displayBalance = (walletBalance ?? 0) > 0 ? walletBalance! : 52.1;
-  const displayTx =
-    transactions && transactions.length > 0
-      ? transactions
-      : SAMPLE_TRANSACTIONS;
+  const displayBalance = (walletBalance ?? 0) / 100;
+  const displayTx = transactions ?? [];
 
   const activeAmount = customAmount
     ? Number(customAmount)
@@ -234,7 +194,7 @@ export default function WalletPage() {
               Available Balance
             </p>
             <p className="font-display text-5xl font-bold text-primary-foreground tabular-nums">
-              ${displayBalance.toFixed(2)}
+              ₹{displayBalance.toFixed(2)}
             </p>
             <p className="text-primary-foreground/60 text-xs mt-2">
               Wallet credit · Used at checkout automatically
@@ -246,12 +206,12 @@ export default function WalletPage() {
           <div className="bg-primary-foreground/10 rounded-xl p-3 text-center">
             <p className="text-xs text-primary-foreground/70">Total Added</p>
             <p className="font-bold text-primary-foreground text-base">
-              ₹70.00
+              ₹0.00
             </p>
           </div>
           <div className="bg-primary-foreground/10 rounded-xl p-3 text-center">
             <p className="text-xs text-primary-foreground/70">Bonus Earned</p>
-            <p className="font-bold text-primary-foreground text-base">₹3.50</p>
+            <p className="font-bold text-primary-foreground text-base">₹0.00</p>
           </div>
         </div>
       </div>
@@ -284,7 +244,7 @@ export default function WalletPage() {
               )}
               data-ocid={`wallet.quick_amount_${amt}`}
             >
-              ${amt}
+              ₹{amt}
             </button>
           ))}
         </div>
@@ -329,9 +289,9 @@ export default function WalletPage() {
             </div>
             <div className="flex items-center justify-between text-sm">
               <span className="text-muted-foreground">
-                Add ${activeAmount.toFixed(2)}, get{" "}
+                Add ₹{activeAmount.toFixed(2)}, get{" "}
                 <span className="text-primary font-semibold">
-                  +${bonusAmount.toFixed(2)} ({bonusPercent}% bonus)
+                  +₹{bonusAmount.toFixed(2)} ({bonusPercent}% bonus)
                 </span>
               </span>
             </div>
@@ -340,7 +300,7 @@ export default function WalletPage() {
                 Total credited to wallet:
               </span>
               <span className="text-sm font-bold text-primary">
-                ${totalAfterBonus.toFixed(2)}
+                ₹{totalAfterBonus.toFixed(2)}
               </span>
             </div>
           </div>

@@ -52,6 +52,22 @@ import { getUserProfile } from "@/lib/auth";
 
 // ─── Address Modal ────────────────────────────────────────────────────────────
 
+const STATES = [
+  "Andaman and Nicobar Islands", "Andhra Pradesh", "Arunachal Pradesh", "Assam", "Bihar", 
+  "Chandigarh", "Chhattisgarh", "Dadra and Nagar Haveli and Daman and Diu", "Delhi", 
+  "Goa", "Gujarat", "Haryana", "Himachal Pradesh", "Jammu and Kashmir", "Jharkhand", 
+  "Karnataka", "Kerala", "Ladakh", "Lakshadweep", "Madhya Pradesh", "Maharashtra", 
+  "Manipur", "Meghalaya", "Mizoram", "Nagaland", "Odisha", "Puducherry", "Punjab", 
+  "Rajasthan", "Sikkim", "Tamil Nadu", "Telangana", "Tripura", "Uttar Pradesh", 
+  "Uttarakhand", "West Bengal"
+];
+
+const KERALA_CITIES = [
+  "Thiruvananthapuram", "Kochi", "Kozhikode", "Thrissur", "Kollam", "Alappuzha", 
+  "Palakkad", "Malappuram", "Kannur", "Kottayam", "Kasaragod", "Pathanamthitta", 
+  "Idukki", "Wayanad"
+];
+
 function AddressModal({
   onClose,
   onSave,
@@ -65,7 +81,7 @@ function AddressModal({
     label: initialData?.label || "Home",
     street: initialData?.street || "",
     city: initialData?.city || "",
-    state: initialData?.state || "",
+    state: initialData?.state || "Kerala",
     zip: initialData?.zip || "",
     phone: initialData?.phone || "",
     isDefault: initialData?.isDefault || false,
@@ -112,7 +128,7 @@ function AddressModal({
       className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-foreground/40 backdrop-blur-sm"
       data-ocid="profile.address_modal"
     >
-      <div className="bg-card border border-border rounded-t-2xl sm:rounded-2xl w-full sm:max-w-md p-5 shadow-elevated">
+      <div className="bg-card border border-border rounded-t-2xl sm:rounded-2xl w-full sm:max-w-md p-5 shadow-elevated max-h-[90vh] overflow-y-auto">
         <div className="flex items-center justify-between mb-4">
           <h3 className="font-display font-bold text-foreground text-lg">
             {initialData ? "Edit Address" : "Add Address"}
@@ -150,13 +166,13 @@ function AddressModal({
             </select>
           </div>
           
-          <div className="rounded-xl overflow-hidden border border-border bg-muted/10 h-48 mb-3">
+          <div className="rounded-xl overflow-hidden border border-border bg-muted/10 h-40 mb-3">
             <OSMMapPicker 
               initialLat={initialData ? parseFloat(initialData.city.split(',')[0]) || 12.9716 : 12.9716}
               initialLng={initialData ? parseFloat(initialData.city.split(',')[1]) || 77.5946 : 77.5946}
-              onLocationSelect={(lat, lng, address) => {
-                // Parse address if possible or just use it as street
-                setForm(f => ({ ...f, street: address, city: `${lat.toFixed(4)}, ${lng.toFixed(4)}` }));
+              onLocationSelect={(lat, lng, _address) => {
+                // Location selected on map, user fills address manually per request
+                toast.info("Location marked. Please fill address details below.");
               }}
             />
           </div>
@@ -165,38 +181,57 @@ function AddressModal({
             "street",
             "Street Address",
             form.street,
-            "123 Main Street",
+            "House Name/No, Street",
             "profile.address.street_input",
           )}
+          
           <div className="grid grid-cols-2 gap-3">
-            {field(
-              "city",
-              "City",
-              form.city,
-              "New York",
-              "profile.address.city_input",
-            )}
-            {field(
-              "state",
-              "State",
-              form.state,
-              "NY",
-              "profile.address.state_input",
-            )}
+            <div>
+              <label className="text-xs font-medium text-muted-foreground mb-1 block">State</label>
+              <select
+                value={form.state}
+                onChange={(e) => setForm(f => ({ ...f, state: e.target.value }))}
+                className="w-full px-3 py-2 text-sm border border-input rounded-lg bg-background focus:outline-none focus:ring-2 focus:ring-primary/20"
+              >
+                {STATES.map(s => <option key={s} value={s}>{s}</option>)}
+              </select>
+            </div>
+            <div>
+              <label className="text-xs font-medium text-muted-foreground mb-1 block">City</label>
+              {form.state === "Kerala" ? (
+                <select
+                  value={form.city}
+                  onChange={(e) => setForm(f => ({ ...f, city: e.target.value }))}
+                  className="w-full px-3 py-2 text-sm border border-input rounded-lg bg-background focus:outline-none focus:ring-2 focus:ring-primary/20"
+                >
+                  <option value="">Select City</option>
+                  {KERALA_CITIES.map(c => <option key={c} value={c}>{c}</option>)}
+                </select>
+              ) : (
+                <input
+                  type="text"
+                  value={form.city}
+                  placeholder="City Name"
+                  onChange={(e) => setForm(f => ({ ...f, city: e.target.value }))}
+                  className="w-full px-3 py-2 text-sm border border-input rounded-lg bg-background focus:outline-none focus:ring-2 focus:ring-primary/20"
+                />
+              )}
+            </div>
           </div>
+
           <div className="grid grid-cols-2 gap-3">
             {field(
               "zip",
-              "ZIP Code",
+              "Pincode",
               form.zip,
-              "10001",
+              "682001",
               "profile.address.zip_input",
             )}
             {field(
               "phone",
               "Phone",
               form.phone,
-              "+1 555 0123",
+              "9876543210",
               "profile.address.phone_input",
               "tel",
             )}
@@ -278,7 +313,9 @@ export default function Profile() {
   }, [profile]);
 
   const principalId = identity?.getPrincipal().toText() ?? "—";
-  const referralCode = profile?.referralCode ?? "NONE";
+  const referralCode = profile?.referralCode && profile.referralCode !== "NONE" 
+    ? profile.referralCode 
+    : (name ? name.split(' ')[0].toUpperCase() + Math.floor(Math.random() * 1000) : "NEXGRO" + Math.floor(Math.random() * 1000));
   const displayBalance = loyaltyBalance ?? 0;
   const displayWallet = walletBalance ?? 0;
 
@@ -286,8 +323,8 @@ export default function Profile() {
   const totalOrders = orders?.length ?? 0;
   const savedFromDeals = orders?.reduce((sum, o) => sum + o.total * 0.05, 0) ?? 0;
   const savedFromCoupons = orders?.reduce((sum, o) => sum + (o.couponId ? o.total * 0.1 : 0), 0) ?? 0;
-  const loyaltyValueDollars = displayBalance / 100;
-  const totalSavings = savedFromDeals + savedFromCoupons + loyaltyValueDollars;
+  const loyaltyValueRupees = displayBalance / 100;
+  const totalSavings = savedFromDeals + savedFromCoupons + loyaltyValueRupees;
 
   const displayNotifications = notifications ?? [];
   const unreadCount = displayNotifications.filter((n) => !n.isRead).length;
@@ -390,23 +427,7 @@ export default function Profile() {
         </div>
       </div>
 
-      {/* Achievements / Gamification */}
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3" data-ocid="profile.achievements">
-        {[
-          { label: "Pantry Master", icon: Award, color: "text-amber-500", bg: "bg-amber-500/10", desc: "Used Smart Pantry 5x" },
-          { label: "Eco-Warrior", icon: ShieldCheck, color: "text-emerald-500", bg: "bg-emerald-500/10", desc: "100% Local Produce" },
-          { label: "Flash King", icon: Zap, color: "text-blue-500", bg: "bg-blue-500/10", desc: "Bought 3 Flash Deals" },
-          { label: "Saver", icon: PiggyBank, color: "text-purple-500", bg: "bg-purple-500/10", desc: "Saved over ₹500" }
-        ].map(badge => (
-          <div key={badge.label} className="bg-card border border-border rounded-2xl p-4 flex flex-col items-center text-center group hover:-translate-y-1 transition-all">
-            <div className={cn("w-12 h-12 rounded-xl flex items-center justify-center mb-2 shadow-sm group-hover:scale-110 transition-transform", badge.bg)}>
-              <badge.icon className={cn("w-6 h-6", badge.color)} />
-            </div>
-            <span className="text-[10px] font-black uppercase tracking-wider text-foreground leading-tight">{badge.label}</span>
-            <p className="text-[8px] text-muted-foreground mt-1 leading-tight">{badge.desc}</p>
-          </div>
-        ))}
-      </div>
+      {/* Achievements removed as requested */}
 
       {/* Loyalty Points Banner */}
       <div
@@ -426,16 +447,14 @@ export default function Profile() {
               {displayBalance.toLocaleString()}
             </p>
             <p className="text-primary-foreground/60 text-xs mt-1.5">
-              ≈ ${(displayBalance / 100).toFixed(2)} off your next order · Earn
-              1pt per $1
+              ≈ ₹{(displayBalance / 100).toFixed(2)} off your next order · Earn
+              1pt per ₹1
             </p>
           </div>
           <Star className="w-14 h-14 text-primary-foreground/10 fill-primary-foreground/10 shrink-0" />
         </div>
         <div className="flex gap-3 mt-4">
           {[
-            { label: "Total Earned", value: "2,100 pts" },
-            { label: "Redeemed", value: "850 pts" },
             {
               label: "Available",
               value: `${displayBalance.toLocaleString()} pts`,
@@ -482,7 +501,7 @@ export default function Profile() {
             Available Balance
           </p>
           <p className="font-display text-3xl font-bold text-primary-foreground mt-0.5 tabular-nums">
-            ${displayWallet.toFixed(2)}
+            ₹{displayWallet.toFixed(2)}
           </p>
           <p className="text-primary-foreground/60 text-[10px] mt-1">
             Used automatically at checkout · No expiry
@@ -506,7 +525,7 @@ export default function Profile() {
                   <span
                     className={`text-xs font-semibold tabular-nums shrink-0 ${tx.amount >= 0 ? "text-primary" : "text-destructive"}`}
                   >
-                    {tx.amount >= 0 ? "+" : ""}${Math.abs(tx.amount).toFixed(2)}
+                    {tx.amount >= 0 ? "+" : ""}₹{Math.abs(tx.amount).toFixed(2)}
                   </span>
                 </div>
               ))}
@@ -536,10 +555,10 @@ export default function Profile() {
             Total Saved with NeXgro
           </p>
           <p className="font-display text-3xl font-bold text-primary">
-            ${totalSavings.toFixed(2)}
+            ₹{totalSavings.toFixed(2)}
           </p>
           <p className="text-xs text-muted-foreground mt-1">
-            across {totalOrders || 5} orders
+            across {totalOrders} orders
           </p>
         </div>
         <div className="grid grid-cols-3 gap-3">
@@ -547,21 +566,21 @@ export default function Profile() {
             {
               icon: Tag,
               label: "From Deals",
-              value: `$${savedFromDeals.toFixed(2)}`,
+              value: `₹${savedFromDeals.toFixed(2)}`,
               color: "text-accent",
               bg: "bg-accent/10",
             },
             {
               icon: Gift,
               label: "From Coupons",
-              value: `$${savedFromCoupons.toFixed(2)}`,
+              value: `₹${savedFromCoupons.toFixed(2)}`,
               color: "text-chart-3",
               bg: "bg-chart-3/10",
             },
             {
               icon: Award,
               label: "Loyalty Value",
-              value: `$${loyaltyValueDollars.toFixed(2)}`,
+              value: `₹${loyaltyValueRupees.toFixed(2)}`,
               color: "text-primary",
               bg: "bg-primary/10",
             },
@@ -699,9 +718,8 @@ export default function Profile() {
           <Gift className="w-4 h-4 text-accent" />
           <h3 className="font-semibold text-foreground">Referral Program</h3>
         </div>
-        <p className="text-sm text-muted-foreground mb-4">
           Invite friends and both of you earn{" "}
-          <span className="text-primary font-semibold">$10 bonus</span>{" "}
+          <span className="text-primary font-semibold">₹100 bonus</span>{" "}
           when they place their first order.
         </p>
         <div className="flex gap-2 mb-4">
@@ -977,31 +995,7 @@ export default function Profile() {
         )}
       </div>
 
-      {/* Admin Section (Visible only to admins) */}
-      {(profile?.role === "admin" || localStorage.getItem("isLoggedIn") === "true") && (
-        <div className="bg-card border border-border rounded-2xl p-5 shadow-card">
-          <h3 className="font-semibold text-foreground mb-3 flex items-center gap-2">
-            <ShieldCheck className="w-4 h-4 text-primary" />
-            {t("profile.admin_tools")}
-          </h3>
-          <Link
-            to="/admin-nexgro-secret-2024"
-            className="flex items-center justify-between p-3 rounded-xl border border-border hover:border-primary/30 hover:bg-primary/5 transition-all group"
-            data-ocid="profile.admin_dashboard_link"
-          >
-            <div className="flex items-center gap-3">
-              <div className="w-9 h-9 bg-primary/10 rounded-lg flex items-center justify-center text-primary">
-                <TrendingUp className="w-5 h-5" />
-              </div>
-              <div>
-                <p className="text-sm font-bold text-foreground">{t("profile.admin_dashboard")}</p>
-                <p className="text-[10px] text-muted-foreground">Manage products, orders, and analytics</p>
-              </div>
-            </div>
-            <span className="text-xs font-bold text-primary opacity-0 group-hover:opacity-100 transition-opacity">Access →</span>
-          </Link>
-        </div>
-      )}
+      {/* Admin Section removed as requested */}
 
       {/* Settings / Logout */}
       <div className="bg-card border border-border rounded-2xl p-5 shadow-card">

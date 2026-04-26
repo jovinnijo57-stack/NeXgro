@@ -241,11 +241,13 @@ function Modal({
 
 function DashboardView() {
   const { data: stats } = useAdminStats();
+  const { data: adminOrders = [] } = useAdminOrders();
 
   const totalOrders = stats?.totalOrders ?? 0;
   const totalRevenue = stats?.totalRevenue ?? 0;
   const activeUsers = stats?.activeUsers ?? 0;
   const lowStock = stats?.lowStockAlerts ?? 0;
+  const orders = adminOrders.length > 0 ? adminOrders : [];
 
   return (
     <div className="space-y-6" data-ocid="admin.dashboard_section">
@@ -259,22 +261,22 @@ function DashboardView() {
         />
         <StatCard
           label="Total Revenue"
-          value={`$${totalRevenue.toLocaleString()}`}
+          value={`₹${totalRevenue.toLocaleString()}`}
           sub="+8% this month"
           icon={DollarSign}
           color="bg-accent/10 text-accent"
         />
         <StatCard
           label="Orders This Week"
-          value="0"
-          sub="No data this week"
+          value={orders.length}
+          sub="Current period"
           icon={TrendingUp}
           color="bg-secondary text-secondary-foreground"
         />
         <StatCard
           label="Revenue This Week"
-          value="$0"
-          sub="No data this week"
+          value={`₹${orders.reduce((s, o) => s + (o.total || 0), 0).toLocaleString()}`}
+          sub="Estimated"
           icon={TrendingUp}
           color="bg-chart-3/10 text-chart-3"
         />
@@ -298,7 +300,7 @@ function DashboardView() {
         <div className="px-5 py-4 border-b border-border flex items-center justify-between">
           <h3 className="font-semibold text-foreground">Recent Orders</h3>
           <span className="text-xs text-muted-foreground bg-muted/40 px-2 py-1 rounded-full">
-            Last 7 days
+            Real-time
           </span>
         </div>
         <div className="overflow-x-auto">
@@ -323,37 +325,45 @@ function DashboardView() {
               </tr>
             </thead>
             <tbody className="divide-y divide-border">
-              {SAMPLE_ORDERS_DATA.map((order, i) => (
-                <tr
-                  key={order.id}
-                  className="hover:bg-muted/20 transition-colors"
-                  data-ocid={`admin.dashboard.order.item.${i + 1}`}
-                >
-                  <td className="px-4 py-3 font-mono text-xs font-medium text-foreground">
-                    {order.id}
-                  </td>
-                  <td className="px-4 py-3 text-foreground">{order.user}</td>
-                  <td className="px-4 py-3 text-muted-foreground text-right">
-                    {order.items}
-                  </td>
-                  <td className="px-4 py-3 font-semibold text-foreground text-right">
-                    ${order.total.toFixed(2)}
-                  </td>
-                  <td className="px-4 py-3">
-                    <span
-                      className={cn(
-                        "text-xs px-2.5 py-1 rounded-full font-medium whitespace-nowrap",
-                        STATUS_STYLES[order.status],
-                      )}
-                    >
-                      {order.status}
-                    </span>
-                  </td>
-                  <td className="px-4 py-3 text-muted-foreground text-xs whitespace-nowrap">
-                    {order.date}
+              {orders.length === 0 ? (
+                <tr>
+                  <td colSpan={6} className="px-4 py-8 text-center text-muted-foreground">
+                    No recent orders found.
                   </td>
                 </tr>
-              ))}
+              ) : (
+                orders.slice(0, 10).map((order, i) => (
+                  <tr
+                    key={order.id}
+                    className="hover:bg-muted/20 transition-colors"
+                    data-ocid={`admin.dashboard.order.item.${i + 1}`}
+                  >
+                    <td className="px-4 py-3 font-mono text-xs font-medium text-foreground">
+                      {order.id}
+                    </td>
+                    <td className="px-4 py-3 text-foreground">{order.userId}</td>
+                    <td className="px-4 py-3 text-muted-foreground text-right">
+                      {order.itemCount || 0}
+                    </td>
+                    <td className="px-4 py-3 font-semibold text-foreground text-right">
+                      ₹{(order.total || 0).toFixed(2)}
+                    </td>
+                    <td className="px-4 py-3">
+                      <span
+                        className={cn(
+                          "text-xs px-2.5 py-1 rounded-full font-medium whitespace-nowrap",
+                          STATUS_STYLES[order.status] || "bg-muted text-muted-foreground",
+                        )}
+                      >
+                        {order.status}
+                      </span>
+                    </td>
+                    <td className="px-4 py-3 text-muted-foreground text-xs whitespace-nowrap">
+                      {new Date(Number(order.createdAt)).toLocaleDateString()}
+                    </td>
+                  </tr>
+                ))
+              )}
             </tbody>
           </table>
         </div>
@@ -501,7 +511,7 @@ function ProductsView() {
                     {p.categoryId}
                   </td>
                   <td className="px-4 py-3 font-semibold text-foreground whitespace-nowrap">
-                    ${p.price.toFixed(2)}
+                    ₹{p.price.toFixed(2)}
                   </td>
                   <td className="px-4 py-3 text-right">
                     <span
@@ -578,9 +588,9 @@ function ProductsView() {
               },
               {
                 id: "price",
-                label: "Price ($)",
+                label: "Price (₹)",
                 value: form.price,
-                placeholder: "3.99",
+                placeholder: "300.00",
                 type: "number",
               },
               {

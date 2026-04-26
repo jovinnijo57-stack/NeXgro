@@ -56,9 +56,9 @@ export default function ReferralsPage() {
         }}
       >
         <div className="relative z-10">
-          <h2 className="text-2xl font-bold mb-2">Give $10, Get $10</h2>
+          <h2 className="text-2xl font-bold mb-2">Give ₹100, Get ₹100</h2>
           <p className="text-white/80 text-sm mb-6 leading-relaxed">
-            Invite your friends to NeXgro. They get $10 off their first order, and you get $10 in your wallet once they shop!
+            Invite your friends to NeXgro. They get ₹100 off their first order, and you get ₹100 in your wallet once they shop!
           </p>
 
           <div className="bg-white/10 backdrop-blur-md rounded-xl p-4 border border-white/20">
@@ -96,7 +96,7 @@ export default function ReferralsPage() {
             <Wallet className="w-4 h-4" />
             <span className="text-xs font-medium">Total Earned</span>
           </div>
-          <p className="text-2xl font-bold text-primary">${totalEarnings.toFixed(2)}</p>
+          <p className="text-2xl font-bold text-primary">₹{totalEarnings.toFixed(2)}</p>
         </div>
       </div>
 
@@ -140,7 +140,7 @@ export default function ReferralsPage() {
                     "text-sm font-bold",
                     ref.status === "completed" ? "text-primary" : "text-muted-foreground"
                   )}>
-                    {ref.status === "completed" ? `+$${ref.rewardAmount.toFixed(2)}` : "Pending"}
+                    {ref.status === "completed" ? `+₹${ref.rewardAmount.toFixed(2)}` : "Pending"}
                   </p>
                   <p className="text-[10px] uppercase text-muted-foreground font-medium tracking-tight">
                     {ref.status}
@@ -158,8 +158,8 @@ export default function ReferralsPage() {
         <div className="space-y-4">
           {[
             { step: 1, text: "Share your code with friends" },
-            { step: 2, text: "They sign up and get $10 off first order" },
-            { step: 3, text: "You get $10 in your wallet instantly" }
+            { step: 2, text: "They sign up and get ₹100 off first order" },
+            { step: 3, text: "You get ₹100 in your wallet instantly" }
           ].map((s) => (
             <div key={s.step} className="flex gap-3">
               <div className="w-6 h-6 rounded-full bg-primary text-white text-xs font-bold flex items-center justify-center shrink-0">

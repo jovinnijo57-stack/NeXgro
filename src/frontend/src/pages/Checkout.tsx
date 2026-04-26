@@ -343,11 +343,43 @@ export default function Checkout() {
     setDefaultAddress.mutate(addrId);
   };
 
-  async function handlePlaceOrder() {
+  const handleRazorpayPayment = async () => {
     if (!isExpressDelivery && !selectedSlot) {
       toast.error("Please select a delivery time slot.");
       return;
     }
+
+    if (total === 0) {
+      handlePlaceOrder();
+      return;
+    }
+
+    const options = {
+      key: "rzp_test_your_key_here", // User mentioned they will provide the key, using placeholder for now
+      amount: Math.round(total * 100),
+      currency: "INR",
+      name: "NeXgro",
+      description: "Grocery Order Payment",
+      image: "https://nexgro.com/logo.png",
+      handler: function (response: any) {
+        toast.success("Payment successful! Ref: " + response.razorpay_payment_id);
+        handlePlaceOrder();
+      },
+      prefill: {
+        name: profile?.name || "Customer",
+        email: profile?.email || "customer@example.com",
+        contact: profile?.phone || "",
+      },
+      theme: {
+        color: "#16a34a",
+      },
+    };
+
+    const rzp = new (window as any).Razorpay(options);
+    rzp.open();
+  };
+
+  async function handlePlaceOrder() {
     const result = await placeOrder.mutateAsync({
       addressId: selectedAddress?.id ?? "addr1",
       couponCode: appliedCoupon || undefined,
@@ -367,6 +399,14 @@ export default function Checkout() {
       toast.error(result.error ?? "Failed to place order. Please try again.");
     }
   }
+
+  const handleProcessCheckout = () => {
+    if (paymentMethod === "online" && total > 0) {
+      handleRazorpayPayment();
+    } else {
+      handlePlaceOrder();
+    }
+  };
 
   if (cartLoading || addrLoading) {
     return (
@@ -1187,7 +1227,7 @@ export default function Checkout() {
 
               <Button
                 className="w-full bg-primary text-primary-foreground hover:bg-primary/90 h-12 text-base font-bold gap-2 shadow-elevated"
-                onClick={handlePlaceOrder}
+                onClick={handleProcessCheckout}
                 disabled={placeOrder.isPending}
                 data-ocid="checkout.place_order_button"
               >

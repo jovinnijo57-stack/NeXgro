@@ -75,8 +75,8 @@ function StarPicker({
           onMouseEnter={() => setHover(i)}
           onMouseLeave={() => setHover(0)}
           className="p-0.5 transition-transform hover:scale-110"
-          aria-label={`₹{i} star`}
-          data-ocid={`review.star.₹{i}`}
+          aria-label={`${i} star`}
+          data-ocid={`review.star.${i}`}
         >
           <Star
             className={cn(
@@ -96,7 +96,7 @@ function ReviewCard({ review, index }: { review: Review; index: number }) {
   return (
     <div
       className="bg-card border border-border rounded-xl p-4"
-      data-ocid={`review.item.₹{index}`}
+      data-ocid={`review.item.${index}`}
     >
       <div className="flex items-start justify-between gap-3 mb-2">
         <div className="flex items-center gap-2">
@@ -259,7 +259,7 @@ export default function ProductDetail() {
       { productId: product.id, qty },
       {
         onSuccess: () =>
-          toast.success(`₹{product.name} added to cart!`, { duration: 2000 }),
+          toast.success(`${product.name} added to cart!`, { duration: 2000 }),
       },
     );
   }
@@ -533,7 +533,7 @@ export default function ProductDetail() {
                 </span>
               ) : isLowStock ? (
                 <span className="inline-flex items-center gap-1.5 text-sm font-semibold text-amber-700 bg-amber-50 px-3 py-1.5 rounded-full border border-amber-200">
-                  ⚠ Only {product.stockQty} left — order soon!
+                  ⚠ Low Stock — order soon!
                 </span>
               ) : (
                 <span className="inline-flex items-center gap-1.5 text-sm font-semibold text-primary bg-primary/10 px-3 py-1.5 rounded-full border border-primary/20">
@@ -638,7 +638,7 @@ export default function ProductDetail() {
             {/* Delivery info chips */}
             <div className="flex flex-wrap gap-2 pt-1">
               {[
-                "🚚 Free delivery over $30",
+                "🚚 Free delivery over ₹500",
                 "⚡ Express 2-hour delivery",
                 "↩️ Easy returns",
               ].map((tag) => (
@@ -703,14 +703,14 @@ export default function ProductDetail() {
                 key={star}
                 type="button"
                 onClick={() => setReviewFilter(star)}
-                className={`shrink-0 px-3 py-1.5 rounded-full text-sm font-medium transition-all border ₹{
+                className={`shrink-0 px-3 py-1.5 rounded-full text-sm font-medium transition-all border ${
                   reviewFilter === star
                     ? "bg-primary text-primary-foreground border-primary"
                     : "bg-background border-border text-foreground hover:border-primary/40"
                 }`}
-                data-ocid={`review.filter.₹{star === 0 ? "all" : star}`}
+                data-ocid={`review.filter.${star === 0 ? "all" : star}`}
               >
-                {star === 0 ? "All" : `₹{star}★`}
+                {star === 0 ? "All" : `${star}★`}
               </button>
             ))}
           </div>

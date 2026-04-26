@@ -196,7 +196,7 @@ function adaptUser(u: UserPublic): User {
     phone: u.phone,
     role: u.role === "admin" ? "admin" : "customer",
     loyaltyBalance: Number(u.loyaltyBalance),
-    walletBalance: 52.1, // Default mock
+    walletBalance: 0, // Will be fetched via useWalletBalance
     referralCode: u.referralCode,
     referredBy: u.referredBy?.toString(),
     totalReferralEarnings: 0,
@@ -704,7 +704,9 @@ export function usePlaceOrder() {
       if (!actor) {
         // Demo fallback
         console.warn("Backend not connected. Using demo order placement.");
-        return { success: true, orderId: `DEMO-${Date.now()}` };
+        const orderId = `DEMO-${Date.now()}`;
+        addNotification("Order Confirmed! 🎉", `Your order #${orderId} has been placed. We're getting it ready!`, "order");
+        return { success: true, orderId };
       }
       const result = await actor.placeOrder(
         BigInt(params.addressId),
@@ -715,7 +717,9 @@ export function usePlaceOrder() {
         BigInt(params.walletAmountToUse ?? 0),
       );
       if (result.__kind__ === "ok") {
-        return { success: true, orderId: result.ok.toString() };
+        const orderId = result.ok.toString();
+        addNotification("Order Confirmed! 🎉", `Your order #${orderId} has been placed. We're getting it ready!`, "order");
+        return { success: true, orderId };
       }
       return { success: false, error: result.err };
     },
@@ -732,21 +736,24 @@ export function usePlaceOrder() {
 
 export function useWalletBalance() {
   const { actor, isFetching } = useBackendActor();
+  const userEmail = localStorage.getItem("currentUserEmail") || "Guest";
   return useQuery<number>({
     queryKey: ["wallet-balance"],
     queryFn: async () => {
-      if (!actor) return 0;
+      if (!actor) {
+        return Number(localStorage.getItem(`wallet_balance_${userEmail.toLowerCase()}`) || 0) * 100;
+      }
       try {
         const result = await (
           actor as unknown as { getWalletBalance: () => Promise<bigint> }
         ).getWalletBalance();
         return Number(result);
       } catch {
-        return 1250; // $12.50 in cents
+        return Number(localStorage.getItem(`wallet_balance_${userEmail.toLowerCase()}`) || 0) * 100;
       }
     },
     enabled: !!actor && !isFetching,
-    initialData: 1250,
+    initialData: 0,
   });
 }
 
@@ -775,7 +782,26 @@ export function useUpdateUserProfile() {
       email: string;
       phone: string;
     }) => {
-      if (!actor) throw new Error("Not connected");
+      // Sync local storage profile
+      const email = localStorage.getItem("currentUserEmail");
+      if (email) {
+        const profiles = JSON.parse(localStorage.getItem("user_profiles") || "{}");
+        if (profiles[email.toLowerCase()]) {
+          const names = data.name.split(" ");
+          profiles[email.toLowerCase()] = {
+            ...profiles[email.toLowerCase()],
+            firstName: names[0] || "",
+            lastName: names.slice(1).join(" ") || "",
+            phone: data.phone,
+            email: data.email,
+          };
+          localStorage.setItem("user_profiles", JSON.stringify(profiles));
+          // If email changed, we might need to update currentUserEmail too, 
+          // but that's complex for session management. Let's stick to profile info.
+        }
+      }
+
+      if (!actor) return; // Allow local update only if actor missing
       await actor.updateUserProfile(data.name, data.email, data.phone);
     },
     onSuccess: () => qc.invalidateQueries({ queryKey: ["user-profile"] }),
@@ -1092,11 +1118,24 @@ export function useUpdateOrderStatus() {
   const { actor } = useBackendActor();
   return useMutation({
     mutationFn: async (data: { orderId: string; status: string }) => {
-      if (!actor) throw new Error("Not connected");
+      if (!actor) {
+        if (data.status === "Delivered") {
+           addNotification("Package Delivered! 📦", `Your order #${data.orderId} has been delivered. Enjoy!`, "order");
+        } else if (data.status === "Shipped") {
+           addNotification("Order Shipped! 🚚", `Your order #${data.orderId} is on its way.`, "order");
+        }
+        return;
+      }
       await actor.updateOrderStatus(
         BigInt(data.orderId),
         data.status as BackendOrderStatus,
       );
+      
+      if (data.status === "Delivered") {
+        addNotification("Package Delivered! 📦", `Your order #${data.orderId} has been delivered. Enjoy!`, "order");
+      } else if (data.status === "Shipped") {
+        addNotification("Order Shipped! 🚚", `Your order #${data.orderId} is on its way.`, "order");
+      }
     },
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["admin-orders"] });
@@ -2401,6 +2440,24 @@ export interface InAppNotification {
 
 const LOCAL_NOTIF_KEY_V2 = "nexgro_in_app_notifs_v2";
 
+export function addNotification(title: string, body: string, type: InAppNotification["type"] = "general") {
+  try {
+    const current = getNotificationsFromStorage();
+    const newNotif: InAppNotification = {
+      id: `n-${Date.now()}`,
+      title,
+      body,
+      type,
+      isRead: false,
+      createdAt: Date.now(),
+    };
+    localStorage.setItem(LOCAL_NOTIF_KEY_V2, JSON.stringify([newNotif, ...current]));
+    // Force a small delay then invalidate if possible, but this is a static helper
+  } catch {
+    /* noop */
+  }
+}
+
 function getNotificationsFromStorage(): InAppNotification[] {
   try {
     const raw = localStorage.getItem(LOCAL_NOTIF_KEY_V2);
@@ -2665,6 +2722,54 @@ const STATIC_RECIPES: Recipe[] = [
       { productId: "p7", quantity: 2, unit: "tbsp" },
     ],
   },
+  {
+    id: "r3",
+    name: "Masala Omelette",
+    imageUrl: "https://images.unsplash.com/photo-1510629954389-c1e0da47d415?w=400&q=80",
+    cookTimeMinutes: 15,
+    servings: 1,
+    ingredients: [
+      { productId: "p11", quantity: 2, unit: "eggs" },
+      { productId: "p1", quantity: 1, unit: "onion" },
+      { productId: "p13", quantity: 1, unit: "chilli" },
+    ],
+  },
+  {
+    id: "r4",
+    name: "Paneer Tikka Salad",
+    imageUrl: "https://images.unsplash.com/photo-1567188040759-fb8a883dc6d8?w=400&q=80",
+    cookTimeMinutes: 20,
+    servings: 2,
+    ingredients: [
+      { productId: "p14", quantity: 200, unit: "grams" },
+      { productId: "p1", quantity: 1, unit: "capsicum" },
+      { productId: "p5", quantity: 0.5, unit: "cup" },
+    ],
+  },
+  {
+    id: "r5",
+    name: "Classic Pancakes",
+    imageUrl: "https://images.unsplash.com/photo-1567620905732-2d1ec7bb7445?w=400&q=80",
+    cookTimeMinutes: 25,
+    servings: 3,
+    ingredients: [
+      { productId: "p4", quantity: 1, unit: "litre" },
+      { productId: "p11", quantity: 2, unit: "eggs" },
+      { productId: "p15", quantity: 2, unit: "cups" },
+    ],
+  },
+  {
+    id: "r6",
+    name: "Berry Smoothie Bowl",
+    imageUrl: "https://images.unsplash.com/photo-1490474418175-01997206c111?w=400&q=80",
+    cookTimeMinutes: 10,
+    servings: 1,
+    ingredients: [
+      { productId: "p16", quantity: 1, unit: "cup" },
+      { productId: "p5", quantity: 1, unit: "cup" },
+      { productId: "p7", quantity: 1, unit: "tbsp" },
+    ],
+  },
 ];
 
 export function useRecipes() {
@@ -2845,24 +2950,7 @@ export function useGetProductsByIds(ids: string[]) {
 export function useReferrals() {
   return useQuery<Referral[]>({
     queryKey: ["referrals"],
-    queryFn: async () => [
-      {
-        id: "ref1",
-        referrerId: "u1",
-        referredEmail: "friend1@gmail.com",
-        status: "completed",
-        rewardAmount: 500,
-        createdAt: BigInt(Date.now() - 259200000),
-      },
-      {
-        id: "ref2",
-        referrerId: "u1",
-        referredEmail: "friend2@gmail.com",
-        status: "pending",
-        rewardAmount: 0,
-        createdAt: BigInt(Date.now() - 86400000),
-      },
-    ],
+    queryFn: async () => [],
     initialData: [],
   });
 }
@@ -3057,6 +3145,20 @@ export function useMealPlans() {
         userId: "u1",
         recipeId: "r1",
         plannedDate: new Date().toISOString().split("T")[0],
+        servings: 2,
+      },
+      {
+        id: "mp2",
+        userId: "u1",
+        recipeId: "r3",
+        plannedDate: new Date().toISOString().split("T")[0],
+        servings: 1,
+      },
+      {
+        id: "mp3",
+        userId: "u1",
+        recipeId: "r4",
+        plannedDate: new Date(Date.now() + 86400000).toISOString().split("T")[0],
         servings: 2,
       },
     ],
