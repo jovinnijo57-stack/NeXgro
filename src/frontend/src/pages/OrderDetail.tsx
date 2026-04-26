@@ -637,6 +637,8 @@ function ReviewOrder({ orderId }: { orderId: string }) {
   const [comment, setComment] = useState("");
   const [submitted, setSubmitted] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [rating, setRating] = useState(0);
+  const [hover, setHover] = useState(0);
 
   if (submitted) {
     return (

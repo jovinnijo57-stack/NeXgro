@@ -718,6 +718,7 @@ export default function Profile() {
           <Gift className="w-4 h-4 text-accent" />
           <h3 className="font-semibold text-foreground">Referral Program</h3>
         </div>
+        <p className="text-sm text-muted-foreground mb-4">
           Invite friends and both of you earn{" "}
           <span className="text-primary font-semibold">₹100 bonus</span>{" "}
           when they place their first order.

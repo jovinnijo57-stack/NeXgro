@@ -15,6 +15,12 @@ import {
   useAdminStats,
   useAdminUsers,
   useAdminWallets,
+  useAdminFlashDeals,
+  useCreateFlashDeal,
+  useDeleteFlashDeal,
+  useAdminBanners,
+  useCreateBanner,
+  useDeleteBanner,
   useApproveReview,
   useCreateBundle,
   useCreateBuyXGetYRule,
@@ -343,7 +349,7 @@ function DashboardView() {
                     </td>
                     <td className="px-4 py-3 text-foreground">{order.userId}</td>
                     <td className="px-4 py-3 text-muted-foreground text-right">
-                      {order.itemCount || 0}
+                      {order.items?.length || 0}
                     </td>
                     <td className="px-4 py-3 font-semibold text-foreground text-right">
                       ₹{(order.total || 0).toFixed(2)}
@@ -1809,7 +1815,7 @@ function FlashDealsView() {
 // ─── Section: Reviews ─────────────────────────────────────────────────────────
 
 function ReviewsView() {
-  const { data: reviews = [] } = useAdminReviews();
+  const { data: reviews = [] } = useAdminReviews("pending");
   const approveReview = useApproveReview();
   const rejectReview = useRejectReview();
   const [activeTab, setActiveTab] = useState<"pending" | "approved">("pending");

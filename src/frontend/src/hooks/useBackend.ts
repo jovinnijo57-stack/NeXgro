@@ -1099,6 +1099,57 @@ export function useAdminCoupons() {
   });
 }
 
+export function useAdminFlashDeals() {
+  const { actor, isFetching } = useBackendActor();
+  return useQuery<FlashDeal[]>({
+    queryKey: ["admin-flash-deals"],
+    queryFn: async () => {
+      if (!actor) return [];
+      const result = await actor.getFlashDeals();
+      return result.map(adaptFlashDeal);
+    },
+    enabled: !!actor && !isFetching,
+    initialData: [],
+  });
+}
+
+export function useCreateFlashDeal() {
+  const { actor } = useBackendActor();
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async (vars: Omit<FlashDeal, "id">) => {
+      if (!actor) throw new Error("Actor not initialized");
+      const result = await actor.createFlashDeal(
+        BigInt(vars.productId),
+        BigInt(vars.discountPercent),
+        vars.startDateTime,
+        vars.endDateTime
+      );
+      return result;
+    },
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["admin-flash-deals"] });
+      qc.invalidateQueries({ queryKey: ["flash-deals"] });
+    },
+  });
+}
+
+export function useDeleteFlashDeal() {
+  const { actor } = useBackendActor();
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async (id: string) => {
+      if (!actor) throw new Error("Actor not initialized");
+      await actor.deleteFlashDeal(BigInt(id));
+    },
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["admin-flash-deals"] });
+      qc.invalidateQueries({ queryKey: ["flash-deals"] });
+    },
+  });
+}
+
+
 export function useAdminReviews(status: "pending" | "approved") {
   const { actor, isFetching } = useBackendActor();
   return useQuery<Review[]>({
@@ -2102,142 +2153,7 @@ export function useDeleteBanner() {
 
 // ─── Admin: Flash Deals ──────────────────────────────────────────────────────
 
-export function useAdminFlashDeals() {
-  const { actor, isFetching } = useBackendActor();
-  return useQuery<FlashDeal[]>({
-    queryKey: ["admin-flash-deals"],
-    queryFn: async () => {
-      if (!actor) return [];
-      try {
-        const fn = (actor as unknown as Record<string, unknown>)
-          .getFlashDeals as (() => Promise<unknown>) | undefined;
-        const result = await fn?.();
-        if (!Array.isArray(result)) return [];
-        return (result as Array<Record<string, unknown>>).map((d) => ({
-          id: String(d.id ?? ""),
-          productId: String(d.productId ?? ""),
-          discountPercent: Number(d.discountPercent ?? 0),
-          startDateTime: BigInt((d.startDateTime as bigint) ?? 0),
-          endDateTime: BigInt((d.endDateTime as bigint) ?? 0),
-          isActive: Boolean(d.isActive ?? true),
-        }));
-      } catch {
-        return [];
-      }
-    },
-    enabled: !!actor && !isFetching,
-    initialData: [],
-  });
-}
 
-export function useCreateFlashDeal() {
-  const qc = useQueryClient();
-  const { actor } = useBackendActor();
-  return useMutation({
-    mutationFn: async (data: Omit<FlashDeal, "id">) => {
-      if (!actor) throw new Error("Not connected");
-      try {
-        const fn = (actor as unknown as Record<string, unknown>)
-          .createFlashDeal as ((d: unknown) => Promise<unknown>) | undefined;
-        await fn?.(data);
-      } catch {
-        /* graceful fallback */
-      }
-    },
-    onSuccess: () => qc.invalidateQueries({ queryKey: ["admin-flash-deals"] }),
-  });
-}
-
-export function useDeleteFlashDeal() {
-  const qc = useQueryClient();
-  const { actor } = useBackendActor();
-  return useMutation({
-    mutationFn: async (id: string) => {
-      if (!actor) throw new Error("Not connected");
-      try {
-        const fn = (actor as unknown as Record<string, unknown>)
-          .deleteFlashDeal as ((id: string) => Promise<unknown>) | undefined;
-        await fn?.(id);
-      } catch {
-        /* graceful fallback */
-      }
-    },
-    onSuccess: () => qc.invalidateQueries({ queryKey: ["admin-flash-deals"] }),
-  });
-}
-
-// ─── Admin: Reviews Management ───────────────────────────────────────────────
-
-export function useAdminReviews() {
-  const { actor, isFetching } = useBackendActor();
-  return useQuery<Review[]>({
-    queryKey: ["admin-reviews"],
-    queryFn: async () => {
-      if (!actor) return [];
-      try {
-        const fn = (actor as unknown as Record<string, unknown>).getAllReviews as
-          | (() => Promise<unknown>)
-          | undefined;
-        const result = await fn?.();
-        if (!Array.isArray(result)) return [];
-        return (result as Array<Record<string, unknown>>).map((r) => ({
-          id: String(r.id ?? ""),
-          productId: String(r.productId ?? ""),
-          userId: String(r.userId ?? ""),
-          userName: String(r.userName ?? "Anonymous"),
-          rating: Number(r.rating ?? 0),
-          title: String(r.title ?? ""),
-          text: String(r.text ?? ""),
-          isApproved: Boolean(r.isApproved ?? false),
-          helpfulCount: Number(r.helpfulCount ?? 0),
-          createdAt: BigInt((r.createdAt as bigint) ?? 0),
-        }));
-      } catch {
-        return [];
-      }
-    },
-    enabled: !!actor && !isFetching,
-    initialData: [],
-  });
-}
-
-export function useApproveReview() {
-  const qc = useQueryClient();
-  const { actor } = useBackendActor();
-  return useMutation({
-    mutationFn: async (reviewId: string) => {
-      if (!actor) throw new Error("Not connected");
-      try {
-        const fn = (actor as unknown as Record<string, unknown>).approveReview as
-          | ((id: string) => Promise<unknown>)
-          | undefined;
-        await fn?.(reviewId);
-      } catch {
-        /* graceful fallback */
-      }
-    },
-    onSuccess: () => qc.invalidateQueries({ queryKey: ["admin-reviews"] }),
-  });
-}
-
-export function useRejectReview() {
-  const qc = useQueryClient();
-  const { actor } = useBackendActor();
-  return useMutation({
-    mutationFn: async (reviewId: string) => {
-      if (!actor) throw new Error("Not connected");
-      try {
-        const fn = (actor as unknown as Record<string, unknown>).rejectReview as
-          | ((id: string) => Promise<unknown>)
-          | undefined;
-        await fn?.(reviewId);
-      } catch {
-        /* graceful fallback */
-      }
-    },
-    onSuccess: () => qc.invalidateQueries({ queryKey: ["admin-reviews"] }),
-  });
-}
 
 export function useGetThreadMessages(threadId: string) {
   const { actor, isFetching } = useBackendActor();
