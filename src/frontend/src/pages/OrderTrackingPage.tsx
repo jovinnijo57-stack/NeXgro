@@ -65,11 +65,14 @@ export default function OrderTrackingPage() {
           {/* Pulsing Aura */}
           <div className="absolute inset-0 bg-primary/20 rounded-full animate-ping opacity-75" />
           
-          <div className="relative w-full h-full bg-primary rounded-2xl border-4 border-white shadow-[0_10px_20px_-5px_rgba(22,163,74,0.4)] flex items-center justify-center rotate-[-15deg] group-hover:rotate-0 transition-transform">
-            <Truck className="w-8 h-8 text-white" />
-            
-            {/* 3D Depth Shadow */}
-            <div className="absolute -bottom-2 -right-2 w-full h-full bg-black/10 rounded-2xl -z-10" />
+          <div className="relative w-full h-full bg-primary rounded-2xl border-4 border-white shadow-xl flex items-center justify-center rotate-[-15deg] hover:rotate-0 transition-transform">
+             <svg viewBox="0 0 100 100" className="w-12 h-12 text-white fill-current">
+                <path d="M75,65 c0,5.5-4.5,10-10,10s-10-4.5-10-10s4.5-10,10-10S75,59.5,75,65z M65,60c-2.8,0-5,2.2-5,5s2.2,5,5,5s5-2.2,5-5S67.8,60,65,60z" />
+                <path d="M35,65 c0,5.5-4.5,10-10,10s-10-4.5-10-10s4.5-10,10-10S35,59.5,35,65z M25,60c-2.8,0-5,2.2-5,5s2.2,5,5,5s5-2.2,5-5S27.8,60,25,60z" />
+                <path d="M85,55 c0,2.8-2.2,5-5,5h-5.4c-1.3-4.1-5.1-7-9.6-7s-8.3,2.9-9.6,7H34.6c-1.3-4.1-5.1-7-9.6-7s-8.3,2.9-9.6,7H10c-2.8,0-5-2.2-5-5s2.2-5,5-5h2.4l5.4-16.2c1.1-3.3,4.2-5.5,7.6-5.5h29.2c3.4,0,6.5,2.2,7.6,5.5l3.8,11.4H80C82.8,45,85,47.2,85,50V55z M63,28.3L59.2,17H27.8l-5.4,16.2L27.8,50h32.2L63,28.3z" />
+                <path d="M78,40h-8c-1.1,0-2-0.9-2-2s0.9-2,2-2h8c1.1,0,2,0.9,2,2S79.1,40,78,40z" />
+                <rect x="70" y="25" width="12" height="10" rx="2" fill="white" opacity="0.8" />
+             </svg>
           </div>
           
           <div className="absolute -bottom-10 left-1/2 -translate-x-1/2 bg-white/90 backdrop-blur-md px-3 py-1 rounded-full shadow-lg border border-border flex items-center gap-2 whitespace-nowrap">
