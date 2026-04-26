@@ -3,8 +3,11 @@ import { useSearchProducts, useWishlist } from "@/hooks/useBackend";
 import { SAMPLE_CATEGORIES, SAMPLE_PRODUCTS } from "@/types";
 import type { ProductFilters } from "@/types";
 import { Link } from "@tanstack/react-router";
-import { Search as SearchIcon, SlidersHorizontal, Star, X } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
+import { Search as SearchIcon, SlidersHorizontal, Star, X, Mic, Filter, ChevronDown } from "lucide-react";
 import { useEffect, useMemo, useRef, useState } from "react";
+import { toast } from "sonner";
 
 const RECENTLY_VIEWED_KEY = "nexgro_recently_viewed";
 
@@ -20,6 +23,10 @@ export default function Search() {
   const inputRef = useRef<HTMLInputElement>(null);
   const [query, setQuery] = useState("");
   const [showFilters, setShowFilters] = useState(false);
+  const [isListening, setIsListening] = useState(false);
+  const [priceRange, setPriceRange] = useState<[number, number]>([0, 100]);
+  const [minRating, setMinRating] = useState(0);
+  const [sort, setSort] = useState("rating");
 
   // Auto-focus on mount and read URL param
   useEffect(() => {
@@ -36,6 +43,22 @@ export default function Search() {
     [query],
   );
 
+  const startListening = () => {
+    const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
+    if (!SpeechRecognition) {
+      toast.error("Voice search not supported");
+      return;
+    }
+    const recognition = new SpeechRecognition();
+    recognition.onstart = () => setIsListening(true);
+    recognition.onend = () => setIsListening(false);
+    recognition.onresult = (event: any) => {
+      const transcript = event.results[0][0].transcript;
+      setQuery(transcript);
+    };
+    recognition.start();
+  };
+
   const { data: apiResults } = useSearchProducts(query, filters);
   const { data: wishlistItems } = useWishlist();
 
@@ -46,14 +69,24 @@ export default function Search() {
 
   // Local filter on sample data when query is active
   const localResults = useMemo(() => {
-    if (!query.trim()) return [];
-    return SAMPLE_PRODUCTS.filter((p) => {
-      const matchQuery =
+    let res = [...SAMPLE_PRODUCTS];
+    if (query.trim()) {
+      res = res.filter((p) => 
         p.name.toLowerCase().includes(query.toLowerCase()) ||
-        p.description.toLowerCase().includes(query.toLowerCase());
-      return matchQuery;
+        p.description.toLowerCase().includes(query.toLowerCase())
+      );
+    }
+    res = res.filter(p => p.price >= priceRange[0] && p.price <= priceRange[1]);
+    if (minRating > 0) res = res.filter(p => p.rating >= minRating);
+    
+    res.sort((a, b) => {
+      if (sort === "price_asc") return a.price - b.price;
+      if (sort === "price_desc") return b.price - a.price;
+      if (sort === "rating") return b.rating - a.rating;
+      return 0;
     });
-  }, [query]);
+    return res;
+  }, [query, priceRange, minRating, sort]);
 
   const results =
     apiResults && apiResults.length > 0 ? apiResults : localResults;
@@ -86,14 +119,30 @@ export default function Search() {
                 <button
                   type="button"
                   onClick={clearQuery}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 w-5 h-5 rounded-full bg-muted flex items-center justify-center hover:bg-muted/80 transition-colors"
+                  className="absolute right-10 top-1/2 -translate-y-1/2 w-5 h-5 rounded-full bg-muted flex items-center justify-center hover:bg-muted/80 transition-colors"
                   aria-label="Clear search"
-                  data-ocid="search.clear_button"
                 >
                   <X className="w-3 h-3 text-muted-foreground" />
                 </button>
               )}
+              <button
+                type="button"
+                onClick={startListening}
+                className={cn(
+                  "absolute right-3 top-1/2 -translate-y-1/2 p-1.5 rounded-full transition-colors",
+                  isListening ? "bg-primary text-primary-foreground animate-pulse" : "text-muted-foreground hover:bg-muted"
+                )}
+              >
+                <Mic className="w-4 h-4" />
+              </button>
             </div>
+            <button
+              type="button"
+              onClick={() => setShowFilters(true)}
+              className="md:hidden p-3 bg-card border border-border rounded-xl text-primary"
+            >
+              <Filter className="w-5 h-5" />
+            </button>
           </div>
         </div>
       </div>
@@ -114,68 +163,167 @@ export default function Search() {
       </div>
 
       <div className="max-w-6xl mx-auto px-4 py-5">
-        {hasQuery ? (
-          <>
-            {/* Results header */}
-            <div className="flex items-center justify-between mb-4">
-              <p className="text-sm text-muted-foreground">
-                <span className="font-semibold text-foreground">
-                  {results.length}
-                </span>{" "}
-                result{results.length !== 1 ? "s" : ""} for{" "}
-                <span className="font-semibold text-foreground">"{query}"</span>
-              </p>
-            </div>
-
-            {results.length === 0 ? (
-              <div
-                className="flex flex-col items-center justify-center py-20 text-center"
-                data-ocid="search.empty_state"
-              >
-                <span className="text-6xl mb-4">🔍</span>
-                <h3 className="text-xl font-bold text-foreground mb-2">
-                  No results for "{query}"
-                </h3>
-                <p className="text-muted-foreground text-sm mb-6 max-w-sm">
-                  Try checking your spelling or using different keywords.
-                </p>
-                <div className="flex flex-wrap gap-2 justify-center mb-6">
-                  {["Tomatoes", "Milk", "Bread", "Eggs", "Yogurt"].map((s) => (
-                    <button
-                      key={s}
-                      type="button"
-                      onClick={() => setQuery(s)}
-                      className="px-3 py-1.5 bg-secondary text-secondary-foreground rounded-full text-sm font-medium hover:bg-secondary/80 transition-colors border border-border"
-                      data-ocid={`search.suggestion.${s.toLowerCase()}`}
-                    >
-                      {s}
-                    </button>
-                  ))}
+        <div className="flex gap-6">
+          {/* Desktop Filters */}
+          <aside className="hidden md:block w-52 shrink-0">
+            <div className="bg-card rounded-2xl border border-border p-4 sticky top-28">
+              <h3 className="text-xs font-bold text-foreground mb-4 uppercase tracking-wider">Filters</h3>
+              <div className="space-y-6">
+                <div>
+                  <p className="text-[10px] font-bold text-muted-foreground uppercase mb-2">Sort By</p>
+                  <select 
+                    value={sort} 
+                    onChange={e => setSort(e.target.value)}
+                    className="w-full bg-muted/50 border-none rounded-lg text-xs p-2 outline-none"
+                  >
+                    <option value="rating">Top Rated</option>
+                    <option value="price_asc">Price: Low to High</option>
+                    <option value="price_desc">Price: High to Low</option>
+                  </select>
                 </div>
-              </div>
-            ) : (
-              <div
-                className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3"
-                data-ocid="search.results_grid"
-              >
-                {results.map((product, i) => (
-                  <ProductCard
-                    key={product.id}
-                    product={product}
-                    index={i + 1}
-                    isWishlisted={wishlistedIds.has(product.id)}
+                <div>
+                  <p className="text-[10px] font-bold text-muted-foreground uppercase mb-2">Price Range</p>
+                  <div className="flex items-center gap-2 mb-2">
+                    <span className="text-xs font-bold">${priceRange[0]}</span>
+                    <span className="text-muted-foreground">-</span>
+                    <span className="text-xs font-bold">${priceRange[1]}</span>
+                  </div>
+                  <input 
+                    type="range" min="0" max="100" value={priceRange[1]} 
+                    onChange={e => setPriceRange([0, parseInt(e.target.value)])}
+                    className="w-full accent-primary h-1"
                   />
-                ))}
+                </div>
+                <div>
+                  <p className="text-[10px] font-bold text-muted-foreground uppercase mb-2">Min Rating</p>
+                  <div className="flex flex-col gap-1">
+                    {[5, 4, 3].map(star => (
+                      <button 
+                        key={star}
+                        onClick={() => setMinRating(star)}
+                        className={cn(
+                          "flex items-center gap-1.5 text-xs p-1.5 rounded-lg transition-colors",
+                          minRating === star ? "bg-primary/10 text-primary" : "hover:bg-muted"
+                        )}
+                      >
+                        <Star className={cn("w-3 h-3", minRating >= star ? "fill-primary text-primary" : "text-muted-foreground")} />
+                        {star} & up
+                      </button>
+                    ))}
+                  </div>
+                </div>
+                <button 
+                  onClick={() => { setPriceRange([0, 100]); setMinRating(0); setSort("rating"); }}
+                  className="text-[10px] text-primary font-bold uppercase hover:underline"
+                >
+                  Clear Filters
+                </button>
+              </div>
+            </div>
+          </aside>
+
+          <main className="flex-1 min-w-0">
+            {hasQuery || results.length > 0 ? (
+              <>
+                {/* Results header */}
+                <div className="flex items-center justify-between mb-4">
+                  <p className="text-sm text-muted-foreground">
+                    <span className="font-semibold text-foreground">
+                      {results.length}
+                    </span>{" "}
+                    result{results.length !== 1 ? "s" : ""}
+                    {query && (
+                      <> for <span className="font-semibold text-foreground">"{query}"</span></>
+                    )}
+                  </p>
+                </div>
+
+                {results.length === 0 ? (
+                  <div
+                    className="flex flex-col items-center justify-center py-20 text-center"
+                    data-ocid="search.empty_state"
+                  >
+                    <span className="text-6xl mb-4">🔍</span>
+                    <h3 className="text-xl font-bold text-foreground mb-2">
+                      No results found
+                    </h3>
+                    <p className="text-muted-foreground text-sm mb-6 max-w-sm">
+                      Try adjusting your filters or using different keywords.
+                    </p>
+                  </div>
+                ) : (
+                  <div
+                    className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-3"
+                    data-ocid="search.results_grid"
+                  >
+                    {results.map((product, i) => (
+                      <ProductCard
+                        key={product.id}
+                        product={product}
+                        index={i + 1}
+                        isWishlisted={wishlistedIds.has(product.id)}
+                      />
+                    ))}
+                  </div>
+                )}
+              </>
+            ) : (
+              <div className="flex flex-col items-center justify-center py-20 text-center text-muted-foreground">
+                <SearchIcon className="w-12 h-12 mb-4 opacity-20" />
+                <p>Start typing to search for products</p>
               </div>
             )}
-          </>
-        ) : (
-          <div className="flex flex-col items-center justify-center py-20 text-center text-muted-foreground">
-            <SearchIcon className="w-12 h-12 mb-4 opacity-20" />
-            <p>Start typing to search for products</p>
-          </div>
-        )}
+          </main>
+        </div>
       </div>
+
+      {/* Mobile Filters Drawer */}
+      {showFilters && (
+        <div className="fixed inset-0 z-50 md:hidden">
+          <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" onClick={() => setShowFilters(false)} />
+          <div className="absolute bottom-0 left-0 right-0 bg-card rounded-t-3xl p-6 max-h-[80vh] overflow-y-auto animate-in slide-in-from-bottom duration-300">
+            <div className="flex items-center justify-between mb-6">
+              <h3 className="text-lg font-bold">Filters</h3>
+              <button onClick={() => setShowFilters(false)} className="p-2 bg-muted rounded-full">
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+            
+            <div className="space-y-8">
+               <div>
+                  <p className="text-xs font-bold uppercase mb-3">Sort By</p>
+                  <div className="flex flex-wrap gap-2">
+                    {["rating", "price_asc", "price_desc"].map(s => (
+                      <button 
+                        key={s}
+                        onClick={() => setSort(s)}
+                        className={cn(
+                          "px-4 py-2 rounded-xl text-sm border transition-all",
+                          sort === s ? "bg-primary border-primary text-white" : "border-border"
+                        )}
+                      >
+                        {s === "rating" ? "Top Rated" : s === "price_asc" ? "Price: Low to High" : "Price: High to Low"}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                <div>
+                  <p className="text-xs font-bold uppercase mb-3">Max Price: ${priceRange[1]}</p>
+                  <input 
+                    type="range" min="0" max="100" value={priceRange[1]} 
+                    onChange={e => setPriceRange([0, parseInt(e.target.value)])}
+                    className="w-full accent-primary h-2"
+                  />
+                </div>
+
+                <Button className="w-full h-12 rounded-2xl text-base font-bold" onClick={() => setShowFilters(false)}>
+                  Apply Filters
+                </Button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

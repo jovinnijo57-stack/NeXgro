@@ -170,7 +170,8 @@ export default function Wishlist() {
   const [copied, setCopied] = useState(false);
 
   const wishlistProducts: Product[] = useMemo(() => {
-    if (wishlistData && wishlistData.length > 0) {
+    if (wishlistData) {
+      if (wishlistData.length === 0) return [];
       return wishlistData
         .map(
           (item) =>
@@ -179,6 +180,7 @@ export default function Wishlist() {
         )
         .filter((p): p is Product => !!p);
     }
+    // Only return demo if data is still loading (undefined)
     return SAMPLE_PRODUCTS.filter((p) => SAMPLE_WISHLIST_IDS.includes(p.id));
   }, [wishlistData]);
 

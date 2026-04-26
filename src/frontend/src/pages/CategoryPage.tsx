@@ -287,6 +287,20 @@ export default function CategoryPage() {
         </div>
       </div>
 
+      <div className="max-w-7xl mx-auto px-4 py-4">
+        <div className="relative overflow-hidden rounded-2xl aspect-[21/5] md:aspect-[6/1] bg-muted shadow-md group">
+          <img 
+            src="/assets/banner1.png" 
+            alt="Category Banner" 
+            className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+            onError={(e) => {
+              (e.target as HTMLImageElement).src = "https://images.unsplash.com/photo-1542838132-92c53300491e?auto=format&fit=crop&q=80&w=1200";
+            }}
+          />
+          <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent" />
+        </div>
+      </div>
+
       <div className="max-w-7xl mx-auto px-4 py-5">
         {/* Mobile filter bar */}
         <div className="flex items-center justify-between mb-4 md:hidden">

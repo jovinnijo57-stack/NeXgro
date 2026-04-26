@@ -665,8 +665,12 @@ export default function Cart() {
             </div>
             <Button 
               size="sm" 
-              className="bg-primary text-white rounded-xl text-[10px] font-black uppercase tracking-widest shadow-lg"
-              onClick={() => toast.success("Family Invitation Link copied to clipboard!")}
+              className="bg-primary text-white rounded-xl text-[10px] font-black uppercase tracking-widest shadow-lg active:scale-95 transition-transform"
+              onClick={() => {
+                const url = `${window.location.origin}/shared-wishlist/family_${Date.now()}`;
+                navigator.clipboard.writeText(url);
+                toast.success("Family Invitation Link copied to clipboard!");
+              }}
             >
               Invite
             </Button>
