@@ -301,13 +301,6 @@ export default function Wishlist() {
               >
                 Browse Products
               </Link>
-              <Link
-                to="/search"
-                className="px-6 py-2.5 bg-card border border-border text-foreground rounded-xl font-semibold hover:bg-muted/50 transition-colors text-sm"
-                data-ocid="wishlist.search_link"
-              >
-                Search Groceries
-              </Link>
             </div>
           </div>
         ) : (

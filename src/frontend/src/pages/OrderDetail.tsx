@@ -1,7 +1,8 @@
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
-import { useAddToCart, useOrders, useSubmitReview } from "@/hooks/useBackend";
+import { useAddToCart, useOrders, useSubmitReview, useTopUpWallet, useUpdateOrderStatus } from "@/hooks/useBackend";
+import { sendOrderUpdateWhatsApp } from "@/services/whatsappService";
 import { cn } from "@/lib/utils";
 import type { Order, OrderStatus } from "@/types";
 import { SAMPLE_PRODUCTS } from "@/types";
@@ -719,6 +720,8 @@ export default function OrderDetail() {
   const orderId = params.orderId ?? "";
   const { data: rawOrders, isLoading } = useOrders();
   const addToCart = useAddToCart();
+  const topUpWallet = useTopUpWallet();
+  const updateStatus = useUpdateOrderStatus();
   const [reordering, setReordering] = useState(false);
   const [activeTab, setActiveTab] = useState<"timeline" | "map">("timeline");
 
@@ -775,10 +778,19 @@ export default function OrderDetail() {
       toast.error("Account suspended due to excessive cancellations.");
       setTimeout(() => { window.location.href = "/banned"; }, 1500);
     } else {
-      toast.success(`Order cancelled. Warnings: ${newCount}/3`);
-      // In a real app, we'd update the backend order status here.
-      // For the demo, we'll just reload.
-      setTimeout(() => { window.location.reload(); }, 1000);
+      // Refund to Wallet Logic
+      try {
+        await updateStatus.mutateAsync({ orderId: order.id, status: "Cancelled" });
+        await topUpWallet.mutateAsync(order.total);
+        
+        sendOrderUpdateWhatsApp("Customer", order.id, "Cancelled & Refunded to Wallet");
+        
+        toast.success(`Order cancelled. ₹${order.total.toFixed(2)} credited to your wallet! 💰`);
+      } catch (err) {
+        toast.error("Order cancelled, but wallet refund failed. Please contact support.");
+      }
+      
+      setTimeout(() => { window.location.reload(); }, 2000);
     }
   }
 

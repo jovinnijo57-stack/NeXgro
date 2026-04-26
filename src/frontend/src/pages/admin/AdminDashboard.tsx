@@ -1,5 +1,6 @@
 import { toast } from "sonner";
-import { sendOTP } from "@/services/emailService";
+import { sendOTP, sendDeliveryNotification } from "@/services/emailService";
+import { sendOrderUpdateWhatsApp } from "@/services/whatsappService";
 import {
   useAddShopLocation,
   useAdminAdjustWallet,
@@ -132,7 +133,7 @@ type AdminSection =
 // ─── Constants ────────────────────────────────────────────────────────────────
 
 const NAV_ITEMS: {
-  id: AdminSection;
+  id: string;
   label: string;
   icon: React.FC<{ className?: string }>;
 }[] = [
@@ -246,6 +247,7 @@ function Modal({
 // ─── Section: Dashboard ───────────────────────────────────────────────────────
 
 function DashboardView() {
+  const { t } = useLanguage();
   const { data: stats } = useAdminStats();
   const { data: adminOrders = [] } = useAdminOrders();
 
@@ -259,14 +261,14 @@ function DashboardView() {
     <div className="space-y-6" data-ocid="admin.dashboard_section">
       <div className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-4">
         <StatCard
-          label="Total Orders"
+          label={t("admin.total_orders") || "Total Orders"}
           value={totalOrders.toLocaleString()}
           sub="+12% this month"
           icon={ShoppingBag}
           color="bg-primary/10 text-primary"
         />
         <StatCard
-          label="Total Revenue"
+          label={t("admin.total_revenue")}
           value={`₹${totalRevenue.toLocaleString()}`}
           sub="+8% this month"
           icon={DollarSign}
@@ -287,7 +289,7 @@ function DashboardView() {
           color="bg-chart-3/10 text-chart-3"
         />
         <StatCard
-          label="Active Users"
+          label={t("admin.active_users")}
           value={activeUsers}
           sub="Registered accounts"
           icon={Users}
@@ -304,7 +306,7 @@ function DashboardView() {
 
       <div className="bg-card border border-border rounded-xl">
         <div className="px-5 py-4 border-b border-border flex items-center justify-between">
-          <h3 className="font-semibold text-foreground">Recent Orders</h3>
+          <h3 className="font-semibold text-foreground">{t("admin.recent_orders")}</h3>
           <span className="text-xs text-muted-foreground bg-muted/40 px-2 py-1 rounded-full">
             Real-time
           </span>
@@ -314,12 +316,12 @@ function DashboardView() {
             <thead className="bg-muted/30 border-b border-border">
               <tr>
                 {[
-                  "Order ID",
-                  "Customer",
-                  "Items",
-                  "Total",
-                  "Status",
-                  "Date",
+                  t("admin.order_id") || "Order ID",
+                  t("admin.customer") || "Customer",
+                  t("admin.items") || "Items",
+                  t("admin.total") || "Total",
+                  t("admin.status") || "Status",
+                  t("admin.date") || "Date",
                 ].map((h) => (
                   <th
                     key={h}
@@ -978,6 +980,9 @@ function CategoriesView() {
 
 // ─── Section: Orders ──────────────────────────────────────────────────────────
 
+import { sendDeliveryNotification } from "@/services/emailService";
+import { sendOrderUpdateWhatsApp } from "@/services/whatsappService";
+
 function OrdersView() {
   const { data: backendOrders } = useAdminOrders();
   const updateStatus = useUpdateOrderStatus();
@@ -1031,13 +1036,13 @@ function OrdersView() {
                     {order.items}
                   </td>
                   <td className="px-4 py-3 font-semibold text-foreground whitespace-nowrap">
-                    ${order.total.toFixed(2)}
+                    ₹{order.total.toFixed(2)}
                   </td>
                   <td className="px-4 py-3">
                     <span
                       className={cn(
                         "text-xs px-2.5 py-1 rounded-full font-medium whitespace-nowrap",
-                        STATUS_STYLES[order.status],
+                        STATUS_STYLES[order.status] || "bg-muted text-muted-foreground",
                       )}
                     >
                       {order.status}
@@ -1050,12 +1055,50 @@ function OrdersView() {
                     <div className="relative inline-flex items-center">
                       <select
                         defaultValue={order.status}
-                        onChange={(e) => {
-                          updateStatus.mutate({
+                        onChange={async (e) => {
+                          const newStatus = e.target.value;
+                          await updateStatus.mutateAsync({
                             orderId: order.id,
-                            status: e.target.value,
+                            status: newStatus,
                           });
-                          toast.success(`Order ${order.id} updated`);
+                          toast.success(`Order ${order.id} updated to ${newStatus}`);
+                          
+                          // Refund to wallet if cancelled
+                          if (newStatus === "Cancelled") {
+                            const refundAmount = order.total;
+                            // Add to wallet balance for this user
+                            const email = order.email.toLowerCase();
+                            const currentWallet = Number(localStorage.getItem(`wallet_balance_${email}`) || 0);
+                            localStorage.setItem(`wallet_balance_${email}`, (currentWallet + refundAmount).toString());
+                            
+                            // Add wallet transaction
+                            const txs = JSON.parse(localStorage.getItem(`wallet_transactions_${email}`) || "[]");
+                            txs.unshift({
+                              id: `REF-${Date.now()}`,
+                              amount: refundAmount,
+                              description: `Refund for order #${order.id}`,
+                              type: "Refund",
+                              createdAt: Date.now()
+                            });
+                            localStorage.setItem(`wallet_transactions_${email}`, JSON.stringify(txs));
+
+                            // Add notification
+                            addNotification(
+                              "💰 Refund Credited",
+                              `Your order #${order.id} was cancelled. ₹${refundAmount.toFixed(2)} has been credited to your wallet.`,
+                              "general"
+                            );
+
+                            toast.success(`Refund of ₹${refundAmount.toFixed(2)} credited to user's wallet.`);
+                          }
+
+                          // Send Notifications
+                          if (newStatus === "Delivered") {
+                            sendDeliveryNotification(order.email, order.user, order.id);
+                            sendOrderUpdateWhatsApp("Customer", order.id, "Delivered");
+                          } else {
+                            sendOrderUpdateWhatsApp("Customer", order.id, newStatus);
+                          }
                         }}
                         className="text-xs border border-border rounded-lg pl-2 pr-6 py-1.5 bg-background text-foreground appearance-none cursor-pointer hover:border-primary transition-colors"
                         aria-label={`Update status for ${order.id}`}

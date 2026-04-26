@@ -132,6 +132,8 @@ export default function WalletPage() {
   const { data: transactions } = useWalletTransactions();
   const topUp = useTopUpWallet();
 
+  const [showSuccess, setShowSuccess] = useState(false);
+  const [lastAmount, setLastAmount] = useState(0);
   const [customAmount, setCustomAmount] = useState("");
   const [selectedQuick, setSelectedQuick] = useState<number | null>(50);
 
@@ -150,10 +152,79 @@ export default function WalletPage() {
       toast.error("Please enter a valid amount (minimum ₹1)");
       return;
     }
-    await topUp.mutateAsync(activeAmount);
-    toast.success(`₹${activeAmount.toFixed(2)} added to your wallet!`);
-    setCustomAmount("");
-    setSelectedQuick(50);
+
+    const razorpayKey = "rzp_test_your_key_here"; // Placeholder - user to provide
+
+    // If using placeholder key, offer simulation
+    if (razorpayKey.includes("your_key_here")) {
+      if (confirm("Razorpay key is not configured. Would you like to SIMULATE a successful payment for testing?")) {
+        setLastAmount(activeAmount);
+        await topUp.mutateAsync(activeAmount);
+        setShowSuccess(true);
+        setCustomAmount("");
+        setSelectedQuick(50);
+        return;
+      }
+    }
+
+    const options = {
+      key: razorpayKey,
+      amount: Math.round(activeAmount * 100),
+      currency: "INR",
+      name: "NeXgro Wallet",
+      description: "Wallet Top Up",
+      image: "https://nexgro.com/logo.png",
+      handler: async function (response: any) {
+        setLastAmount(activeAmount);
+        await topUp.mutateAsync(activeAmount);
+        setShowSuccess(true);
+        setCustomAmount("");
+        setSelectedQuick(50);
+      },
+      prefill: {
+        name: "Customer",
+        email: "customer@example.com",
+        contact: "",
+      },
+      theme: {
+        color: "#16a34a",
+      },
+    };
+
+    try {
+      const rzp = new (window as any).Razorpay(options);
+      rzp.open();
+    } catch (e) {
+      toast.error("Razorpay could not be initialized. Please try again.");
+    }
+  }
+
+  if (showSuccess) {
+    return (
+      <div className="max-w-xl mx-auto px-4 py-16 text-center animate-in fade-in zoom-in duration-300">
+        <div className="w-24 h-24 bg-primary/10 text-primary rounded-full flex items-center justify-center mx-auto mb-6">
+          <CheckCircle className="w-12 h-12" />
+        </div>
+        <h1 className="text-3xl font-display font-bold text-foreground mb-2">Payment Successful!</h1>
+        <p className="text-muted-foreground mb-8">
+          ₹{lastAmount.toFixed(2)} has been added to your wallet. You also earned ₹{(lastAmount * 0.05).toFixed(2)} bonus!
+        </p>
+        <div className="space-y-3">
+          <button
+            onClick={() => setShowSuccess(false)}
+            className="w-full py-4 bg-primary text-primary-foreground rounded-2xl font-bold shadow-lg shadow-primary/20 hover:bg-primary/90 transition-all"
+          >
+            Back to Wallet
+          </button>
+          <Link
+            to="/profile"
+            className="block w-full py-4 bg-muted text-foreground rounded-2xl font-bold hover:bg-muted/80 transition-all"
+          >
+            Go to Profile
+          </Link>
+        </div>
+      </div>
+    );
   }
 
   return (
@@ -206,12 +277,14 @@ export default function WalletPage() {
           <div className="bg-primary-foreground/10 rounded-xl p-3 text-center">
             <p className="text-xs text-primary-foreground/70">Total Added</p>
             <p className="font-bold text-primary-foreground text-base">
-              ₹0.00
+              ₹{(transactions?.filter(t => t.type === 'TopUp').reduce((s, t) => s + t.amount, 0) || 0).toFixed(2)}
             </p>
           </div>
           <div className="bg-primary-foreground/10 rounded-xl p-3 text-center">
             <p className="text-xs text-primary-foreground/70">Bonus Earned</p>
-            <p className="font-bold text-primary-foreground text-base">₹0.00</p>
+            <p className="font-bold text-primary-foreground text-base">
+              ₹{(transactions?.filter(t => t.type === 'Bonus').reduce((s, t) => s + t.amount, 0) || 0).toFixed(2)}
+            </p>
           </div>
         </div>
       </div>

@@ -45,6 +45,10 @@ import {
   Activity, 
   Zap as EnergyIcon 
 } from "lucide-react";
+import { useEffect } from "react";
+import { sendAbandonedCartReminder } from "@/services/whatsappService";
+
+const ABANDON_TIMEOUT = 60000; // 1 minute for demo
 
 const DELIVERY_FEE = 2.0;
 const TAX_RATE = 0.08;
@@ -465,6 +469,21 @@ export default function Cart() {
   ) {
     setSubstituteMap((prev) => ({ ...prev, [productId]: subId }));
   }
+
+  // Abandoned cart reminder logic
+  useEffect(() => {
+    if (cartItems.length > 0) {
+      const timer = setTimeout(() => {
+        const userName = localStorage.getItem("currentUserName") || "Customer";
+        sendAbandonedCartReminder("User", userName);
+        toast.info("Forgot something? We've sent you a WhatsApp reminder! 🛒", {
+          description: "This is a simulation of the abandoned cart feature.",
+          duration: 5000,
+        });
+      }, ABANDON_TIMEOUT);
+      return () => clearTimeout(timer);
+    }
+  }, [cartItems.length]);
 
   if (isLoading) {
     return (

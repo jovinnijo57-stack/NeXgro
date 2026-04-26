@@ -243,7 +243,7 @@ function adaptAdminStats(s: BackendAdminStats): AdminStats {
 function buildBackendFilters(filters?: ProductFilters): BackendFilters {
   return {
     categoryId:
-      filters?.categoryId !== undefined
+      filters?.categoryId !== undefined && /^\d+$/.test(filters.categoryId)
         ? BigInt(filters.categoryId)
         : undefined,
     minPrice:
@@ -2354,7 +2354,7 @@ export interface InAppNotification {
   createdAt: number;
 }
 
-const LOCAL_NOTIF_KEY_V2 = "nexgro_in_app_notifs_v2";
+const LOCAL_NOTIF_KEY_V3 = "nexgro_in_app_notifs_v3";
 
 export function addNotification(title: string, body: string, type: InAppNotification["type"] = "general") {
   try {
@@ -2367,7 +2367,7 @@ export function addNotification(title: string, body: string, type: InAppNotifica
       isRead: false,
       createdAt: Date.now(),
     };
-    localStorage.setItem(LOCAL_NOTIF_KEY_V2, JSON.stringify([newNotif, ...current]));
+    localStorage.setItem(LOCAL_NOTIF_KEY_V3, JSON.stringify([newNotif, ...current]));
     // Force a small delay then invalidate if possible, but this is a static helper
   } catch {
     /* noop */
@@ -2376,7 +2376,7 @@ export function addNotification(title: string, body: string, type: InAppNotifica
 
 function getNotificationsFromStorage(): InAppNotification[] {
   try {
-    const raw = localStorage.getItem(LOCAL_NOTIF_KEY_V2);
+    const raw = localStorage.getItem(LOCAL_NOTIF_KEY_V3);
     if (raw) return JSON.parse(raw) as InAppNotification[];
   } catch {
     /* noop */
@@ -2400,15 +2400,15 @@ function getNotificationsFromStorage(): InAppNotification[] {
     },
     {
       id: "n3",
-      title: "📦 Order Update",
-      body: "Your order ORD-20240421-002 is out for delivery.",
-      isRead: true,
-      createdAt: Date.now() - 7200000,
-      type: "order",
+      title: "📢 Special Offer",
+      body: "Get ₹50 cashback on your next wallet top-up above ₹500!",
+      isRead: false,
+      createdAt: Date.now() - 9200000,
+      type: "promo",
     },
   ];
   try {
-    localStorage.setItem(LOCAL_NOTIF_KEY_V2, JSON.stringify(seed));
+    localStorage.setItem(LOCAL_NOTIF_KEY_V3, JSON.stringify(seed));
   } catch {
     /* noop */
   }
@@ -2442,7 +2442,7 @@ export function useMarkNotificationRead() {
         n.id === id ? { ...n, isRead: true } : n,
       );
       try {
-        localStorage.setItem(LOCAL_NOTIF_KEY_V2, JSON.stringify(updated));
+        localStorage.setItem(LOCAL_NOTIF_KEY_V3, JSON.stringify(updated));
       } catch {
         /* noop */
       }
@@ -2463,7 +2463,7 @@ export function useMarkAllNotificationsRead() {
         isRead: true,
       }));
       try {
-        localStorage.setItem(LOCAL_NOTIF_KEY_V2, JSON.stringify(updated));
+        localStorage.setItem(LOCAL_NOTIF_KEY_V3, JSON.stringify(updated));
       } catch {
         /* noop */
       }

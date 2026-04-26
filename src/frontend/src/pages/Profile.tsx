@@ -8,6 +8,8 @@ import {
   useOrders,
   useUpdateUserProfile,
   useUserAddresses,
+  useUpdateAddress,
+  useDeleteAddress,
   useUserProfile,
   useWalletBalance,
   useWalletTransactions,
@@ -312,6 +314,9 @@ export default function Profile() {
     }
   }, [profile]);
 
+  const deleteAddress = useDeleteAddress();
+  const updateAddress = useUpdateAddress();
+
   const principalId = identity?.getPrincipal().toText() ?? "—";
   const referralCode = profile?.referralCode && profile.referralCode !== "NONE" 
     ? profile.referralCode 
@@ -334,12 +339,6 @@ export default function Profile() {
   const displayAddresses: SavedAddress[] = addresses ?? [];
   const [editingAddress, setEditingAddress] = useState<SavedAddress | null>(null);
 
-  async function handleSave(e: React.FormEvent) {
-    e.preventDefault();
-    await updateProfile.mutateAsync({ name, email, phone });
-    toast.success("Profile updated!");
-  }
-
   function handleCopyReferral() {
     const link = `${window.location.origin}?ref=${referralCode}`;
     navigator.clipboard.writeText(link);
@@ -350,15 +349,24 @@ export default function Profile() {
 
   function handleSaveAddress(addr: Omit<SavedAddress, "id" | "userId">) {
     if (editingAddress) {
-      // Logic for editing would go here, for now we re-save
-      addAddress.mutate(addr);
-      toast.success("Address updated!");
+      updateAddress.mutate({ ...addr, id: editingAddress.id, userId: editingAddress.userId }, {
+        onSuccess: () => toast.success("Address updated!")
+      });
     } else {
-      addAddress.mutate(addr);
-      toast.success("Address added!");
+      addAddress.mutate(addr, {
+        onSuccess: () => toast.success("Address added!")
+      });
     }
     setShowAddressModal(false);
     setEditingAddress(null);
+  }
+
+  function handleDeleteAddress(id: string) {
+    if (confirm("Are you sure you want to delete this address?")) {
+      deleteAddress.mutate(id, {
+        onSuccess: () => toast.success("Address deleted")
+      });
+    }
   }
 
   function handleMarkAllRead() {
@@ -441,7 +449,7 @@ export default function Profile() {
         <div className="flex items-start justify-between">
           <div>
             <p className="text-primary-foreground/70 text-sm font-medium">
-              Loyalty Points
+              {t("profile.loyalty_points")}
             </p>
             <p className="font-display text-5xl font-bold text-primary-foreground mt-1 tabular-nums">
               {displayBalance.toLocaleString()}
@@ -453,35 +461,17 @@ export default function Profile() {
           </div>
           <Star className="w-14 h-14 text-primary-foreground/10 fill-primary-foreground/10 shrink-0" />
         </div>
-        <div className="flex gap-3 mt-4">
-          {[
-            {
-              label: "Available",
-              value: `${displayBalance.toLocaleString()} pts`,
-            },
-          ].map(({ label, value }) => (
-            <div
-              key={label}
-              className="flex-1 bg-primary-foreground/10 rounded-xl p-2.5 text-center"
-            >
-              <p className="text-xs text-primary-foreground/70">{label}</p>
-              <p className="font-bold text-primary-foreground text-base">
-                {value}
-              </p>
-            </div>
-          ))}
-        </div>
       </div>
 
-      {/* My Wallet */}
+      {/* Wallet */}
       <div
-        className="bg-card border border-border rounded-2xl p-5 shadow-card"
+        className="bg-card border border-border rounded-2xl p-5 shadow-card mb-6"
         data-ocid="profile.wallet_section"
       >
-        <div className="flex items-center justify-between mb-4">
+        <div className="flex items-center justify-between mb-4 px-1">
           <h3 className="font-semibold text-foreground flex items-center gap-2">
             <CreditCard className="w-4 h-4 text-primary" />
-            My Wallet
+            {t("profile.wallet_balance")}
           </h3>
           <Link
             to="/wallet"
@@ -502,9 +492,6 @@ export default function Profile() {
           </p>
           <p className="font-display text-3xl font-bold text-primary-foreground mt-0.5 tabular-nums">
             ₹{displayWallet.toFixed(2)}
-          </p>
-          <p className="text-primary-foreground/60 text-[10px] mt-1">
-            Used automatically at checkout · No expiry
           </p>
         </div>
         <div className="mt-3">
@@ -607,7 +594,7 @@ export default function Profile() {
       >
         <div className="px-5 py-4 border-b border-border flex items-center gap-2">
           <Award className="w-4 h-4 text-primary" />
-          <h3 className="font-semibold text-foreground">Points History</h3>
+          <h3 className="font-semibold text-foreground">{t("profile.points_history") || "Points History"}</h3>
         </div>
         <div className="divide-y divide-border">
           {displayHistory.map((tx, i) => (
@@ -647,7 +634,7 @@ export default function Profile() {
         <div className="px-5 py-4 border-b border-border flex items-center justify-between">
           <div className="flex items-center gap-2">
             <Package className="w-4 h-4 text-primary" />
-            <h3 className="font-semibold text-foreground">Active Orders</h3>
+            <h3 className="font-semibold text-foreground">{t("profile.active_orders")}</h3>
           </div>
           <span className="text-[10px] bg-primary/10 text-primary px-2 py-0.5 rounded-full font-bold">
             LIVE TRACKING
@@ -716,7 +703,7 @@ export default function Profile() {
       >
         <div className="flex items-center gap-2 mb-1">
           <Gift className="w-4 h-4 text-accent" />
-          <h3 className="font-semibold text-foreground">Referral Program</h3>
+          <h3 className="font-semibold text-foreground">{t("profile.referral_program") || "Referral Program"}</h3>
         </div>
         <p className="text-sm text-muted-foreground mb-4">
           Invite friends and both of you earn{" "}
@@ -763,7 +750,7 @@ export default function Profile() {
         <div className="px-5 py-4 border-b border-border flex items-center justify-between">
           <div className="flex items-center gap-2">
             <Bell className="w-4 h-4 text-primary" />
-            <h3 className="font-semibold text-foreground">Notifications</h3>
+            <h3 className="font-semibold text-foreground">{t("profile.notifications")}</h3>
             {unreadCount > 0 && (
               <span className="text-[10px] bg-destructive text-destructive-foreground px-1.5 py-0.5 rounded-full font-bold">
                 {unreadCount}
@@ -842,72 +829,6 @@ export default function Profile() {
         </div>
       </div>
 
-      {/* Account Details */}
-      <div className="bg-card border border-border rounded-2xl p-5 shadow-card">
-        <h3 className="font-semibold text-foreground mb-4 flex items-center gap-2">
-          <User className="w-4 h-4 text-primary" />
-          Account Details
-        </h3>
-        <form onSubmit={handleSave} className="space-y-4">
-          <div>
-            <label
-              htmlFor="profile-name"
-              className="text-xs font-medium text-muted-foreground mb-1 block"
-            >
-              Full Name
-            </label>
-            <input
-              id="profile-name"
-              type="text"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              className="w-full px-3 py-2.5 text-sm border border-input rounded-xl bg-background focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-colors"
-              data-ocid="profile.name_input"
-            />
-          </div>
-          <div>
-            <label
-              htmlFor="profile-email"
-              className="text-xs font-medium text-muted-foreground mb-1 block"
-            >
-              Email Address
-            </label>
-            <input
-              id="profile-email"
-              type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              className="w-full px-3 py-2.5 text-sm border border-input rounded-xl bg-background focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-colors"
-              data-ocid="profile.email_input"
-            />
-          </div>
-          <div>
-            <label
-              htmlFor="profile-phone"
-              className="text-xs font-medium text-muted-foreground mb-1 block"
-            >
-              Phone Number
-            </label>
-            <input
-              id="profile-phone"
-              type="tel"
-              value={phone}
-              onChange={(e) => setPhone(e.target.value)}
-              className="w-full px-3 py-2.5 text-sm border border-input rounded-xl bg-background focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-colors"
-              data-ocid="profile.phone_input"
-            />
-          </div>
-          <button
-            type="submit"
-            disabled={updateProfile.isPending}
-            className="flex items-center gap-2 bg-primary text-primary-foreground px-5 py-2.5 rounded-xl font-semibold hover:bg-primary/90 transition-colors disabled:opacity-60 text-sm"
-            data-ocid="profile.save_button"
-          >
-            <Save className="w-4 h-4" />
-            {updateProfile.isPending ? "Saving…" : "Save Changes"}
-          </button>
-        </form>
-      </div>
 
       {/* Saved Addresses */}
       <div
@@ -917,7 +838,7 @@ export default function Profile() {
         <div className="flex items-center justify-between mb-4">
           <h3 className="font-semibold text-foreground flex items-center gap-2">
             <MapPin className="w-4 h-4 text-primary" />
-            Saved Addresses
+            {t("profile.saved_addresses")}
           </h3>
           <button
             type="button"
@@ -982,6 +903,7 @@ export default function Profile() {
                     </button>
                     <button
                       type="button"
+                      onClick={() => handleDeleteAddress(addr.id)}
                       className="p-1.5 rounded-lg text-muted-foreground hover:text-destructive hover:bg-destructive/5 transition-colors"
                       aria-label="Delete address"
                       data-ocid={`profile.addresses.delete_button.${i + 1}`}

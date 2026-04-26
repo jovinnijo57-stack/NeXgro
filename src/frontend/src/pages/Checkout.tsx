@@ -393,6 +393,19 @@ export default function Checkout() {
       toast.success(
         `Order placed! ${paymentMethod === "cod" ? "Pay on delivery. " : ""}🎉`,
       );
+      
+      // Send Notifications
+      const userEmail = localStorage.getItem("currentUserEmail") || "";
+      const userName = localStorage.getItem("currentUserName") || "Customer";
+      
+      import("@/services/emailService").then(m => {
+        m.sendOrderConfirmation(userEmail, userName, result.orderId || "", total);
+      });
+      
+      import("@/services/whatsappService").then(m => {
+        m.sendOrderUpdateWhatsApp("Customer", result.orderId || "", "Confirmed");
+      });
+
       setPlacedOrderId(result.orderId);
       setShowOrderSuccess(true);
     } else {

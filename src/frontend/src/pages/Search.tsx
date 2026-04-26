@@ -154,7 +154,7 @@ export default function Search() {
 
       {/* Promotional Banner */}
       <div className="max-w-6xl mx-auto px-4 py-4">
-        <div className="relative overflow-hidden rounded-2xl aspect-[21/3] md:aspect-[8/1] bg-muted shadow-md group">
+        <div className="relative overflow-hidden rounded-2xl aspect-[21/6] md:aspect-[8/2] bg-muted shadow-md group">
           <img 
             src="/assets/banner2.png" 
             alt="Search Banner" 
@@ -200,12 +200,12 @@ export default function Search() {
                 <div>
                   <p className="text-[10px] font-bold text-muted-foreground uppercase mb-2">Price Range</p>
                   <div className="flex items-center gap-2 mb-2">
-                    <span className="text-xs font-bold">${priceRange[0]}</span>
+                    <span className="text-xs font-bold">₹{priceRange[0]}</span>
                     <span className="text-muted-foreground">-</span>
-                    <span className="text-xs font-bold">${priceRange[1]}</span>
+                    <span className="text-xs font-bold">₹{priceRange[1]}</span>
                   </div>
                   <input 
-                    type="range" min="0" max="100" value={priceRange[1]} 
+                    type="range" min="0" max="1000" value={priceRange[1]} 
                     onChange={e => setPriceRange([0, parseInt(e.target.value)])}
                     className="w-full accent-primary h-1"
                   />
@@ -229,7 +229,7 @@ export default function Search() {
                   </div>
                 </div>
                 <button 
-                  onClick={() => { setPriceRange([0, 100]); setMinRating(0); setSort("rating"); }}
+                  onClick={() => { setPriceRange([0, 1000]); setMinRating(0); setSort("rating"); setSelectedCategoryId(""); }}
                   className="text-[10px] text-primary font-bold uppercase hover:underline"
                 >
                   Clear Filters
@@ -297,7 +297,7 @@ export default function Search() {
       {showFilters && (
         <div className="fixed inset-0 z-50 md:hidden">
           <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" onClick={() => setShowFilters(false)} />
-          <div className="absolute bottom-0 left-0 right-0 bg-card rounded-t-3xl p-6 max-h-[80vh] overflow-y-auto animate-in slide-in-from-bottom duration-300">
+          <div className="absolute bottom-0 left-0 right-0 bg-card rounded-t-3xl p-6 max-h-[85vh] overflow-y-auto animate-in slide-in-from-bottom duration-300">
             <div className="flex items-center justify-between mb-6">
               <h3 className="text-lg font-bold">Filters</h3>
               <button onClick={() => setShowFilters(false)} className="p-2 bg-muted rounded-full">
@@ -305,9 +305,36 @@ export default function Search() {
               </button>
             </div>
             
-            <div className="space-y-8">
-               <div>
-                  <p className="text-xs font-bold uppercase mb-3">Sort By</p>
+            <div className="space-y-8 pb-8">
+                <div>
+                  <p className="text-xs font-bold uppercase mb-3 text-muted-foreground">Category</p>
+                  <div className="flex flex-wrap gap-2">
+                    <button 
+                      onClick={() => setSelectedCategoryId("")}
+                      className={cn(
+                        "px-4 py-2 rounded-xl text-sm border transition-all",
+                        selectedCategoryId === "" ? "bg-primary border-primary text-white" : "border-border"
+                      )}
+                    >
+                      All
+                    </button>
+                    {SAMPLE_CATEGORIES.map(c => (
+                      <button 
+                        key={c.id}
+                        onClick={() => setSelectedCategoryId(c.id)}
+                        className={cn(
+                          "px-4 py-2 rounded-xl text-sm border transition-all",
+                          selectedCategoryId === c.id ? "bg-primary border-primary text-white" : "border-border"
+                        )}
+                      >
+                        {c.name}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                <div>
+                  <p className="text-xs font-bold uppercase mb-3 text-muted-foreground">Sort By</p>
                   <div className="flex flex-wrap gap-2">
                     {["rating", "price_asc", "price_desc"].map(s => (
                       <button 
@@ -325,33 +352,36 @@ export default function Search() {
                 </div>
 
                 <div>
-                  <p className="text-xs font-bold uppercase mb-3">Max Price: ${priceRange[1]}</p>
+                  <div className="flex items-center justify-between mb-3">
+                    <p className="text-xs font-bold uppercase text-muted-foreground">Max Price</p>
+                    <span className="text-sm font-bold text-primary">₹{priceRange[1]}</span>
+                  </div>
                   <input 
-                    type="range" min="0" max="100" value={priceRange[1]} 
+                    type="range" min="0" max="1000" value={priceRange[1]} 
                     onChange={e => setPriceRange([0, parseInt(e.target.value)])}
                     className="w-full accent-primary h-2"
                   />
                 </div>
 
                 <div>
-                  <p className="text-xs font-bold uppercase mb-3">Min Rating</p>
+                  <p className="text-xs font-bold uppercase mb-3 text-muted-foreground">Min Rating</p>
                   <div className="flex gap-2">
                     {[5, 4, 3].map(star => (
                       <button 
                         key={star}
                         onClick={() => setMinRating(star)}
                         className={cn(
-                          "flex-1 py-2 rounded-xl text-sm border transition-all",
+                          "flex-1 py-3 rounded-xl text-sm border transition-all flex items-center justify-center gap-1.5",
                           minRating === star ? "bg-primary border-primary text-white" : "border-border"
                         )}
                       >
-                        {star}★
+                        {star}<Star className={cn("w-3.5 h-3.5", minRating === star ? "fill-white" : "")} />
                       </button>
                     ))}
                   </div>
                 </div>
 
-                <Button className="w-full h-12 rounded-2xl text-base font-bold" onClick={() => setShowFilters(false)}>
+                <Button className="w-full h-14 rounded-2xl text-base font-bold shadow-lg shadow-primary/20" onClick={() => setShowFilters(false)}>
                   Show {results.length} results
                 </Button>
             </div>
