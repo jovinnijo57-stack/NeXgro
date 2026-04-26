@@ -1,7 +1,7 @@
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
-import { useAddToCart, useOrders } from "@/hooks/useBackend";
+import { useAddToCart, useOrders, useSubmitReview } from "@/hooks/useBackend";
 import { cn } from "@/lib/utils";
 import type { Order, OrderStatus } from "@/types";
 import { SAMPLE_PRODUCTS } from "@/types";
@@ -498,15 +498,15 @@ function LiveMap({ order, deliveryLabel }: { order: Order; deliveryLabel: string
           {/* Delivery agent (Bike/Scooter Shape) */}
           {isActive && (
             <g style={{ transform: `translate(${agentPos.x - 3}px, ${agentPos.y - 3}px)` }}>
-               {/* Body */}
-               <path d="M1,4 L5,4 L6,2 L3,2 Z" fill="oklch(0.55 0.20 33)" />
-               <rect x="0.5" y="3.5" width="4.5" height="1.5" rx="0.5" fill="oklch(0.55 0.20 33)" />
-               {/* Wheels */}
-               <circle cx="1.5" cy="5" r="1" fill="black" />
-               <circle cx="4.5" cy="5" r="1" fill="black" />
-               {/* Delivery Box */}
-               <rect x="0" y="1" width="3" height="3" rx="0.5" fill="oklch(0.48 0.16 142)" />
-               {/* Pulsing Aura */}
+               {/* Detailed Scooter Shape */}
+               <g fill="oklch(0.55 0.20 33)">
+                 <path d="M1,5 L5,5 L6,2 L2,2 Z" />
+                 <rect x="0.5" y="4" width="4.5" height="1.5" rx="0.5" />
+                 <circle cx="1.5" cy="5.5" r="1.2" fill="black" />
+                 <circle cx="4.5" cy="5.5" r="1.2" fill="black" />
+                 <rect x="0" y="1" width="3" height="3" rx="0.5" fill="oklch(0.48 0.16 142)" />
+                 <path d="M5,2 L6,2 L6.5,3.5 L5.5,3.5 Z" />
+               </g>
                <circle cx="3" cy="3" r="6" fill="oklch(0.55 0.20 33)" opacity="0.1" className="animate-pulse" />
             </g>
           )}
@@ -633,10 +633,10 @@ function PushNotificationBanner() {
   );
 }
 function ReviewOrder({ orderId }: { orderId: string }) {
-  const [rating, setRating] = useState(0);
-  const [hover, setHover] = useState(0);
+  const submitReview = useSubmitReview();
   const [comment, setComment] = useState("");
   const [submitted, setSubmitted] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   if (submitted) {
     return (
@@ -680,17 +680,31 @@ function ReviewOrder({ orderId }: { orderId: string }) {
       />
 
       <button
-        onClick={() => {
+        disabled={isSubmitting}
+        onClick={async () => {
           if (rating === 0) {
             toast.error("Please select a rating");
             return;
           }
-          setSubmitted(true);
-          toast.success("Review submitted!");
+          setIsSubmitting(true);
+          try {
+            await submitReview.mutateAsync({
+              productId: "delivery", // Virtual product ID for delivery rating
+              rating,
+              title: "Order Delivery Experience",
+              text: comment || "Delivered successfully",
+            });
+            setSubmitted(true);
+            toast.success("Review submitted! Thank you.");
+          } catch {
+            toast.error("Failed to submit review.");
+          } finally {
+            setIsSubmitting(false);
+          }
         }}
-        className="w-full py-3.5 bg-primary text-primary-foreground rounded-xl font-bold shadow-lg shadow-primary/20 hover:opacity-90 active:scale-[0.98] transition-all"
+        className="w-full py-3.5 bg-primary text-primary-foreground rounded-xl font-bold shadow-lg shadow-primary/20 hover:opacity-90 active:scale-[0.98] transition-all disabled:opacity-50"
       >
-        Submit Review
+        {isSubmitting ? "Submitting..." : "Submit Review"}
       </button>
     </div>
   );

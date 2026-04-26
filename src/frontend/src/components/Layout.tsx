@@ -653,7 +653,7 @@ export default function Layout({ children }: LayoutProps) {
             {/* Desktop nav links */}
             <nav className="hidden lg:flex items-center gap-5 ml-2">
               <NavLink to="/home">{t("nav.home")}</NavLink>
-              <NavLink to="/categories/fruits">{t("nav.browse")}</NavLink>
+              <NavLink to="/search">{t("nav.browse")}</NavLink>
               <NavLink to="/wishlist">{t("nav.wishlist")}</NavLink>
             </nav>
 

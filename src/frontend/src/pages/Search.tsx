@@ -27,6 +27,7 @@ export default function Search() {
   const [priceRange, setPriceRange] = useState<[number, number]>([0, 100]);
   const [minRating, setMinRating] = useState(0);
   const [sort, setSort] = useState("rating");
+  const [selectedCategoryId, setSelectedCategoryId] = useState("");
 
   // Auto-focus on mount and read URL param
   useEffect(() => {
@@ -39,8 +40,9 @@ export default function Search() {
   const filters: ProductFilters = useMemo(
     () => ({
       searchQuery: query,
+      categoryId: selectedCategoryId || undefined,
     }),
-    [query],
+    [query, selectedCategoryId],
   );
 
   const startListening = () => {
@@ -75,6 +77,9 @@ export default function Search() {
         p.name.toLowerCase().includes(query.toLowerCase()) ||
         p.description.toLowerCase().includes(query.toLowerCase())
       );
+    }
+    if (selectedCategoryId) {
+      res = res.filter(p => p.categoryId === selectedCategoryId);
     }
     res = res.filter(p => p.price >= priceRange[0] && p.price <= priceRange[1]);
     if (minRating > 0) res = res.filter(p => p.rating >= minRating);
@@ -149,11 +154,11 @@ export default function Search() {
 
       {/* Promotional Banner */}
       <div className="max-w-6xl mx-auto px-4 py-4">
-        <div className="relative overflow-hidden rounded-2xl aspect-[21/5] md:aspect-[6/1] bg-muted shadow-md group">
+        <div className="relative overflow-hidden rounded-2xl aspect-[21/3] md:aspect-[8/1] bg-muted shadow-md group">
           <img 
             src="/assets/banner2.png" 
             alt="Search Banner" 
-            className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+            className="w-full h-full object-cover md:object-center transition-transform duration-500 group-hover:scale-105"
             onError={(e) => {
               (e.target as HTMLImageElement).src = "https://images.unsplash.com/photo-1542838132-92c53300491e?auto=format&fit=crop&q=80&w=1200";
             }}
@@ -169,6 +174,17 @@ export default function Search() {
             <div className="bg-card rounded-2xl border border-border p-4 sticky top-28">
               <h3 className="text-xs font-bold text-foreground mb-4 uppercase tracking-wider">Filters</h3>
               <div className="space-y-6">
+                <div>
+                  <p className="text-[10px] font-bold text-muted-foreground uppercase mb-2">Category</p>
+                  <select 
+                    value={selectedCategoryId} 
+                    onChange={e => setSelectedCategoryId(e.target.value)}
+                    className="w-full bg-muted/50 border-none rounded-lg text-xs p-2 outline-none"
+                  >
+                    <option value="">All Categories</option>
+                    {SAMPLE_CATEGORIES.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
+                  </select>
+                </div>
                 <div>
                   <p className="text-[10px] font-bold text-muted-foreground uppercase mb-2">Sort By</p>
                   <select 
@@ -317,8 +333,26 @@ export default function Search() {
                   />
                 </div>
 
+                <div>
+                  <p className="text-xs font-bold uppercase mb-3">Min Rating</p>
+                  <div className="flex gap-2">
+                    {[5, 4, 3].map(star => (
+                      <button 
+                        key={star}
+                        onClick={() => setMinRating(star)}
+                        className={cn(
+                          "flex-1 py-2 rounded-xl text-sm border transition-all",
+                          minRating === star ? "bg-primary border-primary text-white" : "border-border"
+                        )}
+                      >
+                        {star}★
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
                 <Button className="w-full h-12 rounded-2xl text-base font-bold" onClick={() => setShowFilters(false)}>
-                  Apply Filters
+                  Show {results.length} results
                 </Button>
             </div>
           </div>

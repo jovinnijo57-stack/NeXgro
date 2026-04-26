@@ -132,51 +132,8 @@ function ReviewCard({ review, index }: { review: Review; index: number }) {
   );
 }
 
-// Static sample reviews for display
-const SAMPLE_REVIEWS: Review[] = [
-  {
-    id: "r1",
-    productId: "p1",
-    userId: "u1",
-    userName: "Sarah M.",
-    rating: 5,
-    title: "Absolutely fresh and delicious!",
-    text: "These are the best quality products I've ordered online. Arrived perfectly fresh, will definitely order again.",
-    isApproved: true,
-    helpfulCount: 12,
-    createdAt: BigInt(
-      Date.now() * 1_000_000 - 5 * 24 * 60 * 60 * 1_000_000_000,
-    ),
-  },
-  {
-    id: "r2",
-    productId: "p1",
-    userId: "u2",
-    userName: "James T.",
-    rating: 4,
-    title: "Great value",
-    text: "Very good quality at this price point. Packaging was secure and delivery was on time.",
-    isApproved: true,
-    helpfulCount: 8,
-    createdAt: BigInt(
-      Date.now() * 1_000_000 - 12 * 24 * 60 * 60 * 1_000_000_000,
-    ),
-  },
-  {
-    id: "r3",
-    productId: "p1",
-    userId: "u3",
-    userName: "Priya K.",
-    rating: 5,
-    title: "My go-to order every week",
-    text: "Consistent quality every single time. Love how fresh everything is. NeXgro has spoiled me for other grocery apps.",
-    isApproved: true,
-    helpfulCount: 21,
-    createdAt: BigInt(
-      Date.now() * 1_000_000 - 20 * 24 * 60 * 60 * 1_000_000_000,
-    ),
-  },
-];
+// Static sample reviews for display (Empty by default now)
+const SAMPLE_REVIEWS: Review[] = [];
 
 // ─── Static freshness data for demo products ──────────────────────────────────
 const FRESHNESS_DATA: Record<
@@ -580,7 +537,7 @@ export default function ProductDetail() {
                 </span>
               ) : (
                 <span className="inline-flex items-center gap-1.5 text-sm font-semibold text-primary bg-primary/10 px-3 py-1.5 rounded-full border border-primary/20">
-                  ✓ In Stock — {product.stockQty} units available
+                  ✓ In Stock
                 </span>
               )}
             </div>

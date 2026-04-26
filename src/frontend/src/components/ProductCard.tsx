@@ -155,7 +155,6 @@ export function ProductCard({
   flashDiscountPercent,
   buyXGetYRules,
 }: ProductCardProps) {
-  const [wishlisted, setWishlisted] = useState(isWishlisted);
   const [showAgeGate, setShowAgeGate] = useState(false);
 
   const { data: cart } = useCart();
@@ -208,14 +207,11 @@ export function ProductCard({
 
   function handleWishlist(e: React.MouseEvent) {
     e.preventDefault();
-    if (wishlisted) {
-      removeFromWishlist.mutate(product.id, {
-        onSuccess: () => setWishlisted(false),
-      });
+    if (isWishlisted) {
+      removeFromWishlist.mutate(product.id);
     } else {
       addToWishlist.mutate(product.id, {
         onSuccess: () => {
-          setWishlisted(true);
           toast.success("Added to wishlist");
         },
       });
@@ -361,16 +357,16 @@ export function ProductCard({
               onClick={handleWishlist}
               className={cn(
                 "w-8 h-8 rounded-full bg-card/80 backdrop-blur-sm flex items-center justify-center transition-all duration-200 shadow-xs",
-                wishlisted
+                isWishlisted
                   ? "text-red-500"
                   : "text-muted-foreground hover:text-red-400",
               )}
               aria-label={
-                wishlisted ? "Remove from wishlist" : "Add to wishlist"
+                isWishlisted ? "Remove from wishlist" : "Add to wishlist"
               }
               data-ocid={`product.wishlist_button.${index}`}
             >
-              <Heart className={cn("w-4 h-4", wishlisted && "fill-red-500")} />
+              <Heart className={cn("w-4 h-4", isWishlisted && "fill-red-500")} />
             </button>
             <button
               type="button"

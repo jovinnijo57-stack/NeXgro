@@ -9,6 +9,8 @@ import {
 import { Skeleton } from "@/components/ui/skeleton";
 import {
   useAdminCoupons,
+  useAdminBuyXGetYRules,
+  useBuyXGetYRules,
   useCart,
   useLoyaltyBalance,
   useProducts,
@@ -368,6 +370,7 @@ export default function Cart() {
   const { data: coupons } = useAdminCoupons();
   const { data: loyaltyBalance } = useLoyaltyBalance();
   const { data: allProducts = [] } = useProducts();
+  const { data: buyXGetYRules = [] } = useBuyXGetYRules();
 
   const [couponCode, setCouponCode] = useState("");
   const [appliedCoupon, setAppliedCoupon] = useState<Coupon | null>(null);
@@ -389,6 +392,18 @@ export default function Cart() {
       cartItems.reduce((s, i) => s + (i.product?.price ?? 0) * i.quantity, 0),
     [cartItems],
   );
+  
+  const bxgySavings = useMemo(() => {
+    if (!buyXGetYRules?.length) return 0;
+    let savings = 0;
+    for (const rule of buyXGetYRules) {
+      const cartItem = cartItems.find((i) => i.productId === rule.productId);
+      if (!cartItem?.product) continue;
+      const sets = Math.floor(cartItem.quantity / (rule.buyQty + rule.getQty));
+      savings += sets * rule.getQty * cartItem.product.price;
+    }
+    return savings;
+  }, [cartItems, buyXGetYRules]);
 
   const couponDiscount = useMemo(() => {
     if (!appliedCoupon) return 0;
@@ -400,7 +415,7 @@ export default function Cart() {
   const loyaltyDiscount = loyaltyRedemption / 10;
   const taxableAmount = Math.max(
     0,
-    subtotal - couponDiscount - loyaltyDiscount,
+    subtotal - bxgySavings - couponDiscount - loyaltyDiscount,
   );
   const tax = taxableAmount * TAX_RATE;
   const total = taxableAmount + tax + DELIVERY_FEE;
@@ -688,6 +703,12 @@ export default function Cart() {
                 <span className="text-muted-foreground">Subtotal</span>
                 <span className="font-medium">₹{subtotal.toFixed(2)}</span>
               </div>
+              {bxgySavings > 0 && (
+                <div className="flex justify-between text-emerald-600">
+                  <span>Promo Discount</span>
+                  <span>−₹{bxgySavings.toFixed(2)}</span>
+                </div>
+              )}
               {couponDiscount > 0 && (
                 <div className="flex justify-between text-primary">
                   <span>Coupon ({appliedCoupon?.code})</span>

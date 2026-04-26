@@ -1316,13 +1316,32 @@ function CouponsView() {
 // ─── Section: Banners ─────────────────────────────────────────────────────────
 
 function BannersView() {
+  const { data: banners = [] } = useAdminBanners();
+  const createBanner = useCreateBanner();
+  const deleteBanner = useDeleteBanner();
+
   const [modalOpen, setModalOpen] = useState(false);
   const [form, setForm] = useState({
     title: "",
-    displayOrder: "",
+    displayOrder: "0",
     imageUrl: "",
+    link: "/search",
     isActive: true,
   });
+
+  const handleSave = async () => {
+    if (!form.title || !form.imageUrl) {
+      toast.error("Please provide a title and image");
+      return;
+    }
+    await createBanner.mutateAsync({
+      ...form,
+      displayOrder: Number(form.displayOrder) || 0,
+    });
+    toast.success("Banner created successfully!");
+    setModalOpen(false);
+    setForm({ title: "", displayOrder: "0", imageUrl: "", link: "/search", isActive: true });
+  };
 
   return (
     <div data-ocid="admin.banners_section">
@@ -1355,7 +1374,7 @@ function BannersView() {
               </tr>
             </thead>
             <tbody className="divide-y divide-border">
-              {SAMPLE_BANNERS.map((b, i) => (
+              {banners.map((b, i) => (
                 <tr
                   key={b.id}
                   className="hover:bg-muted/20 transition-colors"
@@ -1368,7 +1387,7 @@ function BannersView() {
                       className="w-20 h-12 rounded-lg object-cover bg-muted/20"
                       onError={(e) => {
                         (e.target as HTMLImageElement).src =
-                          "/assets/images/placeholder.svg";
+                          "https://images.unsplash.com/photo-1542838132-92c53300491e?auto=format&fit=crop&q=80&w=400";
                       }}
                     />
                   </td>
@@ -1394,13 +1413,7 @@ function BannersView() {
                     <div className="flex gap-3">
                       <button
                         type="button"
-                        className="text-xs text-primary hover:underline font-medium"
-                        data-ocid={`admin.banners.edit_button.${i + 1}`}
-                      >
-                        Edit
-                      </button>
-                      <button
-                        type="button"
+                        onClick={() => deleteBanner.mutate(b.id)}
                         className="text-xs text-destructive hover:underline font-medium"
                         data-ocid={`admin.banners.delete_button.${i + 1}`}
                       >
@@ -1521,10 +1534,7 @@ function BannersView() {
               </button>
               <button
                 type="button"
-                onClick={() => {
-                  toast.success("Banner saved!");
-                  setModalOpen(false);
-                }}
+                onClick={handleSave}
                 className="flex-1 py-2.5 bg-primary text-primary-foreground rounded-xl text-sm font-semibold hover:bg-primary/90 transition-colors"
                 data-ocid="admin.banner_modal.submit_button"
               >
@@ -1541,14 +1551,35 @@ function BannersView() {
 // ─── Section: Flash Deals ─────────────────────────────────────────────────────
 
 function FlashDealsView() {
+  const { data: flashDeals = [] } = useAdminFlashDeals();
+  const { data: products = [] } = useProducts();
+  const createFlashDeal = useCreateFlashDeal();
+  const deleteFlashDeal = useDeleteFlashDeal();
+
   const [modalOpen, setModalOpen] = useState(false);
   const [form, setForm] = useState({
-    productId: "p1",
-    discountPercent: "",
+    productId: "",
+    discountPercent: "20",
     startDate: "",
     endDate: "",
     isActive: true,
   });
+
+  const handleSave = async () => {
+    if (!form.productId || !form.discountPercent) {
+      toast.error("Please fill all fields");
+      return;
+    }
+    await createFlashDeal.mutateAsync({
+      productId: form.productId,
+      discountPercent: Number(form.discountPercent),
+      startDateTime: BigInt(new Date(form.startDate).getTime()),
+      endDateTime: BigInt(new Date(form.endDate).getTime()),
+      isActive: form.isActive,
+    });
+    toast.success("Flash deal created!");
+    setModalOpen(false);
+  };
 
   return (
     <div data-ocid="admin.flash_deals_section">
@@ -1588,58 +1619,55 @@ function FlashDealsView() {
               </tr>
             </thead>
             <tbody className="divide-y divide-border">
-              {SAMPLE_FLASH_DEALS.map((fd, i) => (
-                <tr
-                  key={fd.id}
-                  className="hover:bg-muted/20 transition-colors"
-                  data-ocid={`admin.flash_deals.item.${i + 1}`}
-                >
-                  <td className="px-4 py-3 font-medium text-foreground">
-                    {fd.productName}
-                  </td>
-                  <td className="px-4 py-3">
-                    <span className="text-sm font-bold text-accent">
-                      {fd.discountPercent}% OFF
-                    </span>
-                  </td>
-                  <td className="px-4 py-3 text-muted-foreground text-xs">
-                    Apr 21, 2026
-                  </td>
-                  <td className="px-4 py-3 text-muted-foreground text-xs">
-                    Apr 28, 2026
-                  </td>
-                  <td className="px-4 py-3">
-                    <span
-                      className={cn(
-                        "text-xs px-2 py-0.5 rounded-full font-medium",
-                        fd.isActive
-                          ? "bg-accent/10 text-accent"
-                          : "bg-muted text-muted-foreground",
-                      )}
-                    >
-                      {fd.isActive ? "Live" : "Ended"}
-                    </span>
-                  </td>
-                  <td className="px-4 py-3">
-                    <div className="flex gap-3">
-                      <button
-                        type="button"
-                        className="text-xs text-primary hover:underline font-medium"
-                        data-ocid={`admin.flash_deals.edit_button.${i + 1}`}
+              {flashDeals.map((fd, i) => {
+                const prod = products.find(p => p.id === fd.productId);
+                return (
+                  <tr
+                    key={fd.id}
+                    className="hover:bg-muted/20 transition-colors"
+                    data-ocid={`admin.flash_deals.item.${i + 1}`}
+                  >
+                    <td className="px-4 py-3 font-medium text-foreground">
+                      {prod?.name || fd.productId}
+                    </td>
+                    <td className="px-4 py-3">
+                      <span className="text-sm font-bold text-accent">
+                        {fd.discountPercent}% OFF
+                      </span>
+                    </td>
+                    <td className="px-4 py-3 text-muted-foreground text-xs">
+                      {new Date(Number(fd.startDateTime)).toLocaleDateString()}
+                    </td>
+                    <td className="px-4 py-3 text-muted-foreground text-xs">
+                      {new Date(Number(fd.endDateTime)).toLocaleDateString()}
+                    </td>
+                    <td className="px-4 py-3">
+                      <span
+                        className={cn(
+                          "text-xs px-2 py-0.5 rounded-full font-medium",
+                          fd.isActive
+                            ? "bg-accent/10 text-accent"
+                            : "bg-muted text-muted-foreground",
+                        )}
                       >
-                        Edit
-                      </button>
-                      <button
-                        type="button"
-                        className="text-xs text-destructive hover:underline font-medium"
-                        data-ocid={`admin.flash_deals.delete_button.${i + 1}`}
-                      >
-                        Delete
-                      </button>
-                    </div>
-                  </td>
-                </tr>
-              ))}
+                        {fd.isActive ? "Live" : "Ended"}
+                      </span>
+                    </td>
+                    <td className="px-4 py-3">
+                      <div className="flex gap-3">
+                        <button
+                          type="button"
+                          onClick={() => deleteFlashDeal.mutate(fd.id)}
+                          className="text-xs text-destructive hover:underline font-medium"
+                          data-ocid={`admin.flash_deals.delete_button.${i + 1}`}
+                        >
+                          Delete
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                );
+              })}
             </tbody>
           </table>
         </div>
@@ -1754,10 +1782,7 @@ function FlashDealsView() {
               </button>
               <button
                 type="button"
-                onClick={() => {
-                  toast.success("Flash deal created!");
-                  setModalOpen(false);
-                }}
+                onClick={handleSave}
                 className="flex-1 py-2.5 bg-accent text-accent-foreground rounded-xl text-sm font-semibold hover:bg-accent/90 transition-colors"
                 data-ocid="admin.flash_deal_modal.submit_button"
               >
@@ -1774,10 +1799,10 @@ function FlashDealsView() {
 // ─── Section: Reviews ─────────────────────────────────────────────────────────
 
 function ReviewsView() {
-  const [activeTab, setActiveTab] = useState<"pending" | "approved">("pending");
-  const { data: reviews } = useAdminReviews(activeTab);
+  const { data: reviews = [] } = useAdminReviews();
   const approveReview = useApproveReview();
   const rejectReview = useRejectReview();
+  const [activeTab, setActiveTab] = useState<"pending" | "approved">("pending");
 
   const samplePending = [
     {
@@ -1829,16 +1854,18 @@ function ReviewsView() {
     },
   ];
 
-  const displayReviews = reviews?.length
-    ? reviews.map((r) => ({
-        id: r.id,
-        product: r.productId,
-        user: r.userName,
-        rating: r.rating,
-        text: r.text,
-        date: "Apr 2026",
-        isApproved: r.isApproved,
-      }))
+  const displayReviews = reviews.length
+    ? reviews
+        .filter((r) => (activeTab === "pending" ? !r.isApproved : r.isApproved))
+        .map((r) => ({
+          id: r.id,
+          product: r.productId,
+          user: r.userName,
+          rating: r.rating,
+          text: r.text,
+          date: new Date(Number(r.createdAt)).toLocaleDateString(),
+          isApproved: r.isApproved,
+        }))
     : activeTab === "pending"
       ? samplePending
       : sampleApproved;
