@@ -100,7 +100,7 @@ export default function Search() {
 
       {/* Promotional Banner */}
       <div className="max-w-6xl mx-auto px-4 py-4">
-        <div className="relative overflow-hidden rounded-2xl aspect-[21/9] md:aspect-[3/1] bg-muted shadow-md group">
+        <div className="relative overflow-hidden rounded-2xl aspect-[21/5] md:aspect-[6/1] bg-muted shadow-md group">
           <img 
             src="/assets/banner2.png" 
             alt="Search Banner" 

@@ -4636,7 +4636,15 @@ function ChatView() {
                        </div>
                     </div>
 
-                    <button className="w-full py-2.5 bg-muted text-foreground text-[10px] font-black uppercase tracking-widest rounded-xl hover:bg-muted/80 transition-colors">View Full Profile</button>
+                     <button 
+                       onClick={() => {
+                         if (selectedThread) {
+                           toast.info(`Viewing detailed profile for ${selectedThread.userName}`);
+                         }
+                       }}
+                       className="w-full py-2.5 bg-primary text-primary-foreground text-[10px] font-black uppercase tracking-widest rounded-xl hover:opacity-90 transition-colors shadow-lg shadow-primary/20">
+                       View Full Profile
+                     </button>
                  </div>
               </div>
            ) : (

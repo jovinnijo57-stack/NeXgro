@@ -980,7 +980,7 @@ export default function Home() {
     >
       {showFloatingVideo && (
         <div 
-          className="fixed bottom-24 right-4 z-50 w-[140px] aspect-[9/16] bg-black rounded-2xl overflow-hidden shadow-2xl border-2 border-primary/30 group animate-in fade-in slide-in-from-bottom-10 duration-500"
+          className="fixed bottom-24 left-4 z-50 w-[140px] aspect-[9/16] bg-black rounded-2xl overflow-hidden shadow-2xl border-2 border-primary/30 group animate-in fade-in slide-in-from-bottom-10 duration-500"
           data-ocid="home.floating_video"
         >
           <button
@@ -1001,7 +1001,7 @@ export default function Home() {
           />
         </div>
       )}
-      <SearchBar />
+      {/* Search bar removed as per request */}
       <HeroCarousel />
       <FeatureQuickAccess />
       <PromoStrip />
