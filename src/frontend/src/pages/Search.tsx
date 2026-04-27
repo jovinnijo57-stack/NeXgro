@@ -5,33 +5,24 @@ import type { ProductFilters } from "@/types";
 import { Link } from "@tanstack/react-router";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
-import { Search as SearchIcon, SlidersHorizontal, Star, X, Mic, Filter, ChevronDown } from "lucide-react";
+import { Search as SearchIcon, SlidersHorizontal, Star, X, Mic, MicOff, Filter, ChevronDown, ShoppingBag } from "lucide-react";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { toast } from "sonner";
 
 const RECENTLY_VIEWED_KEY = "nexgro_recently_viewed";
-
-function getRecentlyViewed(): string[] {
-  try {
-    return JSON.parse(localStorage.getItem(RECENTLY_VIEWED_KEY) ?? "[]");
-  } catch {
-    return [];
-  }
-}
 
 export default function Search() {
   const inputRef = useRef<HTMLInputElement>(null);
   const [query, setQuery] = useState("");
   const [showFilters, setShowFilters] = useState(false);
   const [isListening, setIsListening] = useState(false);
-  const [priceRange, setPriceRange] = useState<[number, number]>([0, 100]);
+  const [priceRange, setPriceRange] = useState<[number, number]>([0, 1000]);
   const [minRating, setMinRating] = useState(0);
   const [sort, setSort] = useState("rating");
   const [selectedCategoryId, setSelectedCategoryId] = useState("");
   const [onlyInStock, setOnlyInStock] = useState(false);
   const [onlyOffers, setOnlyOffers] = useState(false);
 
-  // Auto-focus on mount and read URL param
   useEffect(() => {
     inputRef.current?.focus();
     const urlParams = new URLSearchParams(window.location.search);
@@ -54,12 +45,15 @@ export default function Search() {
       return;
     }
     const recognition = new SpeechRecognition();
+    recognition.lang = "en-US";
     recognition.onstart = () => setIsListening(true);
-    recognition.onend = () => setIsListening(false);
     recognition.onresult = (event: any) => {
       const transcript = event.results[0][0].transcript;
       setQuery(transcript);
+      setIsListening(false);
     };
+    recognition.onerror = () => setIsListening(false);
+    recognition.onend = () => setIsListening(false);
     recognition.start();
   };
 
@@ -71,7 +65,6 @@ export default function Search() {
     [wishlistItems],
   );
 
-  // Local filter on sample data when query is active
   const localResults = useMemo(() => {
     let res = [...SAMPLE_PRODUCTS];
     if (query.trim()) {
@@ -87,7 +80,7 @@ export default function Search() {
       res = res.filter(p => p.stockQty > 0);
     }
     if (onlyOffers) {
-      res = res.filter(p => p.isFeatured || p.isBestSeller); // Assuming these have offers
+      res = res.filter(p => p.isFeatured || p.isBestSeller);
     }
     res = res.filter(p => p.price >= priceRange[0] && p.price <= priceRange[1]);
     if (minRating > 0) res = res.filter(p => p.rating >= minRating);
@@ -101,8 +94,7 @@ export default function Search() {
     return res;
   }, [query, priceRange, minRating, sort, selectedCategoryId, onlyInStock, onlyOffers]);
 
-  const results =
-    apiResults && apiResults.length > 0 ? apiResults : localResults;
+  const results = apiResults && apiResults.length > 0 ? apiResults : localResults;
   const hasQuery = query.trim().length > 0;
 
   function clearQuery() {
@@ -112,151 +104,147 @@ export default function Search() {
 
   return (
     <div className="min-h-screen bg-background" data-ocid="search.page">
-      {/* Search header */}
-      <div className="bg-card border-b border-border sticky top-0 z-10 shadow-sm">
-        <div className="max-w-6xl mx-auto px-4 py-3.5">
-          <div className="flex items-center gap-3">
-            <div className="relative flex-1">
-              <SearchIcon className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-              <input
-                ref={inputRef}
-                type="search"
-                value={query}
-                onChange={(e) => setQuery(e.target.value)}
-                placeholder="Search for groceries, brands..."
-                aria-label="Search products"
-                className="w-full pl-10 pr-10 py-3 text-sm border border-input rounded-xl bg-background focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"
-                data-ocid="search.search_input"
-              />
-              {query && (
-                <button
-                  type="button"
-                  onClick={clearQuery}
-                  className="absolute right-10 top-1/2 -translate-y-1/2 w-5 h-5 rounded-full bg-muted flex items-center justify-center hover:bg-muted/80 transition-colors"
-                  aria-label="Clear search"
-                >
-                  <X className="w-3 h-3 text-muted-foreground" />
-                </button>
-              )}
+      {/* Premium Search Header */}
+      <div className="bg-card/80 backdrop-blur-xl border-b border-border sticky top-0 z-40 shadow-sm px-4 py-3">
+        <div className="max-w-6xl mx-auto flex items-center gap-3">
+          <div className="relative flex-1 group">
+            <SearchIcon className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground group-focus-within:text-primary transition-colors" />
+            <input
+              ref={inputRef}
+              type="text"
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
+              placeholder="Search groceries, essentials..."
+              className="w-full bg-muted/50 border-2 border-transparent rounded-2xl pl-12 pr-12 py-3 text-sm font-bold focus:bg-background focus:border-primary/20 focus:ring-4 focus:ring-primary/10 outline-none transition-all"
+            />
+            {query && (
               <button
-                type="button"
-                onClick={startListening}
-                className={cn(
-                  "absolute right-3 top-1/2 -translate-y-1/2 p-1.5 rounded-full transition-colors",
-                  isListening ? "bg-primary text-primary-foreground animate-pulse" : "text-muted-foreground hover:bg-muted"
-                )}
+                onClick={clearQuery}
+                className="absolute right-12 top-1/2 -translate-y-1/2 p-1 rounded-full bg-muted hover:bg-muted/80 transition-colors"
               >
-                <Mic className="w-4 h-4" />
+                <X className="w-3.5 h-3.5 text-muted-foreground" />
               </button>
-            </div>
+            )}
             <button
-              type="button"
-              onClick={() => setShowFilters(true)}
-              className="md:hidden p-3 bg-card border border-border rounded-xl text-primary"
+              onClick={startListening}
+              className={cn(
+                "absolute right-2 top-1/2 -translate-y-1/2 p-2 rounded-xl transition-all",
+                isListening ? "bg-destructive text-white animate-pulse" : "hover:bg-primary/10 text-primary"
+              )}
             >
-              <Filter className="w-5 h-5" />
+              {isListening ? <MicOff className="w-4 h-4" /> : <Mic className="w-4 h-4" />}
             </button>
+          </div>
+          <button
+            onClick={() => setShowFilters(true)}
+            className="p-3 bg-card border-2 border-border rounded-2xl text-primary hover:bg-muted transition-all active:scale-95 md:hidden"
+          >
+            <Filter className="w-5 h-5" />
+          </button>
+        </div>
+      </div>
+
+      {/* Responsive Banner Fix */}
+      <div className="max-w-6xl mx-auto px-4 py-6">
+        <div className="relative h-48 sm:h-64 rounded-[2.5rem] overflow-hidden bg-black shadow-xl group">
+          <img 
+            src="https://images.unsplash.com/photo-1542838132-92c53300491e?auto=format&fit=crop&q=80&w=1200" 
+            alt="Search Banner" 
+            className="w-full h-full object-cover opacity-70 transition-transform duration-700 group-hover:scale-105"
+          />
+          <div className="absolute inset-0 bg-gradient-to-r from-black via-black/20 to-transparent" />
+          <div className="absolute inset-0 flex flex-col justify-center px-8 sm:px-12">
+            <h2 className="text-3xl sm:text-5xl font-black text-white leading-tight tracking-tighter animate-in fade-in slide-in-from-left duration-700">
+              Fresh Groceries<br/>
+              <span className="text-primary">Delivered Fast</span>
+            </h2>
+            <p className="text-white/60 text-sm font-bold mt-4 max-w-xs animate-in fade-in slide-in-from-left duration-1000">
+              Get the best deals on organic essentials and farm-fresh produce today.
+            </p>
           </div>
         </div>
       </div>
 
-      {/* Promotional Banner */}
-      <div className="max-w-6xl mx-auto px-4 py-4">
-        <div className="relative overflow-hidden rounded-2xl aspect-[2/1] md:aspect-[8/2] bg-muted shadow-md group">
-          <img 
-            src="/assets/banner2.png" 
-            alt="Search Banner" 
-            className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
-            onError={(e) => {
-              (e.target as HTMLImageElement).src = "https://images.unsplash.com/photo-1542838132-92c53300491e?auto=format&fit=crop&q=80&w=1200";
-            }}
-          />
-          <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent" />
-        </div>
-      </div>
-
-      <div className="max-w-6xl mx-auto px-4 py-5">
-        <div className="flex gap-6">
+      <div className="max-w-6xl mx-auto px-4 py-6 pb-24">
+        <div className="flex gap-8">
           {/* Desktop Filters */}
-          <aside className="hidden md:block w-52 shrink-0">
-            <div className="bg-card rounded-2xl border border-border p-4 sticky top-28">
-              <h3 className="text-xs font-bold text-foreground mb-4 uppercase tracking-wider">Filters</h3>
-              <div className="space-y-6">
+          <aside className="hidden md:block w-64 shrink-0">
+            <div className="bg-card rounded-[2rem] border border-border p-6 sticky top-28 shadow-sm">
+              <div className="flex items-center gap-2 mb-6">
+                <Filter className="w-4 h-4 text-primary" />
+                <h3 className="text-[11px] font-black text-muted-foreground uppercase tracking-[0.2em]">Refine Search</h3>
+              </div>
+              
+              <div className="space-y-8">
                 <div>
-                  <p className="text-[10px] font-bold text-muted-foreground uppercase mb-2">Category</p>
+                  <p className="text-[10px] font-black text-foreground uppercase tracking-widest mb-3">Category</p>
                   <select 
                     value={selectedCategoryId} 
                     onChange={e => setSelectedCategoryId(e.target.value)}
-                    className="w-full bg-muted/50 border-none rounded-lg text-xs p-2 outline-none"
+                    className="w-full bg-muted/50 border-none rounded-xl text-xs font-bold p-3 outline-none focus:ring-2 focus:ring-primary/20 transition-all"
                   >
                     <option value="">All Categories</option>
                     {SAMPLE_CATEGORIES.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
                   </select>
                 </div>
+
                 <div>
-                  <p className="text-[10px] font-bold text-muted-foreground uppercase mb-2">Sort By</p>
+                  <p className="text-[10px] font-black text-foreground uppercase tracking-widest mb-3">Sort By</p>
                   <select 
                     value={sort} 
                     onChange={e => setSort(e.target.value)}
-                    className="w-full bg-muted/50 border-none rounded-lg text-xs p-2 outline-none"
+                    className="w-full bg-muted/50 border-none rounded-xl text-xs font-bold p-3 outline-none focus:ring-2 focus:ring-primary/20 transition-all"
                   >
                     <option value="rating">Top Rated</option>
                     <option value="price_asc">Price: Low to High</option>
                     <option value="price_desc">Price: High to Low</option>
                   </select>
                 </div>
+
                 <div>
-                  <p className="text-[10px] font-bold text-muted-foreground uppercase mb-2">Price Range</p>
-                  <div className="flex items-center gap-2 mb-2">
-                    <span className="text-xs font-bold">₹{priceRange[0]}</span>
-                    <span className="text-muted-foreground">-</span>
-                    <span className="text-xs font-bold">₹{priceRange[1]}</span>
+                  <div className="flex items-center justify-between mb-3">
+                    <p className="text-[10px] font-black text-foreground uppercase tracking-widest">Price Range</p>
+                    <span className="text-xs font-black text-primary">₹{priceRange[1]}</span>
                   </div>
                   <input 
-                    type="range" min="0" max="1000" value={priceRange[1]} 
+                    type="range" min="0" max="2000" value={priceRange[1]} 
                     onChange={e => setPriceRange([0, parseInt(e.target.value)])}
-                    className="w-full accent-primary h-1"
+                    className="w-full accent-primary h-1.5 bg-muted rounded-full appearance-none cursor-pointer"
                   />
                 </div>
+
                 <div>
-                  <p className="text-[10px] font-bold text-muted-foreground uppercase mb-2">Min Rating</p>
-                  <div className="flex flex-col gap-1">
-                    {[5, 4, 3].map(star => (
-                      <button 
-                        key={star}
-                        onClick={() => setMinRating(star)}
-                        className={cn(
-                          "flex items-center gap-1.5 text-xs p-1.5 rounded-lg transition-colors",
-                          minRating === star ? "bg-primary/10 text-primary" : "hover:bg-muted"
-                        )}
-                      >
-                        <Star className={cn("w-3 h-3", minRating >= star ? "fill-primary text-primary" : "text-muted-foreground")} />
-                        {star} & up
-                      </button>
-                    ))}
+                  <p className="text-[10px] font-black text-foreground uppercase tracking-widest mb-3">Quick Filters</p>
+                  <div className="space-y-3">
+                    <label className="flex items-center gap-3 cursor-pointer group">
+                      <div className="relative">
+                        <input 
+                          type="checkbox" 
+                          checked={onlyInStock} 
+                          onChange={e => setOnlyInStock(e.target.checked)}
+                          className="peer sr-only"
+                        />
+                        <div className="w-5 h-5 border-2 border-border rounded-md peer-checked:bg-primary peer-checked:border-primary transition-all" />
+                        <X className="absolute inset-0 m-auto w-3 h-3 text-white scale-0 peer-checked:scale-100 transition-transform" />
+                      </div>
+                      <span className="text-xs font-bold text-muted-foreground group-hover:text-foreground transition-colors">In Stock Only</span>
+                    </label>
+                    <label className="flex items-center gap-3 cursor-pointer group">
+                      <div className="relative">
+                        <input 
+                          type="checkbox" 
+                          checked={onlyOffers} 
+                          onChange={e => setOnlyOffers(e.target.checked)}
+                          className="peer sr-only"
+                        />
+                        <div className="w-5 h-5 border-2 border-border rounded-md peer-checked:bg-primary peer-checked:border-primary transition-all" />
+                        <X className="absolute inset-0 m-auto w-3 h-3 text-white scale-0 peer-checked:scale-100 transition-transform" />
+                      </div>
+                      <span className="text-xs font-bold text-muted-foreground group-hover:text-foreground transition-colors">Special Offers</span>
+                    </label>
                   </div>
                 </div>
-                <div>
-                  <p className="text-[10px] font-bold text-muted-foreground uppercase mb-2">Availability</p>
-                  <label className="flex items-center gap-2 cursor-pointer group mb-2">
-                    <input 
-                      type="checkbox" 
-                      checked={onlyInStock} 
-                      onChange={e => setOnlyInStock(e.target.checked)}
-                      className="w-4 h-4 rounded border-border text-primary focus:ring-primary"
-                    />
-                    <span className="text-xs text-foreground group-hover:text-primary transition-colors">In Stock Only</span>
-                  </label>
-                  <label className="flex items-center gap-2 cursor-pointer group">
-                    <input 
-                      type="checkbox" 
-                      checked={onlyOffers} 
-                      onChange={e => setOnlyOffers(e.target.checked)}
-                      className="w-4 h-4 rounded border-border text-primary focus:ring-primary"
-                    />
-                    <span className="text-xs text-foreground group-hover:text-primary transition-colors">Special Offers</span>
-                  </label>
-                </div>
+
                 <button 
                   onClick={() => { 
                     setPriceRange([0, 1000]); 
@@ -266,63 +254,54 @@ export default function Search() {
                     setOnlyInStock(false);
                     setOnlyOffers(false);
                   }}
-                  className="text-[10px] text-primary font-bold uppercase hover:underline"
+                  className="w-full py-3 rounded-xl bg-muted text-[10px] font-black uppercase tracking-widest hover:bg-destructive/10 hover:text-destructive transition-all"
                 >
-                  Clear Filters
+                  Reset Filters
                 </button>
               </div>
             </div>
           </aside>
 
+          {/* Results Grid */}
           <main className="flex-1 min-w-0">
-            {hasQuery || results.length > 0 ? (
-              <>
-                {/* Results header */}
-                <div className="flex items-center justify-between mb-4">
-                  <p className="text-sm text-muted-foreground">
-                    <span className="font-semibold text-foreground">
-                      {results.length}
-                    </span>{" "}
-                    result{results.length !== 1 ? "s" : ""}
-                    {query && (
-                      <> for <span className="font-semibold text-foreground">"{query}"</span></>
-                    )}
+            {results.length > 0 ? (
+              <div className="space-y-6">
+                <div className="flex items-center justify-between bg-muted/30 px-6 py-4 rounded-2xl">
+                  <p className="text-xs font-bold text-muted-foreground uppercase tracking-widest">
+                    Showing <span className="text-foreground">{results.length}</span> Results
                   </p>
+                  <div className="flex items-center gap-2">
+                    <ShoppingBag className="w-4 h-4 text-primary" />
+                    <span className="text-[10px] font-black uppercase tracking-widest text-primary">Marketplace</span>
+                  </div>
                 </div>
 
-                {results.length === 0 ? (
-                  <div
-                    className="flex flex-col items-center justify-center py-20 text-center"
-                    data-ocid="search.empty_state"
-                  >
-                    <span className="text-6xl mb-4">🔍</span>
-                    <h3 className="text-xl font-bold text-foreground mb-2">
-                      No results found
-                    </h3>
-                    <p className="text-muted-foreground text-sm mb-6 max-w-sm">
-                      Try adjusting your filters or using different keywords.
-                    </p>
-                  </div>
-                ) : (
-                  <div
-                    className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-3"
-                    data-ocid="search.results_grid"
-                  >
-                    {results.map((product, i) => (
-                      <ProductCard
-                        key={product.id}
-                        product={product}
-                        index={i + 1}
-                        isWishlisted={wishlistedIds.has(product.id)}
-                      />
-                    ))}
-                  </div>
-                )}
-              </>
+                <div className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6">
+                  {results.map((product, i) => (
+                    <ProductCard
+                      key={product.id}
+                      product={product}
+                      index={i + 1}
+                      isWishlisted={wishlistedIds.has(product.id)}
+                    />
+                  ))}
+                </div>
+              </div>
             ) : (
-              <div className="flex flex-col items-center justify-center py-20 text-center text-muted-foreground">
-                <SearchIcon className="w-12 h-12 mb-4 opacity-20" />
-                <p>Start typing to search for products</p>
+              <div className="flex flex-col items-center justify-center py-24 text-center">
+                <div className="w-24 h-24 bg-muted rounded-full flex items-center justify-center mb-6">
+                  <SearchIcon className="w-10 h-10 text-muted-foreground opacity-30" />
+                </div>
+                <h3 className="text-xl font-black tracking-tight mb-2">No items found</h3>
+                <p className="text-sm text-muted-foreground max-w-xs font-medium">
+                  We couldn't find anything matching your search. Try different keywords or filters.
+                </p>
+                <button 
+                  onClick={clearQuery}
+                  className="mt-6 px-6 py-3 bg-primary text-white rounded-2xl font-black text-[11px] uppercase tracking-widest shadow-lg shadow-primary/20 active:scale-95 transition-all"
+                >
+                  Clear Search
+                </button>
               </div>
             )}
           </main>
@@ -332,24 +311,25 @@ export default function Search() {
       {/* Mobile Filters Drawer */}
       {showFilters && (
         <div className="fixed inset-0 z-50 md:hidden">
-          <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" onClick={() => setShowFilters(false)} />
-          <div className="absolute bottom-0 left-0 right-0 bg-card rounded-t-3xl p-6 max-h-[85vh] overflow-y-auto animate-in slide-in-from-bottom duration-300">
-            <div className="flex items-center justify-between mb-6">
-              <h3 className="text-lg font-bold">Filters</h3>
-              <button onClick={() => setShowFilters(false)} className="p-2 bg-muted rounded-full">
-                <X className="w-4 h-4" />
+          <div className="absolute inset-0 bg-black/60 backdrop-blur-sm animate-in fade-in" onClick={() => setShowFilters(false)} />
+          <div className="absolute bottom-0 left-0 right-0 bg-card rounded-t-[3rem] p-8 max-h-[85vh] overflow-y-auto animate-in slide-in-from-bottom duration-500 shadow-2xl">
+            <div className="w-12 h-1.5 bg-muted rounded-full mx-auto mb-8" />
+            <div className="flex items-center justify-between mb-8">
+              <h3 className="text-2xl font-black tracking-tight">Refine</h3>
+              <button onClick={() => setShowFilters(false)} className="p-3 bg-muted rounded-2xl">
+                <X className="w-5 h-5" />
               </button>
             </div>
             
-            <div className="space-y-8 pb-8">
+            <div className="space-y-10 pb-8">
                 <div>
-                  <p className="text-xs font-bold uppercase mb-3 text-muted-foreground">Category</p>
+                  <p className="text-[10px] font-black uppercase tracking-widest mb-4 text-muted-foreground">Categories</p>
                   <div className="flex flex-wrap gap-2">
                     <button 
                       onClick={() => setSelectedCategoryId("")}
                       className={cn(
-                        "px-4 py-2 rounded-xl text-sm border transition-all",
-                        selectedCategoryId === "" ? "bg-primary border-primary text-white" : "border-border"
+                        "px-5 py-3 rounded-2xl text-xs font-bold border-2 transition-all",
+                        selectedCategoryId === "" ? "bg-primary border-primary text-white shadow-lg shadow-primary/20" : "border-border"
                       )}
                     >
                       All
@@ -359,8 +339,8 @@ export default function Search() {
                         key={c.id}
                         onClick={() => setSelectedCategoryId(c.id)}
                         className={cn(
-                          "px-4 py-2 rounded-xl text-sm border transition-all",
-                          selectedCategoryId === c.id ? "bg-primary border-primary text-white" : "border-border"
+                          "px-5 py-3 rounded-2xl text-xs font-bold border-2 transition-all",
+                          selectedCategoryId === c.id ? "bg-primary border-primary text-white shadow-lg shadow-primary/20" : "border-border"
                         )}
                       >
                         {c.name}
@@ -370,56 +350,35 @@ export default function Search() {
                 </div>
 
                 <div>
-                  <p className="text-xs font-bold uppercase mb-3 text-muted-foreground">Sort By</p>
-                  <div className="flex flex-wrap gap-2">
-                    {["rating", "price_asc", "price_desc"].map(s => (
-                      <button 
-                        key={s}
-                        onClick={() => setSort(s)}
-                        className={cn(
-                          "px-4 py-2 rounded-xl text-sm border transition-all",
-                          sort === s ? "bg-primary border-primary text-white" : "border-border"
-                        )}
-                      >
-                        {s === "rating" ? "Top Rated" : s === "price_asc" ? "Price: Low to High" : "Price: High to Low"}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-
-                <div>
-                  <div className="flex items-center justify-between mb-3">
-                    <p className="text-xs font-bold uppercase text-muted-foreground">Max Price</p>
-                    <span className="text-sm font-bold text-primary">₹{priceRange[1]}</span>
+                  <div className="flex items-center justify-between mb-4">
+                    <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Max Budget</p>
+                    <span className="text-sm font-black text-primary">₹{priceRange[1]}</span>
                   </div>
                   <input 
-                    type="range" min="0" max="1000" value={priceRange[1]} 
+                    type="range" min="0" max="2000" value={priceRange[1]} 
                     onChange={e => setPriceRange([0, parseInt(e.target.value)])}
-                    className="w-full accent-primary h-2"
+                    className="w-full accent-primary h-2 bg-muted rounded-full appearance-none"
                   />
                 </div>
 
-                <div>
-                  <p className="text-xs font-bold uppercase mb-3 text-muted-foreground">Min Rating</p>
-                  <div className="flex gap-2">
-                    {[5, 4, 3].map(star => (
-                      <button 
-                        key={star}
-                        onClick={() => setMinRating(star)}
-                        className={cn(
-                          "flex-1 py-3 rounded-xl text-sm border transition-all flex items-center justify-center gap-1.5",
-                          minRating === star ? "bg-primary border-primary text-white" : "border-border"
-                        )}
-                      >
-                        {star}<Star className={cn("w-3.5 h-3.5", minRating === star ? "fill-white" : "")} />
-                      </button>
-                    ))}
-                  </div>
+                <div className="flex gap-4">
+                  <button 
+                    onClick={() => { 
+                        setPriceRange([0, 1000]); 
+                        setSelectedCategoryId(""); 
+                        setOnlyInStock(false);
+                    }}
+                    className="flex-1 py-4 bg-muted rounded-2xl text-[11px] font-black uppercase tracking-widest active:scale-95 transition-all"
+                  >
+                    Reset
+                  </button>
+                  <button 
+                    onClick={() => setShowFilters(false)}
+                    className="flex-[2] py-4 bg-primary text-white rounded-2xl text-[11px] font-black uppercase tracking-widest shadow-lg shadow-primary/20 active:scale-95 transition-all"
+                  >
+                    Apply Results
+                  </button>
                 </div>
-
-                <Button className="w-full h-14 rounded-2xl text-base font-bold shadow-lg shadow-primary/20" onClick={() => setShowFilters(false)}>
-                  Show {results.length} results
-                </Button>
             </div>
           </div>
         </div>

@@ -268,12 +268,15 @@ export function ProductCard({
           type="button"
           onClick={handleAddToCart}
           disabled={isOutOfStock}
-          className="group-hover:scale-105 transition-transform"
+          className={cn(
+            "w-8 h-8 rounded-full flex items-center justify-center shrink-0 transition-all duration-200",
+            isOutOfStock
+              ? "bg-muted text-muted-foreground cursor-not-allowed"
+              : "bg-primary text-primary-foreground hover:bg-primary/80 shadow-card",
+          )}
           aria-label="Add to cart"
         >
-          <span className="px-3 py-1.5 rounded-full bg-primary text-primary-foreground text-[10px] font-bold shadow-sm hover:bg-primary/90 transition-all">
-            Add
-          </span>
+          <Plus className="w-4 h-4" />
         </button>
       </Link>
     );

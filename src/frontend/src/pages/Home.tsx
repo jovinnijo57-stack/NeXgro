@@ -898,7 +898,23 @@ function SearchBar() {
     recognition.start();
   };
 
-  return null; // Search and voice removed from home page
+  return (
+    <div className="relative group max-w-2xl mx-auto mb-6">
+      <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
+      <input
+        type="text"
+        placeholder='Say "Add milk" or search products...'
+        onFocus={() => navigate({ to: "/search" })}
+        className="w-full bg-card border-2 border-border rounded-2xl pl-12 pr-12 py-4 text-sm font-medium focus:ring-4 focus:ring-primary/10 focus:border-primary outline-none transition-all shadow-sm"
+      />
+      <button
+        onClick={(e) => { e.stopPropagation(); startListening(); }}
+        className={cn("absolute right-3 top-1/2 -translate-y-1/2 p-2 rounded-xl transition-all", isListening ? "bg-destructive text-white animate-pulse" : "bg-primary/10 text-primary hover:bg-primary/20")}
+      >
+        {isListening ? <MicOff className="w-5 h-5" /> : <Mic className="w-5 h-5" />}
+      </button>
+    </div>
+  );
 }
 
 function PromoStrip() {
@@ -932,6 +948,8 @@ function FeatureQuickAccess() {
   const features = [
     { id: "ai", title: "AI Shopper", icon: Sparkles, color: "bg-purple-500", path: "/ai-shopper" },
     { id: "recipes", title: "Recipes", icon: Utensils, color: "bg-orange-500", path: "/recipes" },
+    { id: "pantry", title: "Smart Pantry", icon: Bell, color: "bg-amber-500", path: "/smart-pantry" },
+    { id: "subs", title: "Subscriptions", icon: RefreshCw, color: "bg-blue-500", path: "/subscriptions" },
   ];
 
   return (
