@@ -24,6 +24,7 @@ interface Recipe {
   instructions: string[];
 }
 
+const ALL_RECIPES: Recipe[] = [
   // BREAKFAST
   {
     id: "b1",
