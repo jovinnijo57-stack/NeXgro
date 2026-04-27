@@ -12,7 +12,11 @@ const firebaseConfig = {
   appId: import.meta.env.VITE_FIREBASE_APP_ID
 };
 
-const isFirebaseConfigured = !!import.meta.env.VITE_FIREBASE_API_KEY;
+const isFirebaseConfigured = 
+  !!import.meta.env.VITE_FIREBASE_API_KEY && 
+  !!import.meta.env.VITE_FIREBASE_PROJECT_ID &&
+  !!import.meta.env.VITE_FIREBASE_APP_ID &&
+  !!import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID;
 
 let messaging: any = null;
 
