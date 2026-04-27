@@ -793,8 +793,8 @@ export default function Layout({ children }: LayoutProps) {
       {/* Mobile bottom navigation */}
       <MobileBottomNav />
 
-      {/* Floating chat widget — always visible */}
-      <ChatWidget />
+      {/* Floating chat widget — only on home */}
+      {window.location.pathname === "/home" && <ChatWidget />}
 
       {/* Comparison bar — shows when products are in comparison */}
       <ComparisonBar />
