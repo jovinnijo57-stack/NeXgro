@@ -1,7 +1,7 @@
 import { useState, useMemo } from "react";
 import { 
   ArrowLeft, Search, Clock, Users, Flame, ShoppingCart, 
-  Plus, Calendar, Mic, MicOff, Info, BookOpen, ChefHat
+  Plus, Calendar, Mic, MicOff, Info, BookOpen, ChefHat, Utensils
 } from "lucide-react";
 import { useNavigate } from "@tanstack/react-router";
 import { useAddToCart } from "@/hooks/useBackend";

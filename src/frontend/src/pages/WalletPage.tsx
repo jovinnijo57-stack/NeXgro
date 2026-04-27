@@ -14,6 +14,7 @@ import {
   Gift,
   RefreshCw,
   Wallet,
+  CheckCircle,
 } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
