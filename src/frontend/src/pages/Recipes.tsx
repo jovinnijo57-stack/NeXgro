@@ -343,6 +343,7 @@ export default function RecipesPage() {
       
       qc.invalidateQueries({ queryKey: ["meal-plans"] });
       toast.success(`"${recipe.title}" added to ${DAYS[dayIndex]}'s Plan! 📅`);
+      navigate({ to: "/meal-planner" });
     } catch {
       toast.error("Failed to add to meal planner.");
     } finally {
@@ -404,20 +405,23 @@ export default function RecipesPage() {
               placeholder="Search recipes, ingredients..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full bg-muted/50 border-2 border-transparent rounded-2xl pl-12 pr-12 py-3 text-sm font-bold focus:bg-background focus:border-primary/20 focus:ring-4 focus:ring-primary/10 outline-none transition-all"
+              className="w-full bg-muted/50 border-2 border-transparent rounded-2xl pl-12 pr-14 py-3.5 text-sm font-bold focus:bg-background focus:border-primary/20 focus:ring-4 focus:ring-primary/10 outline-none transition-all"
             />
             <button
               onClick={startListening}
               className={cn(
-                "absolute right-2 top-1/2 -translate-y-1/2 p-2 rounded-xl transition-all",
-                isListening ? "bg-destructive text-white animate-pulse" : "hover:bg-primary/10 text-primary"
+                "absolute right-2 top-1/2 -translate-y-1/2 w-10 h-10 rounded-xl transition-all flex items-center justify-center",
+                isListening ? "bg-destructive text-white animate-pulse" : "bg-destructive/10 text-destructive hover:bg-destructive hover:text-white"
               )}
             >
-              {isListening ? <MicOff className="w-4 h-4" /> : <Mic className="w-4 h-4" />}
+              {isListening ? <MicOff className="w-5 h-5" /> : <Mic className="w-5 h-5" />}
             </button>
           </div>
 
-          <button className="hidden sm:flex items-center gap-2 bg-primary/10 text-primary px-4 py-2.5 rounded-2xl font-black text-[10px] uppercase tracking-wider hover:bg-primary hover:text-white transition-all shadow-lg shadow-primary/5">
+          <button 
+            onClick={() => navigate({ to: "/meal-planner" })}
+            className="hidden sm:flex items-center gap-2 bg-primary/10 text-primary px-4 py-2.5 rounded-2xl font-black text-[10px] uppercase tracking-wider hover:bg-primary hover:text-white transition-all shadow-lg shadow-primary/5"
+          >
             <Calendar className="w-4 h-4" />
             My Planner
           </button>

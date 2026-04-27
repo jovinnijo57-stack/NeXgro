@@ -183,6 +183,21 @@ export default function MealPlannerPage() {
                         </div>
                       </div>
 
+                      {/* Ingredients List */}
+                      <div className="space-y-3 pt-2">
+                        <div className="flex items-center gap-2 text-foreground">
+                          <ShoppingCart className="w-4 h-4 text-primary" />
+                          <span className="text-[11px] font-black uppercase tracking-widest">Ingredients</span>
+                        </div>
+                        <div className="flex flex-wrap gap-2">
+                          {(recipe?.ingredients || []).map((ing: any, idx: number) => (
+                            <span key={idx} className="bg-muted px-3 py-1 rounded-full text-[10px] font-bold text-muted-foreground border border-border">
+                              {ing.qty}x {ing.name}
+                            </span>
+                          ))}
+                        </div>
+                      </div>
+
                       {/* Instructions */}
                       <div className="space-y-3 pt-2">
                         <div className="flex items-center gap-2 text-foreground">
@@ -224,33 +239,6 @@ export default function MealPlannerPage() {
             <Link to="/recipes" className="bg-primary text-white px-6 py-3 rounded-2xl text-[11px] font-black uppercase tracking-widest mt-6 inline-block shadow-lg shadow-primary/20 transition-all active:scale-95">Browse Recipes</Link>
           </div>
         )}
-      </div>
-
-      {/* Shopping List Summary */}
-      <div className="bg-accent/5 rounded-[2.5rem] p-8 border border-accent/10 relative overflow-hidden group">
-        <div className="absolute top-0 right-0 w-32 h-32 bg-accent/5 rounded-full -mr-16 -mt-16 transition-transform group-hover:scale-150 duration-700" />
-        <div className="relative z-10">
-          <div className="flex items-center justify-between mb-6">
-            <div className="flex items-center gap-3">
-              <div className="p-2 rounded-xl bg-accent text-white">
-                <Plus className="w-5 h-5" />
-              </div>
-              <h3 className="text-lg font-black text-foreground tracking-tight">Weekly Provisions</h3>
-            </div>
-            <span className="text-[10px] font-black bg-accent text-white px-3 py-1 rounded-full uppercase tracking-widest">12 items</span>
-          </div>
-          <div className="grid grid-cols-2 gap-4">
-            {["Organic Quinoa", "Heirloom Tomatoes", "English Cucumber", "Greek Feta"].map(item => (
-              <div key={item} className="flex items-center gap-3 bg-white/50 backdrop-blur-sm p-3 rounded-xl border border-accent/5">
-                <div className="w-2 h-2 rounded-full bg-accent animate-pulse" />
-                <span className="text-xs font-bold text-foreground/80">{item}</span>
-              </div>
-            ))}
-            <div className="col-span-2 text-center pt-4 mt-2 border-t border-accent/10">
-              <span className="text-[10px] text-accent font-black uppercase tracking-[0.2em]">+ 8 ARTISANAL INGREDIENTS</span>
-            </div>
-          </div>
-        </div>
       </div>
     </div>
   );
