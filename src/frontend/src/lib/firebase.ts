@@ -12,12 +12,25 @@ const firebaseConfig = {
   appId: import.meta.env.VITE_FIREBASE_APP_ID
 };
 
+const isFirebaseConfigured = !!import.meta.env.VITE_FIREBASE_API_KEY;
+
+let messaging: any = null;
+
+if (isFirebaseConfigured) {
+  try {
+    const app = initializeApp(firebaseConfig);
+    messaging = getMessaging(app);
+  } catch (err) {
+    console.error("Firebase initialization failed:", err);
+  }
+}
+
+export { messaging };
+
 const VAPID_KEY = "BLqJ64j-97wuzqkl5mtZn3H3vwfpaeIDon4z8ER_w8A4WM0JZHgpl4hbmPNkVRJeF2OFEg2rLx6P9N-SZqrEjAc";
 
-const app = initializeApp(firebaseConfig);
-export const messaging = getMessaging(app);
-
 export const requestForToken = async () => {
+  if (!messaging) return null;
   try {
     const permission = await Notification.requestPermission();
     if (permission === 'granted') {
@@ -46,6 +59,10 @@ export const requestForToken = async () => {
 
 export const onMessageListener = () =>
   new Promise((resolve) => {
+    if (!messaging) {
+      resolve(null);
+      return;
+    }
     onMessage(messaging, (payload) => {
       console.log("Foreground Message received: ", payload);
       resolve(payload);
