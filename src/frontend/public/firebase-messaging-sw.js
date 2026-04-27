@@ -5,12 +5,13 @@ importScripts('https://www.gstatic.com/firebasejs/9.0.0/firebase-messaging-compa
 // Since this is a static file in public/, we can't easily use Vite env vars here
 // You should replace these placeholders with your actual Firebase config
 const firebaseConfig = {
-  apiKey: "REPLACE_WITH_YOUR_API_KEY",
-  authDomain: "REPLACE_WITH_YOUR_PROJECT_ID.firebaseapp.com",
-  projectId: "REPLACE_WITH_YOUR_PROJECT_ID",
-  storageBucket: "REPLACE_WITH_YOUR_PROJECT_ID.appspot.com",
-  messagingSenderId: "REPLACE_WITH_YOUR_SENDER_ID",
-  appId: "REPLACE_WITH_YOUR_APP_ID"
+  apiKey: "AIzaSyD57s2gllyXC_SY4XlckYS93munF0dby_U",
+  authDomain: "nexgro-4fde7.firebaseapp.com",
+  projectId: "nexgro-4fde7",
+  storageBucket: "nexgro-4fde7.firebasestorage.app",
+  messagingSenderId: "766881040235",
+  appId: "1:766881040235:web:a17cdb276862d6e092ee2e",
+  measurementId: "G-S5QT62PKF1"
 };
 
 firebase.initializeApp(firebaseConfig);
