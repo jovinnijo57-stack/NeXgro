@@ -21,6 +21,29 @@ import { useQueryClient } from "@tanstack/react-query";
 
 const DAYS = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
 
+import { useMealPlans, useRecipes, useAddToCart } from "@/hooks/useBackend";
+import { cn } from "@/lib/utils";
+import { Link, useNavigate } from "@tanstack/react-router";
+import {
+  ArrowLeft,
+  Calendar,
+  Plus,
+  ShoppingCart,
+  Trash2,
+  UtensilsCrossed,
+  Flame,
+  Clock,
+  BookOpen,
+  Droplets,
+  Sparkles
+} from "lucide-react";
+import { useState, useEffect } from "react";
+import { toast } from "sonner";
+import { useQueryClient } from "@tanstack/react-query";
+import { analyzeRecipe } from "@/services/gemini";
+
+const DAYS = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
+
 export default function MealPlannerPage() {
   const navigate = useNavigate();
   const qc = useQueryClient();
@@ -29,11 +52,13 @@ export default function MealPlannerPage() {
   const addToCart = useAddToCart();
   const [selectedDate, setSelectedDate] = useState<string>(new Date().toISOString().split("T")[0]);
   const [adding, setAdding] = useState<string | null>(null);
+  const [aiAnalysis, setAiAnalysis] = useState<Record<string, any>>({});
+  const [analyzing, setAnalyzing] = useState<string | null>(null);
 
-  // Derive selectedDay (0-6) for the weekly bar, if within current week
+  // Deriving week
   const today = new Date();
   const startOfWeek = new Date(today);
-  startOfWeek.setDate(today.getDate() - today.getDay() + 1); // Monday
+  startOfWeek.setDate(today.getDate() - (today.getDay() === 0 ? 6 : today.getDay() - 1)); // Correct Monday
 
   const handleDayClick = (dayIndex: number) => {
     const date = new Date(startOfWeek);
@@ -60,7 +85,7 @@ export default function MealPlannerPage() {
           }
         }
       }
-      toast.success("All ingredients for today added to cart! 🛒");
+      toast.success("All ingredients added to cart! 🛒");
       navigate({ to: "/cart" });
     } catch {
       toast.error("Failed to add some ingredients.");
@@ -93,13 +118,29 @@ export default function MealPlannerPage() {
     }
   };
 
+  const handleGetAiAnalysis = async (recipe: any) => {
+    if (aiAnalysis[recipe.id]) return;
+    setAnalyzing(recipe.id);
+    try {
+      const analysis = await analyzeRecipe(recipe.title, recipe.ingredients);
+      if (analysis) {
+        setAiAnalysis(prev => ({ ...prev, [recipe.id]: analysis }));
+        toast.success("AI Analysis Complete! ✨");
+      }
+    } catch {
+      toast.error("AI Analysis failed.");
+    } finally {
+      setAnalyzing(null);
+    }
+  };
+
   const filteredMealPlans = mealPlans?.filter(mp => mp.plannedDate === selectedDate);
 
   const displayDate = new Date(selectedDate).toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" });
   const displayDayName = new Date(selectedDate).toLocaleDateString("en-US", { weekday: "short" });
 
   return (
-    <div className="max-w-2xl mx-auto px-4 sm:px-6 py-6 space-y-8 pb-24" data-ocid="meal-planner.page">
+    <div className="max-w-2xl mx-auto px-4 sm:px-6 py-6 space-y-8 pb-24">
       {/* Header */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-4">
@@ -138,17 +179,17 @@ export default function MealPlannerPage() {
             <Calendar className="w-5 h-5 text-[#007000]" />
             <h2 className="font-black text-foreground tracking-tight">Weekly Schedule</h2>
           </div>
-          <div className="relative group">
+          <div className="relative group overflow-hidden rounded-xl">
             <input 
               type="date" 
               value={selectedDate}
               onChange={handleDateChange}
-              className="absolute inset-0 opacity-0 cursor-pointer"
+              className="absolute inset-0 opacity-0 cursor-pointer z-10"
             />
-            <button className="p-2.5 rounded-xl bg-muted hover:bg-muted/80 transition-all flex items-center gap-2">
-              <Calendar className="w-4 h-4 text-primary" />
+            <div className="p-2.5 bg-muted group-hover:bg-muted/80 transition-all flex items-center gap-2">
+              <Calendar className="w-4 h-4 text-[#007000]" />
               <span className="text-[10px] font-black uppercase tracking-widest">Pick Date</span>
-            </button>
+            </div>
           </div>
         </div>
         <div className="grid grid-cols-7 gap-2">
@@ -192,88 +233,135 @@ export default function MealPlannerPage() {
         </div>
 
         {filteredMealPlans && filteredMealPlans.length > 0 ? (
-          <div className="space-y-6">
+          <div className="space-y-8">
             {filteredMealPlans.map((mp: any) => {
               const recipe = mp.recipeDetails || recipes?.find(r => r.id === mp.recipeId);
+              const analysis = aiAnalysis[recipe?.id];
+
               return (
                 <div key={mp.id} className="bg-card border border-border rounded-[2.5rem] overflow-hidden shadow-sm hover:shadow-md transition-all">
-                  <div className="flex flex-col sm:flex-row">
-                    <div className="sm:w-48 h-40 sm:h-auto bg-muted shrink-0">
+                  <div className="flex flex-col sm:row">
+                    <div className="sm:w-full h-48 bg-muted relative">
                       <img 
-                        src={recipe?.image || recipe?.imageUrl || "https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=400&q=80"} 
+                        src={recipe?.image || recipe?.imageUrl} 
                         className="w-full h-full object-cover" 
-                        alt={recipe?.title || recipe?.name || "Recipe"}
+                        alt={recipe?.title}
                       />
-                    </div>
-                    <div className="flex-1 p-6 space-y-4">
-                      <div className="flex items-start justify-between">
-                        <div>
-                          <h4 className="font-black text-foreground text-xl tracking-tight leading-tight">{recipe?.title || recipe?.name || "Recipe"}</h4>
-                          <div className="flex items-center gap-3 mt-1.5 text-muted-foreground">
-                            <span className="flex items-center gap-1 text-[11px] font-bold uppercase tracking-wider"><Clock className="w-3.5 h-3.5" /> {recipe?.time || "25 min"}</span>
-                            <span className="flex items-center gap-1 text-[11px] font-bold uppercase tracking-wider text-[#007000]"><Flame className="w-3.5 h-3.5" /> {recipe?.calories || "400 kcal"}</span>
-                          </div>
-                        </div>
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
+                      <div className="absolute bottom-4 left-6 right-6 flex items-end justify-between">
+                        <h4 className="font-black text-white text-2xl tracking-tight leading-tight">{recipe?.title}</h4>
                         <button 
                           onClick={() => handleDeletePlan(mp.id)}
-                          className="p-2 rounded-xl bg-destructive/10 text-destructive hover:bg-destructive hover:text-white transition-all shadow-sm"
+                          className="p-2.5 rounded-xl bg-destructive/20 backdrop-blur-md text-white border border-white/20 hover:bg-destructive transition-all"
                         >
                           <Trash2 className="w-4 h-4" />
                         </button>
                       </div>
-
-                      {/* Nutrition Info */}
-                      <div className="grid grid-cols-3 gap-2 bg-muted/50 rounded-2xl p-3">
-                        <div className="text-center">
-                          <p className="text-[9px] font-bold text-muted-foreground uppercase tracking-widest">Protein</p>
-                          <p className="text-xs font-black text-[#007000]">{recipe?.protein || "12g"}</p>
+                    </div>
+                    <div className="p-6 space-y-6">
+                      {/* Top Meta */}
+                      <div className="flex flex-wrap gap-4">
+                        <div className="flex items-center gap-2 text-muted-foreground">
+                          <Clock className="w-4 h-4 text-[#007000]" />
+                          <span className="text-xs font-bold">{recipe?.time || "25 min"}</span>
                         </div>
-                        <div className="text-center border-x border-border">
-                          <p className="text-[9px] font-bold text-muted-foreground uppercase tracking-widest">Fat</p>
-                          <p className="text-xs font-black text-amber-600">{recipe?.fat || "14g"}</p>
+                        <div className="flex items-center gap-2 text-muted-foreground">
+                          <Flame className="w-4 h-4 text-orange-500" />
+                          <span className="text-xs font-bold">{recipe?.calories || "400 kcal"}</span>
                         </div>
-                        <div className="text-center">
-                          <p className="text-[9px] font-bold text-muted-foreground uppercase tracking-widest">Carbs</p>
-                          <p className="text-xs font-black text-blue-600">{recipe?.carbs || "45g"}</p>
+                        <div className="ml-auto flex items-center gap-1 bg-[#007000]/10 px-3 py-1 rounded-full">
+                          <Sparkles className="w-3 h-3 text-[#007000]" />
+                          <span className="text-[10px] font-black text-[#007000] uppercase tracking-wider">Smart Balanced</span>
                         </div>
                       </div>
 
-                      {/* Ingredients List */}
-                      <div className="space-y-3 pt-2">
-                        <div className="flex items-center gap-2 text-foreground">
-                          <ShoppingCart className="w-4 h-4 text-[#007000]" />
-                          <span className="text-[11px] font-black uppercase tracking-widest">Ingredients</span>
+                      {/* Ingredients Section */}
+                      <div className="space-y-4">
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center gap-2">
+                            <ShoppingCart className="w-5 h-5 text-[#007000]" />
+                            <h5 className="font-black text-sm uppercase tracking-widest text-foreground">Ingredients</h5>
+                          </div>
+                          <span className="text-[10px] font-bold text-muted-foreground">{(recipe?.ingredients || []).length} Items</span>
                         </div>
-                        <div className="flex flex-wrap gap-2">
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                           {(recipe?.ingredients || []).map((ing: any, idx: number) => (
-                            <span key={idx} className="bg-muted px-3 py-1 rounded-full text-[10px] font-bold text-muted-foreground border border-border">
-                              {ing.qty}x {ing.name}
-                            </span>
+                            <div key={idx} className="flex items-center gap-3 bg-muted/50 p-3 rounded-2xl border border-border">
+                              <div className="w-8 h-8 rounded-lg bg-[#007000]/10 flex items-center justify-center text-[#007000] font-black text-xs">
+                                {ing.qty}
+                              </div>
+                              <span className="text-xs font-bold text-foreground">{ing.name}</span>
+                            </div>
                           ))}
                         </div>
                       </div>
 
-                      {/* Instructions */}
-                      <div className="space-y-3 pt-2">
-                        <div className="flex items-center gap-2 text-foreground">
-                          <BookOpen className="w-4 h-4 text-[#007000]" />
-                          <span className="text-[11px] font-black uppercase tracking-widest">How to Cook</span>
-                        </div>
-                        <ul className="space-y-2">
-                          {(recipe?.instructions || ["Ready in 25 minutes.", "Serve hot with side salad."]).map((step: string, idx: number) => (
-                            <li key={idx} className="flex gap-3 text-xs text-muted-foreground leading-relaxed">
-                              <span className="font-black text-[#007000] min-w-[12px]">{idx + 1}.</span>
-                              {step}
-                            </li>
-                          ))}
-                        </ul>
-                      </div>
+                      {/* AI Analysis Button */}
+                      {!analysis ? (
+                        <button 
+                          onClick={() => handleGetAiAnalysis(recipe)}
+                          disabled={analyzing === recipe?.id}
+                          className="w-full py-4 rounded-2xl bg-muted border-2 border-dashed border-border hover:border-[#007000]/30 hover:bg-[#007000]/5 transition-all group"
+                        >
+                          {analyzing === recipe?.id ? (
+                            <div className="flex items-center justify-center gap-3">
+                              <div className="w-4 h-4 border-2 border-[#007000]/30 border-t-[#007000] rounded-full animate-spin" />
+                              <span className="text-xs font-black uppercase tracking-widest text-[#007000]">Analyzing with Gemini...</span>
+                            </div>
+                          ) : (
+                            <div className="flex items-center justify-center gap-3">
+                              <Sparkles className="w-5 h-5 text-purple-500 group-hover:scale-110 transition-transform" />
+                              <span className="text-xs font-black uppercase tracking-widest text-muted-foreground group-hover:text-[#007000]">Analyze quantity & steps with AI</span>
+                            </div>
+                          )}
+                        </button>
+                      ) : (
+                        <div className="space-y-6 animate-in fade-in slide-in-from-top-4 duration-500">
+                          {/* AI Quantities Info */}
+                          <div className="grid grid-cols-2 gap-4">
+                            <div className="bg-blue-50 border border-blue-100 p-4 rounded-3xl">
+                              <div className="flex items-center gap-2 mb-2">
+                                <Droplets className="w-4 h-4 text-blue-500" />
+                                <span className="text-[10px] font-black uppercase text-blue-600 tracking-widest">Water Needed</span>
+                              </div>
+                              <p className="text-lg font-black text-blue-900">{analysis.water}</p>
+                            </div>
+                            <div className="bg-amber-50 border border-amber-100 p-4 rounded-3xl">
+                              <div className="flex items-center gap-2 mb-2">
+                                <Clock className="w-4 h-4 text-amber-500" />
+                                <span className="text-[10px] font-black uppercase text-amber-600 tracking-widest">Cook Time</span>
+                              </div>
+                              <p className="text-lg font-black text-amber-900">{analysis.time}</p>
+                            </div>
+                          </div>
 
-                      <div className="pt-4 border-t border-border flex gap-3">
+                          {/* Detailed Steps */}
+                          <div className="space-y-4">
+                            <div className="flex items-center gap-2">
+                              <BookOpen className="w-5 h-5 text-[#007000]" />
+                              <h5 className="font-black text-sm uppercase tracking-widest text-foreground">Cooking Steps</h5>
+                            </div>
+                            <div className="space-y-4">
+                              {analysis.steps.map((step: string, idx: number) => (
+                                <div key={idx} className="flex gap-4">
+                                  <div className="w-6 h-6 rounded-full bg-[#007000] text-white flex items-center justify-center shrink-0 text-[10px] font-black">
+                                    {idx + 1}
+                                  </div>
+                                  <p className="text-xs font-medium text-muted-foreground leading-relaxed pt-0.5">
+                                    {step}
+                                  </p>
+                                </div>
+                              ))}
+                            </div>
+                          </div>
+                        </div>
+                      )}
+
+                      <div className="pt-2">
                         <button 
                           onClick={() => handleAddToCart(recipe)}
                           disabled={adding === recipe?.id}
-                          className="flex-1 py-3.5 rounded-2xl bg-[#007000] text-white text-[11px] font-black uppercase tracking-widest shadow-lg shadow-[#007000]/20 hover:opacity-90 transition-all flex items-center justify-center gap-2 active:scale-95"
+                          className="w-full py-4 rounded-2xl bg-[#007000] text-white text-[11px] font-black uppercase tracking-widest shadow-lg shadow-[#007000]/20 hover:opacity-90 transition-all flex items-center justify-center gap-2 active:scale-95"
                         >
                           <ShoppingCart className="w-4 h-4" />
                           Add Ingredients to Cart

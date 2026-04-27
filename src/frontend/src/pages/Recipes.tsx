@@ -285,9 +285,7 @@ const CATEGORIES = [
   { name: "Healthy", icon: BookOpen, color: "text-blue-500" },
 ];
 
-const DAYS = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
-
-export default function RecipesPage() {
+const DAYS = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];export default function RecipesPage() {
   const navigate = useNavigate();
   const qc = useQueryClient();
   const [searchQuery, setSearchQuery] = useState("");
@@ -327,8 +325,15 @@ export default function RecipesPage() {
     const dayIndex = selectedDays[recipe.id] ?? 0;
     setAdding(recipe.id);
     try {
+      // Calculate date based on current week
+      const now = new Date();
+      const currentDay = now.getDay(); // 0 is Sun, 1 is Mon
+      const targetDay = dayIndex + 1; // DAYS starts from Mon (1)
+      
+      const diff = targetDay - (currentDay === 0 ? 7 : currentDay);
       const plannedDate = new Date();
-      plannedDate.setDate(24 + dayIndex); 
+      plannedDate.setDate(now.getDate() + diff);
+      
       const dateStr = plannedDate.toISOString().split("T")[0];
 
       const existing = JSON.parse(localStorage.getItem("nexgro_meal_plans") || "[]");
@@ -352,7 +357,7 @@ export default function RecipesPage() {
   };
 
   const handleAddToCart = async (recipe: Recipe) => {
-    setAdding(recipe.id);
+    setAdding(recipe.id + "-cart");
     try {
       for (const ing of recipe.ingredients) {
         await addToCart.mutateAsync({ productId: ing.id, qty: ing.qty });
@@ -365,31 +370,19 @@ export default function RecipesPage() {
     }
   };
 
+  const handleAnalyzeRecipe = (recipe: Recipe) => {
+    toast.info(`Analyzing "${recipe.title}" with Gemini AI... 🤖`, {
+      description: "Fetching step-by-step quantity and cooking details."
+    });
+    // In a real app, this would call Gemini. For now we redirect to meal planner 
+    // where we'll show the detailed view we're about to implement.
+    navigate({ to: "/meal-planner" });
+  };
+
   return (
     <div className="min-h-screen bg-background pb-20">
-      {/* Premium Hero Banner */}
-      <div className="relative h-64 sm:h-80 bg-black overflow-hidden">
-        <img
-          src="https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=1200&q=80"
-          alt="Chef's Corner"
-          className="w-full h-full object-cover opacity-60"
-        />
-        <div className="absolute inset-0 bg-gradient-to-t from-black via-black/20 to-transparent" />
-        <div className="absolute inset-0 flex flex-col items-center justify-center text-center px-4">
-          <div className="bg-primary/20 backdrop-blur-md px-3 py-1 rounded-full border border-primary/30 mb-4 animate-in fade-in slide-in-from-bottom-4 duration-500">
-            <span className="text-[10px] font-black text-primary uppercase tracking-[0.2em]">Today's Special 🌟</span>
-          </div>
-          <h1 className="text-4xl sm:text-6xl font-black text-white mb-4 tracking-tighter animate-in fade-in slide-in-from-bottom-6 duration-700">
-            Chef's Corner
-          </h1>
-          <p className="text-white/70 text-sm sm:text-base max-w-lg font-medium animate-in fade-in slide-in-from-bottom-8 duration-1000">
-            Discover thousands of hand-picked recipes and plan your weekly meals with ease.
-          </p>
-        </div>
-      </div>
-
-      {/* Professional Sticky Header */}
-      <div className="sticky top-0 z-30 bg-background/80 backdrop-blur-xl border-b border-border px-4 py-4 space-y-4">
+      {/* Search and Filters ABOVE Banner */}
+      <div className="bg-background/80 backdrop-blur-xl border-b border-border px-4 py-4 space-y-4">
         <div className="max-w-5xl mx-auto flex items-center justify-between gap-4">
           <button
             onClick={() => navigate({ to: "/home" })}
@@ -420,21 +413,20 @@ export default function RecipesPage() {
 
           <button 
             onClick={() => navigate({ to: "/meal-planner" })}
-            className="hidden sm:flex items-center gap-2 bg-primary/10 text-primary px-4 py-2.5 rounded-2xl font-black text-[10px] uppercase tracking-wider hover:bg-primary hover:text-white transition-all shadow-lg shadow-primary/5"
+            className="hidden sm:flex items-center gap-2 bg-[#007000]/10 text-[#007000] px-4 py-2.5 rounded-2xl font-black text-[10px] uppercase tracking-wider hover:bg-[#007000] hover:text-white transition-all shadow-lg shadow-[#007000]/5"
           >
             <Calendar className="w-4 h-4" />
             My Planner
           </button>
         </div>
 
-        {/* Categories bar */}
         <div className="max-w-5xl mx-auto flex items-center gap-2 overflow-x-auto pb-2 no-scrollbar px-2">
           <button
             onClick={() => setSelectedCategory("All")}
             className={cn(
               "px-4 py-2 rounded-xl text-xs font-bold whitespace-nowrap transition-all",
               selectedCategory === "All" 
-                ? "bg-primary text-white shadow-lg shadow-primary/20" 
+                ? "bg-[#007000] text-white shadow-lg shadow-[#007000]/20" 
                 : "bg-muted text-muted-foreground hover:bg-muted/80"
             )}
           >
@@ -449,7 +441,7 @@ export default function RecipesPage() {
                 className={cn(
                   "px-4 py-2 rounded-xl text-xs font-bold whitespace-nowrap flex items-center gap-2 transition-all",
                   selectedCategory === cat.name 
-                    ? "bg-primary text-white shadow-lg shadow-primary/20" 
+                    ? "bg-[#007000] text-white shadow-lg shadow-[#007000]/20" 
                     : "bg-muted text-muted-foreground hover:bg-muted/80"
                 )}
               >
@@ -458,6 +450,24 @@ export default function RecipesPage() {
               </button>
             );
           })}
+        </div>
+      </div>
+
+      {/* Hero Banner (Now Below Search) */}
+      <div className="relative h-48 sm:h-64 bg-black overflow-hidden">
+        <img
+          src="https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=1200&q=80"
+          alt="Chef's Corner"
+          className="w-full h-full object-cover opacity-60"
+        />
+        <div className="absolute inset-0 bg-gradient-to-t from-black via-black/20 to-transparent" />
+        <div className="absolute inset-0 flex flex-col items-center justify-center text-center px-4">
+          <h1 className="text-3xl sm:text-5xl font-black text-white mb-2 tracking-tighter animate-in fade-in slide-in-from-bottom-6 duration-700">
+            Chef's Corner
+          </h1>
+          <p className="text-white/70 text-xs sm:text-sm max-w-lg font-medium animate-in fade-in slide-in-from-bottom-8 duration-1000">
+            Discover hand-picked recipes and plan your weekly meals with ease.
+          </p>
         </div>
       </div>
 
@@ -492,6 +502,14 @@ export default function RecipesPage() {
                       </span>
                     </div>
                   </div>
+                  {/* AI Analysis Quick Button */}
+                  <button 
+                    onClick={() => handleAnalyzeRecipe(recipe)}
+                    className="absolute top-3 right-3 w-8 h-8 rounded-full bg-white/10 backdrop-blur-xl border border-white/20 flex items-center justify-center text-white hover:bg-primary hover:border-primary transition-all"
+                    title="Analyze with AI"
+                  >
+                    <BookOpen className="w-4 h-4" />
+                  </button>
                 </div>
 
                 <div className="p-4 space-y-4">
@@ -499,30 +517,41 @@ export default function RecipesPage() {
                     <div className="flex items-center gap-4">
                       <div className="text-center">
                         <p className="text-[9px] font-bold text-muted-foreground uppercase tracking-wider">Protein</p>
-                        <p className="text-xs font-black text-primary">{recipe.protein || "8g"}</p>
+                        <p className="text-xs font-black text-[#007000]">{recipe.protein || "8g"}</p>
                       </div>
                       <div className="text-center">
-                        <p className="text-[9px] font-bold text-muted-foreground uppercase tracking-wider">Fat</p>
-                        <p className="text-xs font-black text-amber-500">{recipe.fat || "12g"}</p>
+                        <p className="text-[9px] font-bold text-muted-foreground uppercase tracking-wider">Carbs</p>
+                        <p className="text-xs font-black text-blue-500">{recipe.carbs || "45g"}</p>
                       </div>
                     </div>
                     <div className="flex items-center gap-1.5 text-muted-foreground bg-muted/50 px-2.5 py-1 rounded-lg">
-                      <Users className="w-3.5 h-3.5 text-primary" />
+                      <Users className="w-3.5 h-3.5 text-[#007000]" />
                       <span className="text-[10px] font-bold">Serves {recipe.serves}</span>
                     </div>
                   </div>
 
                   <div className="pt-2 border-t border-border space-y-3">
-                    <div className="flex items-center gap-2 pt-2">
+                    <div className="flex items-center gap-2">
                       <select
                         value={selectedDays[recipe.id] ?? 0}
                         onChange={(e) => setSelectedDays(prev => ({ ...prev, [recipe.id]: parseInt(e.target.value) }))}
-                        className="flex-1 bg-muted border-none rounded-xl px-3 py-2 text-[10px] font-bold outline-none focus:ring-2 focus:ring-primary/20 transition-all"
+                        className="flex-1 bg-muted border-none rounded-xl px-3 py-2 text-[10px] font-bold outline-none focus:ring-2 focus:ring-[#007000]/20 transition-all"
                       >
                         {DAYS.map((day, i) => (
-                          <option key={day} value={i}>{day} (April {24 + i})</option>
+                          <option key={day} value={i}>{day} (This week)</option>
                         ))}
                       </select>
+                      <button 
+                        onClick={() => handleAddToCart(recipe)}
+                        disabled={adding === recipe.id + "-cart"}
+                        className="p-2 rounded-xl bg-[#007000]/10 text-[#007000] hover:bg-[#007000] hover:text-white transition-all shadow-sm"
+                      >
+                        {adding === recipe.id + "-cart" ? (
+                          <div className="w-4 h-4 border-2 border-[#007000]/30 border-t-[#007000] rounded-full animate-spin" />
+                        ) : (
+                          <ShoppingCart className="w-4 h-4" />
+                        )}
+                      </button>
                     </div>
                     <button
                       onClick={() => handleAddToMealPlan(recipe)}
@@ -531,11 +560,11 @@ export default function RecipesPage() {
                         "w-full py-3 rounded-2xl font-bold transition-all flex items-center justify-center gap-3 active:scale-95",
                         adding === recipe.id 
                           ? "bg-muted text-muted-foreground cursor-not-allowed" 
-                          : "bg-primary text-white hover:opacity-90 shadow-lg shadow-primary/10"
+                          : "bg-[#007000] text-white hover:opacity-90 shadow-lg shadow-[#007000]/10"
                       )}
                     >
                       {adding === recipe.id ? (
-                        <div className="w-4 h-4 border-2 border-primary/30 border-t-primary rounded-full animate-spin" />
+                        <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
                       ) : (
                         <>
                           <Calendar className="w-4 h-4" />
