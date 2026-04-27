@@ -34,10 +34,17 @@ export { messaging };
 const VAPID_KEY = "BLqJ64j-97wuzqkl5mtZn3H3vwfpaeIDon4z8ER_w8A4WM0JZHgpl4hbmPNkVRJeF2OFEg2rLx6P9N-SZqrEjAc";
 
 export const requestForToken = async () => {
-  if (!messaging) return null;
+  console.log("🔍 requestForToken called. messaging state:", !!messaging);
+  if (!messaging) {
+    console.log("⚠️ Messaging is not initialized. Check your Render environment variables.");
+    return null;
+  }
   try {
+    console.log("⌛ Requesting notification permission...");
     const permission = await Notification.requestPermission();
+    console.log("📊 Permission status:", permission);
     if (permission === 'granted') {
+      console.log("⌛ Getting FCM token...");
       const currentToken = await getToken(messaging, {
         vapidKey: VAPID_KEY
       });

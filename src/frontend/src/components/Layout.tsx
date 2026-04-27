@@ -622,11 +622,14 @@ export default function Layout({ children }: LayoutProps) {
   const year = new Date().getFullYear();
 
   useEffect(() => {
+    console.log("🔔 Layout mounted: Initializing notifications...");
     // Request FCM token on mount
     const setupNotifications = async () => {
       const token = await requestForToken();
       if (token) {
-        // You can also send token to backend here if needed
+        console.log("✅ FCM Token retrieved successfully");
+      } else {
+        console.log("❌ FCM Token could not be retrieved (Check config/permissions)");
       }
     };
 
