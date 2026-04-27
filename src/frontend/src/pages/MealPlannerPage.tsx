@@ -45,6 +45,30 @@ export default function MealPlannerPage() {
     setSelectedDate(e.target.value);
   };
 
+  const handleAddAllToCart = async () => {
+    if (!filteredMealPlans || filteredMealPlans.length === 0) {
+      toast.error("No recipes planned for this date.");
+      return;
+    }
+    setAdding("all");
+    try {
+      for (const mp of filteredMealPlans) {
+        const recipe = mp.recipeDetails || recipes?.find((r: any) => r.id === mp.recipeId);
+        if (recipe && recipe.ingredients) {
+          for (const ing of recipe.ingredients) {
+            await addToCart.mutateAsync({ productId: ing.id, qty: ing.qty });
+          }
+        }
+      }
+      toast.success("All ingredients for today added to cart! 🛒");
+      navigate({ to: "/cart" });
+    } catch {
+      toast.error("Failed to add some ingredients.");
+    } finally {
+      setAdding(null);
+    }
+  };
+
   const handleDeletePlan = (id: string) => {
     const existing = JSON.parse(localStorage.getItem("nexgro_meal_plans") || "[]");
     const filtered = existing.filter((p: any) => p.id !== id);
@@ -95,10 +119,15 @@ export default function MealPlannerPage() {
           </div>
         </div>
         <button
-          onClick={() => navigate({ to: "/cart" })}
+          onClick={handleAddAllToCart}
+          disabled={adding === "all"}
           className="w-12 h-12 rounded-[1.2rem] bg-[#007000] text-white shadow-lg shadow-[#007000]/20 active:scale-95 transition-all flex items-center justify-center"
         >
-          <ShoppingCart className="w-5 h-5" />
+          {adding === "all" ? (
+            <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+          ) : (
+            <ShoppingCart className="w-5 h-5" />
+          )}
         </button>
       </div>
 
