@@ -36,6 +36,7 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 import { useEffect, useRef, useState } from "react";
+import { requestForToken, onMessageListener } from "@/lib/firebase";
 
 interface LayoutProps {
   children: React.ReactNode;
@@ -619,6 +620,28 @@ export default function Layout({ children }: LayoutProps) {
   const { t } = useLanguage();
   const loc = useLocation();
   const year = new Date().getFullYear();
+
+  useEffect(() => {
+    // Request FCM token on mount
+    const setupNotifications = async () => {
+      const token = await requestForToken();
+      if (token) {
+        // You can also send token to backend here if needed
+      }
+    };
+
+    setupNotifications();
+
+    // Listen for foreground messages
+    onMessageListener().then((payload: any) => {
+      if (payload?.notification) {
+        toast.info(`${payload.notification.title}: ${payload.notification.body}`, {
+          duration: 5000,
+          position: "top-center"
+        });
+      }
+    });
+  }, []);
 
   return (
     <div className="min-h-screen flex flex-col bg-background pt-[env(safe-area-inset-top)]">
