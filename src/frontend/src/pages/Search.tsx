@@ -41,18 +41,28 @@ export default function Search() {
   const startListening = () => {
     const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
     if (!SpeechRecognition) {
-      toast.error("Voice search not supported");
+      toast.error("Voice search not supported in this browser");
       return;
     }
     const recognition = new SpeechRecognition();
     recognition.lang = "en-US";
-    recognition.onstart = () => setIsListening(true);
+    recognition.continuous = false;
+    recognition.interimResults = false;
+
+    recognition.onstart = () => {
+      setIsListening(true);
+      toast.info("Listening...", { id: "voice-search" });
+    };
     recognition.onresult = (event: any) => {
       const transcript = event.results[0][0].transcript;
       setQuery(transcript);
+      toast.success(`Searching for: ${transcript}`, { id: "voice-search" });
       setIsListening(false);
     };
-    recognition.onerror = () => setIsListening(false);
+    recognition.onerror = (event: any) => {
+      toast.error("Voice search error: " + event.error, { id: "voice-search" });
+      setIsListening(false);
+    };
     recognition.onend = () => setIsListening(false);
     recognition.start();
   };
@@ -146,7 +156,7 @@ export default function Search() {
 
       {/* Restored Original Banner */}
       <div className="max-w-6xl mx-auto px-4 py-6">
-        <div className="relative overflow-hidden rounded-[2rem] aspect-[2/1] md:aspect-[8/2] bg-muted shadow-lg group">
+        <div className="relative overflow-hidden rounded-[2rem] aspect-[3/2] md:aspect-[8/2] bg-muted shadow-lg group">
           <img 
             src="/assets/banner2.png" 
             alt="Search Banner" 
@@ -155,15 +165,7 @@ export default function Search() {
               (e.target as HTMLImageElement).src = "https://images.unsplash.com/photo-1542838132-92c53300491e?auto=format&fit=crop&q=80&w=1200";
             }}
           />
-          <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
-          <div className="absolute bottom-6 left-8 sm:left-12">
-            <h2 className="text-2xl sm:text-4xl font-black text-white tracking-tight">
-              Browse Our <span className="text-primary">Collection</span>
-            </h2>
-            <p className="text-white/70 text-xs sm:text-sm font-bold mt-2">
-              Over 1,000+ premium items ready for delivery.
-            </p>
-          </div>
+          <div className="absolute inset-0 bg-gradient-to-t from-black/20 via-transparent to-transparent" />
         </div>
       </div>
 
