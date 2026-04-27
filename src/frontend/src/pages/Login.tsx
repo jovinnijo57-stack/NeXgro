@@ -124,7 +124,7 @@ export default function Login() {
         localStorage.setItem("isLoggedIn", "true");
         localStorage.setItem("currentUserEmail", lowerEmail);
         toast.success("Welcome back!");
-        window.location.href = "/home"; 
+        window.location.href = "/location-setup"; 
       } else {
         toast.error("Invalid credentials. Please check your email and password.");
         setIsShaking(true);

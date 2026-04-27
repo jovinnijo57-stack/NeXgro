@@ -644,7 +644,7 @@ export default function Layout({ children }: LayoutProps) {
             </Link>
 
             {/* Search bar — desktop */}
-            {!["/home", "/cart", "/orders", "/profile", "/search", "/wishlist"].includes(loc.pathname) && (
+            {!["/home", "/cart", "/orders", "/profile", "/search", "/wishlist", "/ai-shopper"].includes(loc.pathname) && (
               <div className="hidden md:flex flex-1 max-w-lg mx-4">
                 <SearchBar />
               </div>
@@ -681,7 +681,7 @@ export default function Layout({ children }: LayoutProps) {
           </div>
 
           {/* Mobile search row */}
-          {!["/home", "/cart", "/orders", "/profile", "/search", "/wishlist"].includes(loc.pathname) && (
+          {!["/home", "/cart", "/orders", "/profile", "/search", "/wishlist", "/ai-shopper"].includes(loc.pathname) && (
             <div className="md:hidden pb-2">
               <SearchBar mobile />
             </div>
@@ -793,8 +793,8 @@ export default function Layout({ children }: LayoutProps) {
       {/* Mobile bottom navigation */}
       <MobileBottomNav />
 
-      {/* Floating chat widget — always visible */}
-      <ChatWidget />
+      {/* Floating chat widget — Only on profile page per request */}
+      {loc.pathname === "/profile" && <ChatWidget />}
 
       {/* Comparison bar — shows when products are in comparison */}
       <ComparisonBar />

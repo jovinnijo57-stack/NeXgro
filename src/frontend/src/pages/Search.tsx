@@ -144,22 +144,24 @@ export default function Search() {
         </div>
       </div>
 
-      {/* Responsive Banner Fix */}
+      {/* Restored Original Banner */}
       <div className="max-w-6xl mx-auto px-4 py-6">
-        <div className="relative h-48 sm:h-64 rounded-[2.5rem] overflow-hidden bg-black shadow-xl group">
+        <div className="relative overflow-hidden rounded-[2rem] aspect-[2/1] md:aspect-[8/2] bg-muted shadow-lg group">
           <img 
-            src="https://images.unsplash.com/photo-1542838132-92c53300491e?auto=format&fit=crop&q=80&w=1200" 
+            src="/assets/banner2.png" 
             alt="Search Banner" 
-            className="w-full h-full object-cover opacity-70 transition-transform duration-700 group-hover:scale-105"
+            className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+            onError={(e) => {
+              (e.target as HTMLImageElement).src = "https://images.unsplash.com/photo-1542838132-92c53300491e?auto=format&fit=crop&q=80&w=1200";
+            }}
           />
-          <div className="absolute inset-0 bg-gradient-to-r from-black via-black/20 to-transparent" />
-          <div className="absolute inset-0 flex flex-col justify-center px-8 sm:px-12">
-            <h2 className="text-3xl sm:text-5xl font-black text-white leading-tight tracking-tighter animate-in fade-in slide-in-from-left duration-700">
-              Fresh Groceries<br/>
-              <span className="text-primary">Delivered Fast</span>
+          <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
+          <div className="absolute bottom-6 left-8 sm:left-12">
+            <h2 className="text-2xl sm:text-4xl font-black text-white tracking-tight">
+              Browse Our <span className="text-primary">Collection</span>
             </h2>
-            <p className="text-white/60 text-sm font-bold mt-4 max-w-xs animate-in fade-in slide-in-from-left duration-1000">
-              Get the best deals on organic essentials and farm-fresh produce today.
+            <p className="text-white/70 text-xs sm:text-sm font-bold mt-2">
+              Over 1,000+ premium items ready for delivery.
             </p>
           </div>
         </div>
@@ -240,7 +242,20 @@ export default function Search() {
                         <div className="w-5 h-5 border-2 border-border rounded-md peer-checked:bg-primary peer-checked:border-primary transition-all" />
                         <X className="absolute inset-0 m-auto w-3 h-3 text-white scale-0 peer-checked:scale-100 transition-transform" />
                       </div>
-                      <span className="text-xs font-bold text-muted-foreground group-hover:text-foreground transition-colors">Special Offers</span>
+                      <span className="text-xs font-bold text-muted-foreground group-hover:text-foreground transition-colors">Best Sellers</span>
+                    </label>
+                    <label className="flex items-center gap-3 cursor-pointer group">
+                      <div className="relative">
+                        <input 
+                          type="checkbox" 
+                          checked={minRating >= 4} 
+                          onChange={e => setMinRating(e.target.checked ? 4 : 0)}
+                          className="peer sr-only"
+                        />
+                        <div className="w-5 h-5 border-2 border-border rounded-md peer-checked:bg-primary peer-checked:border-primary transition-all" />
+                        <X className="absolute inset-0 m-auto w-3 h-3 text-white scale-0 peer-checked:scale-100 transition-transform" />
+                      </div>
+                      <span className="text-xs font-bold text-muted-foreground group-hover:text-foreground transition-colors">Top Rated (4+)</span>
                     </label>
                   </div>
                 </div>

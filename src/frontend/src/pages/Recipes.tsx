@@ -24,7 +24,6 @@ interface Recipe {
   instructions: string[];
 }
 
-const ALL_RECIPES: Recipe[] = [
   // BREAKFAST
   {
     id: "b1",
@@ -37,10 +36,7 @@ const ALL_RECIPES: Recipe[] = [
     fat: "12g",
     carbs: "55g",
     image: "https://images.unsplash.com/photo-1630383249896-424e482df921?w=800&q=80",
-    ingredients: [
-      { id: "p1", name: "Dosa Batter", qty: 1 },
-      { id: "p2", name: "Potato Masala", qty: 1 },
-    ],
+    ingredients: [{ id: "p1", name: "Dosa Batter", qty: 1 }, { id: "p2", name: "Potato Masala", qty: 1 }],
     instructions: ["Spread batter thinly on a hot griddle.", "Apply ghee and cook until crisp.", "Add potato masala and fold."]
   },
   {
@@ -54,34 +50,56 @@ const ALL_RECIPES: Recipe[] = [
     fat: "4g",
     carbs: "48g",
     image: "https://images.unsplash.com/photo-1589301760014-d929f3979dbc?w=800&q=80",
-    ingredients: [
-      { id: "p3", name: "Idli Batter", qty: 1 },
-      { id: "p4", name: "Sambar Mix", qty: 1 },
-    ],
+    ingredients: [{ id: "p3", name: "Idli Batter", qty: 1 }, { id: "p4", name: "Sambar Mix", qty: 1 }],
     instructions: ["Steam idlis in a mold for 10 mins.", "Heat sambar with fresh vegetables.", "Serve hot with coconut chutney."]
   },
   {
     id: "b3",
-    title: "Appam with Vegetable Stew",
+    title: "Kerala Puttu & Kadala",
     category: "Breakfast",
-    time: "20 min",
+    time: "25 min",
     serves: 2,
-    calories: "320 kcal",
-    protein: "6g",
-    fat: "15g",
-    carbs: "42g",
+    calories: "410 kcal",
+    protein: "14g",
+    fat: "12g",
+    carbs: "62g",
     image: "https://images.unsplash.com/photo-1599487488170-d11ec9c175f0?w=800&q=80",
-    ingredients: [
-      { id: "p5", name: "Appam Batter", qty: 1 },
-      { id: "p6", name: "Coconut Milk", qty: 1 },
-    ],
-    instructions: ["Pour batter into appam pan and swirl.", "Cook with lid until edges are crisp.", "Serve with creamy coconut stew."]
+    ingredients: [{ id: "p23", name: "Rice Powder", qty: 1 }, { id: "p24", name: "Black Chickpeas", qty: 1 }],
+    instructions: ["Steam rice powder with coconut layers.", "Prepare spicy chickpea curry.", "Serve hot together."]
   },
-  
+  {
+    id: "b4",
+    title: "Rava Upma",
+    category: "Breakfast",
+    time: "15 min",
+    serves: 2,
+    calories: "260 kcal",
+    protein: "6g",
+    fat: "8g",
+    carbs: "45g",
+    image: "https://images.unsplash.com/photo-1599487488170-d11ec9c175f0?w=800&q=80",
+    ingredients: [{ id: "p25", name: "Semolina", qty: 1 }, { id: "p26", name: "Veggies", qty: 1 }],
+    instructions: ["Roast semolina until fragrant.", "Sauté veggies and add water.", "Stir in semolina and cook until soft."]
+  },
+  {
+    id: "b5",
+    title: "Aloo Paratha",
+    category: "Breakfast",
+    time: "30 min",
+    serves: 2,
+    calories: "380 kcal",
+    protein: "9g",
+    fat: "15g",
+    carbs: "52g",
+    image: "https://images.unsplash.com/photo-1606491956689-2ea866880c84?w=800&q=80",
+    ingredients: [{ id: "p27", name: "Wheat Flour", qty: 1 }, { id: "p13", name: "Potatoes", qty: 1 }],
+    instructions: ["Stuff dough with spiced mashed potatoes.", "Roll out and cook on tawa with ghee.", "Serve with curd and pickle."]
+  },
+
   // LUNCH
   {
     id: "l1",
-    title: "Hyderabadi Chicken Biryani",
+    title: "Chicken Biryani",
     category: "Lunch",
     time: "45 min",
     serves: 4,
@@ -90,29 +108,36 @@ const ALL_RECIPES: Recipe[] = [
     fat: "25g",
     carbs: "75g",
     image: "https://images.unsplash.com/photo-1563379091339-03b21bc4a4f8?w=800&q=80",
-    ingredients: [
-      { id: "p7", name: "Basmati Rice", qty: 2 },
-      { id: "p8", name: "Organic Chicken", qty: 1 },
-      { id: "p9", name: "Biryani Spices", qty: 1 },
-    ],
-    instructions: ["Marinate chicken with spices and yogurt.", "Layer semi-cooked rice over chicken.", "Cook on low flame (Dum) for 20 mins."]
+    ingredients: [{ id: "p7", name: "Basmati Rice", qty: 2 }, { id: "p8", name: "Chicken", qty: 1 }],
+    instructions: ["Marinate chicken with spices.", "Layer rice and chicken.", "Cook on dum for 20 mins."]
   },
   {
     id: "l2",
-    title: "South Indian Thali",
+    title: "Fish Curry (Kerala Style)",
+    category: "Lunch",
+    time: "30 min",
+    serves: 3,
+    calories: "420 kcal",
+    protein: "28g",
+    fat: "22g",
+    carbs: "12g",
+    image: "https://images.unsplash.com/photo-1544943910-4c1dc44aab44?w=800&q=80",
+    ingredients: [{ id: "p62", name: "King Fish", qty: 1 }, { id: "p6", name: "Coconut Milk", qty: 1 }],
+    instructions: ["Sauté shallots and spices in clay pot.", "Add coconut milk and fish pieces.", "Simmer with kudampuli until thick."]
+  },
+  {
+    id: "l3",
+    title: "Vegetable Thali",
     category: "Lunch",
     time: "40 min",
     serves: 1,
     calories: "750 kcal",
-    protein: "22g",
-    fat: "30g",
+    protein: "20g",
+    fat: "28g",
     carbs: "95g",
     image: "https://images.unsplash.com/photo-1512621776951-a57141f2eefd?w=800&q=80",
-    ingredients: [
-      { id: "p10", name: "Boiled Rice", qty: 1 },
-      { id: "p11", name: "Assorted Veggies", qty: 1 },
-    ],
-    instructions: ["Prepare small portions of Sambar, Rasam, and Poriyal.", "Serve with hot rice and a dollop of ghee.", "Include papad and pickle on the side."]
+    ingredients: [{ id: "p10", name: "Rice", qty: 1 }, { id: "p11", name: "Dal & Veggies", qty: 1 }],
+    instructions: ["Cook rice and various vegetable dishes.", "Serve with sambar, rasam, and curd.", "Finish with papad and sweet."]
   },
 
   // DINNER
@@ -127,35 +152,42 @@ const ALL_RECIPES: Recipe[] = [
     fat: "35g",
     carbs: "22g",
     image: "https://images.unsplash.com/photo-1631452180519-c014fe946bc7?w=800&q=80",
-    ingredients: [
-      { id: "p12", name: "Fresh Paneer", qty: 1 },
-      { id: "p13", name: "Tomato Puree", qty: 1 },
-      { id: "p14", name: "Fresh Cream", qty: 1 },
-    ],
-    instructions: ["Saute onions and ginger-garlic paste.", "Add tomato puree and cook until oil separates.", "Add paneer cubes and finish with cream."]
+    ingredients: [{ id: "p12", name: "Paneer", qty: 1 }, { id: "p13", name: "Tomato", qty: 1 }],
+    instructions: ["Saute onions and ginger-garlic.", "Add tomato puree and spices.", "Add paneer and finish with cream."]
   },
   {
     id: "d2",
-    title: "Grilled Chicken Breast",
+    title: "Chicken Roast",
     category: "Dinner",
-    time: "20 min",
-    serves: 1,
-    calories: "350 kcal",
-    protein: "45g",
-    fat: "12g",
-    carbs: "5g",
+    time: "35 min",
+    serves: 3,
+    calories: "510 kcal",
+    protein: "38g",
+    fat: "30g",
+    carbs: "15g",
     image: "https://images.unsplash.com/photo-1532550907401-a500c9a57435?w=800&q=80",
-    ingredients: [
-      { id: "p8", name: "Organic Chicken Breast", qty: 1 },
-      { id: "p15", name: "Lemon & Herbs", qty: 1 },
-    ],
-    instructions: ["Marinate chicken with lemon juice and herbs.", "Grill for 6-8 mins on each side.", "Serve with steamed broccoli."]
+    ingredients: [{ id: "p8", name: "Chicken", qty: 1 }, { id: "p14", name: "Onion", qty: 1 }],
+    instructions: ["Marinate chicken pieces.", "Slow roast with plenty of onions.", "Add curry leaves for aroma."]
+  },
+  {
+    id: "d3",
+    title: "Vegetable Noodles",
+    category: "Dinner",
+    time: "15 min",
+    serves: 2,
+    calories: "340 kcal",
+    protein: "8g",
+    fat: "10g",
+    carbs: "55g",
+    image: "https://images.unsplash.com/photo-1585032226651-759b368d7246?w=800&q=80",
+    ingredients: [{ id: "p28", name: "Noodles", qty: 1 }, { id: "p15", name: "Carrots/Beans", qty: 1 }],
+    instructions: ["Boil noodles until al dente.", "Stir fry veggies on high heat.", "Toss with noodles and soy sauce."]
   },
 
   // SNACKS
   {
     id: "s1",
-    title: "Crispy Vegetable Samosa",
+    title: "Crispy Samosa",
     category: "Snacks",
     time: "30 min",
     serves: 4,
@@ -164,13 +196,24 @@ const ALL_RECIPES: Recipe[] = [
     fat: "10g",
     carbs: "22g",
     image: "https://images.unsplash.com/photo-1601050633647-81a3104192df?w=800&q=80",
-    ingredients: [
-      { id: "p16", name: "Samosa Crust", qty: 1 },
-      { id: "p17", name: "Spiced Potatoes", qty: 1 },
-    ],
-    instructions: ["Fill pastry cones with potato mixture.", "Seal edges with water.", "Deep fry until golden brown."]
+    ingredients: [{ id: "p16", name: "Samosa Sheet", qty: 1 }, { id: "p13", name: "Potato", qty: 1 }],
+    instructions: ["Fill sheets with spiced potato.", "Fold into triangles.", "Deep fry until golden."]
   },
-  
+  {
+    id: "s2",
+    title: "Onion Pakora",
+    category: "Snacks",
+    time: "20 min",
+    serves: 3,
+    calories: "220 kcal",
+    protein: "5g",
+    fat: "14g",
+    carbs: "18g",
+    image: "https://images.unsplash.com/photo-1601050633647-81a3104192df?w=800&q=80",
+    ingredients: [{ id: "p14", name: "Onion", qty: 1 }, { id: "p29", name: "Gram Flour", qty: 1 }],
+    instructions: ["Slice onions thinly.", "Mix with flour and spices.", "Deep fry small portions."]
+  },
+
   // DESSERTS
   {
     id: "ds1",
@@ -183,31 +226,52 @@ const ALL_RECIPES: Recipe[] = [
     fat: "12g",
     carbs: "35g",
     image: "https://images.unsplash.com/photo-1589119908995-c6837fa14848?w=800&q=80",
-    ingredients: [
-      { id: "p18", name: "Khoya", qty: 1 },
-      { id: "p19", name: "Sugar Syrup", qty: 1 },
-    ],
-    instructions: ["Make small balls from khoya dough.", "Deep fry on low heat.", "Soak in warm cardamom sugar syrup for 2 hours."]
+    ingredients: [{ id: "p18", name: "Khoya", qty: 1 }, { id: "p19", name: "Sugar", qty: 1 }],
+    instructions: ["Make balls from khoya.", "Fry until dark brown.", "Soak in sugar syrup."]
+  },
+  {
+    id: "ds2",
+    title: "Rice Payasam",
+    category: "Desserts",
+    time: "40 min",
+    serves: 5,
+    calories: "290 kcal",
+    protein: "6g",
+    fat: "10g",
+    carbs: "45g",
+    image: "https://images.unsplash.com/photo-1589119908995-c6837fa14848?w=800&q=80",
+    ingredients: [{ id: "p4", name: "Milk", qty: 1 }, { id: "p7", name: "Basmati Rice", qty: 1 }],
+    instructions: ["Boil rice in milk until soft.", "Add sugar and cardamom.", "Garnish with roasted nuts."]
   },
 
-  // INTERNATIONAL
+  // HEALTHY
   {
-    id: "i1",
-    title: "Artisan Margherita Pizza",
-    category: "International",
-    time: "20 min",
+    id: "h1",
+    title: "Fresh Fruit Bowl",
+    category: "Healthy",
+    time: "10 min",
+    serves: 1,
+    calories: "150 kcal",
+    protein: "2g",
+    fat: "0g",
+    carbs: "38g",
+    image: "https://images.unsplash.com/photo-1512621776951-a57141f2eefd?w=800&q=80",
+    ingredients: [{ id: "p1", name: "Tomato", qty: 1 }, { id: "p2", name: "Avocado", qty: 1 }],
+    instructions: ["Chop seasonal fruits.", "Mix with a dash of honey.", "Serve chilled."]
+  },
+  {
+    id: "h2",
+    title: "Mixed Sprouts Salad",
+    category: "Healthy",
+    time: "15 min",
     serves: 2,
-    calories: "550 kcal",
-    protein: "18g",
-    fat: "22g",
-    carbs: "68g",
-    image: "https://images.unsplash.com/photo-1604382354936-07c5d9983bd3?w=800&q=80",
-    ingredients: [
-      { id: "p20", name: "Pizza Dough", qty: 1 },
-      { id: "p21", name: "Mozzarella Cheese", qty: 1 },
-      { id: "p22", name: "Basil Leaves", qty: 1 },
-    ],
-    instructions: ["Roll out dough and spread tomato sauce.", "Top with fresh mozzarella and olive oil.", "Bake at 450°F until crust is charred."]
+    calories: "180 kcal",
+    protein: "12g",
+    fat: "2g",
+    carbs: "25g",
+    image: "https://images.unsplash.com/photo-1512621776951-a57141f2eefd?w=800&q=80",
+    ingredients: [{ id: "p30", name: "Sprouts", qty: 1 }, { id: "p14", name: "Onion", qty: 1 }],
+    instructions: ["Steam sprouts lightly.", "Mix with chopped onion and tomato.", "Add lemon juice and salt."]
   }
 ];
 
@@ -217,7 +281,7 @@ const CATEGORIES = [
   { name: "Dinner", icon: Flame, color: "text-orange-500" },
   { name: "Snacks", icon: ChefHat, color: "text-rose-500" },
   { name: "Desserts", icon: Info, color: "text-purple-500" },
-  { name: "International", icon: BookOpen, color: "text-blue-500" },
+  { name: "Healthy", icon: BookOpen, color: "text-blue-500" },
 ];
 
 const DAYS = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
