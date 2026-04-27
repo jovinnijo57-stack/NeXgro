@@ -1,11 +1,13 @@
 import { useState, useRef, useEffect } from "react";
-import { Bot, Send, ArrowLeft, Sparkles, ShoppingCart, Info, Globe, Activity, Loader2 } from "lucide-react";
+import { Send, ArrowLeft, Sparkles, ShoppingCart, Info, Globe, Activity, Loader2 } from "lucide-react";
 import { useNavigate } from "@tanstack/react-router";
 import { SAMPLE_PRODUCTS } from "@/types";
 import { useAddToCart } from "@/hooks/useBackend";
-import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import { GEMINI_API_KEY, GEMINI_MODEL } from "@/config/ai";
+import { GoogleGenerativeAI } from "@google/generative-ai";
+
+const genAI = new GoogleGenerativeAI(GEMINI_API_KEY);
 
 interface AIMessage {
   id: string;
@@ -38,43 +40,29 @@ export default function AIShopper() {
       id: p.id,
       name: p.name,
       price: p.price,
-      category: p.categoryName,
       description: p.description,
-      // Adding mock nutritional info for the AI to "know"
-      nutrition: {
-        protein: Math.floor(Math.random() * 20) + "g",
-        carbs: Math.floor(Math.random() * 50) + "g",
-        calories: Math.floor(Math.random() * 300) + " kcal",
-        origin: "Local Organic Farm, Kerala"
-      }
+      origin: "Local Organic Farm, Kerala"
     }));
 
-    const systemPrompt = `You are the NeXgro AI Personal Shopper. You are helpful, professional, and health-conscious.
-    Your goal is to suggest products from the catalog below based on user needs.
-    When you suggest a product, explain WHY (e.g., protein, carbs, freshness).
-    Always mention the origin of the product (Local Organic Farm, Kerala).
+    const model = genAI.getGenerativeModel({ model: GEMINI_MODEL });
+
+    const systemPrompt = `You are the NeXgro AI Personal Shopper, an expert in nutrition and fresh groceries.
+    Your mission: Provide ACCURATE, helpful, and science-based answers to user questions about health, food, and shopping.
     
-    Catalog: ${JSON.stringify(productCatalog)}
+    Rules:
+    1. If a user asks about a specific nutritional value or health tip, give a precise, factual answer.
+    2. If relevant, suggest 1-3 products from the NeXgro catalog below.
+    3. Always mention that our produce comes from "Local Organic Farms in Kerala" when talking about freshness.
+    4. Format recommendations as [RECOMMEND: id1, id2] at the end of your response.
     
-    Format your response as:
-    Text explanation here...
-    [RECOMMEND: id1, id2] (Only include this if you suggest specific products)
-    `;
+    Catalog: ${JSON.stringify(productCatalog.slice(0, 30))}
+    
+    User Question: ${userText}`;
 
     try {
-      const response = await fetch(
-        `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent?key=${GEMINI_API_KEY}`,
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            contents: [{ parts: [{ text: `${systemPrompt}\n\nUser: ${userText}` }] }]
-          })
-        }
-      );
-
-      const data = await response.json();
-      const aiText = data.candidates?.[0]?.content?.parts?.[0]?.text || "I'm sorry, I'm having trouble connecting to my brain right now.";
+      const result = await model.generateContent(systemPrompt);
+      const response = await result.response;
+      const aiText = response.text();
       
       // Extract product IDs
       const match = aiText.match(/\[RECOMMEND: (.*?)\]/);
@@ -86,7 +74,10 @@ export default function AIShopper() {
       return { text: cleanText, recommendations };
     } catch (error) {
       console.error("Gemini Error:", error);
-      return { text: "I'm currently undergoing maintenance. Try asking about healthy snacks!", recommendations: [] };
+      return { 
+        text: "I'm having a slight technical hiccup, but I'm still here to help! Could you try rephrasing your question about our fresh Kerala produce?", 
+        recommendations: [] 
+      };
     }
   };
 
