@@ -139,122 +139,132 @@ export default function VerifyEmail() {
         </p>
 
         {/* Code inputs */}
-        <fieldset
-          className="flex justify-between gap-2 mb-6 border-0 p-0 m-0"
-          aria-label="6-digit verification code"
-          data-ocid="verify-email.code.input"
-        >
-          {digits.map((digit, i) => (
-            <input
-              key={`digit-pos-${i}-${digit || "empty"}`}
-              ref={(el) => {
-                inputRefs.current[i] = el;
-              }}
-              type="text"
-              inputMode="numeric"
-              maxLength={1}
-              value={digit}
-              onChange={(e) => handleDigitChange(i, e.target.value)}
-              onKeyDown={(e) => handleKeyDown(i, e)}
-              onPaste={handlePaste}
-              aria-label={`Digit ${i + 1}`}
-              data-ocid={`verify-email.digit.${i + 1}`}
-              className="w-12 h-14 text-center text-xl font-bold rounded-xl border transition-all duration-150 bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-primary/40"
-              style={{
-                borderColor: error
-                  ? "oklch(0.55 0.2 25)"
-                  : digit
-                    ? "oklch(0.50 0.17 142 / 0.6)"
-                    : "var(--border)",
-                boxShadow: digit
-                  ? "0 0 0 3px oklch(0.50 0.17 142 / 0.1)"
-                  : "none",
-              }}
-            />
-          ))}
-        </fieldset>
+        {!verified && (
+          <>
+            <fieldset
+              className="flex justify-between gap-2 mb-6 border-0 p-0 m-0"
+              aria-label="6-digit verification code"
+              data-ocid="verify-email.code.input"
+            >
+              {digits.map((digit, i) => (
+                <input
+                  key={`digit-pos-${i}-${digit || "empty"}`}
+                  ref={(el) => {
+                    inputRefs.current[i] = el;
+                  }}
+                  type="text"
+                  inputMode="numeric"
+                  maxLength={1}
+                  value={digit}
+                  onChange={(e) => handleDigitChange(i, e.target.value)}
+                  onKeyDown={(e) => handleKeyDown(i, e)}
+                  onPaste={handlePaste}
+                  aria-label={`Digit ${i + 1}`}
+                  data-ocid={`verify-email.digit.${i + 1}`}
+                  className="w-12 h-14 text-center text-xl font-bold rounded-xl border transition-all duration-150 bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-primary/40"
+                  style={{
+                    borderColor: error
+                      ? "oklch(0.55 0.2 25)"
+                      : digit
+                        ? "oklch(0.50 0.17 142 / 0.6)"
+                        : "var(--border)",
+                    boxShadow: digit
+                      ? "0 0 0 3px oklch(0.50 0.17 142 / 0.1)"
+                      : "none",
+                  }}
+                />
+              ))}
+            </fieldset>
 
-        {error && (
-          <p
-            className="text-sm mb-4 text-center"
-            style={{ color: "oklch(0.55 0.2 25)" }}
-            data-ocid="verify-email.error_state"
-          >
-            {error}
-          </p>
+            {error && (
+              <p
+                className="text-sm mb-4 text-center"
+                style={{ color: "oklch(0.55 0.2 25)" }}
+                data-ocid="verify-email.error_state"
+              >
+                {error}
+              </p>
+            )}
+          </>
         )}
 
         {/* Success state */}
         {verified && (
           <div
-            className="flex items-center gap-3 mb-4 px-4 py-3 rounded-xl bg-primary/10 border border-primary/25"
+            className="flex flex-col items-center justify-center gap-4 py-8 animate-in zoom-in-95 duration-500"
             data-ocid="verify-email.success_state"
           >
-            <CheckCircle className="w-5 h-5 text-primary shrink-0" />
-            <div>
-              <p className="text-sm font-semibold text-primary">
-                Account Verified!
-              </p>
-              <p className="text-xs text-muted-foreground">
-                Redirecting you to sign in…
+            <div className="w-24 h-24 rounded-full bg-emerald-500 flex items-center justify-center shadow-lg shadow-emerald-500/20">
+              <CheckCircle className="w-14 h-14 text-white" />
+            </div>
+            <div className="text-center">
+              <h2 className="text-2xl font-bold text-foreground mb-1">
+                Registration is successful!
+              </h2>
+              <p className="text-sm text-muted-foreground">
+                Your account has been created. Redirecting to login…
               </p>
             </div>
           </div>
         )}
 
         {/* Buttons */}
-        <div className="flex gap-4">
-          <button
-            type="button"
-            onClick={() => navigate({ to: "/register" })}
-            className="flex-1 py-3 px-6 rounded-xl border border-border text-sm font-semibold text-foreground hover:bg-muted transition-colors"
-          >
-            Cancel
-          </button>
-          <button
-            type="button"
-            disabled={isVerifying || !isFilled}
-            onClick={handleVerify}
-            className="flex-1 py-3 px-6 rounded-xl bg-primary text-primary-foreground text-sm font-bold shadow-lg shadow-primary/20 hover:opacity-90 active:scale-[0.98] transition-all disabled:opacity-50 disabled:grayscale disabled:scale-100"
-          >
-            {isVerifying ? "Verifying..." : "Verify"}
-          </button>
-        </div>
+        {!verified && (
+          <div className="flex gap-4">
+            <button
+              type="button"
+              onClick={() => navigate({ to: "/register" })}
+              className="flex-1 py-3 px-6 rounded-xl border border-border text-sm font-semibold text-foreground hover:bg-muted transition-colors"
+            >
+              Cancel
+            </button>
+            <button
+              type="button"
+              disabled={isVerifying || !isFilled}
+              onClick={handleVerify}
+              className="flex-1 py-3 px-6 rounded-xl bg-primary text-primary-foreground text-sm font-bold shadow-lg shadow-primary/20 hover:opacity-90 active:scale-[0.98] transition-all disabled:opacity-50 disabled:grayscale disabled:scale-100"
+            >
+              {isVerifying ? "Verifying..." : "Verify"}
+            </button>
+          </div>
+        )}
 
         {/* Timer */}
-        <div className="mt-6 flex flex-col items-center gap-2">
-          <div className="flex items-center gap-2 text-sm">
-            <span className={isExpired ? "text-destructive font-semibold" : "text-muted-foreground"}>
-              {isExpired ? "Code Expired" : `Code expires in ${timeLeft}s`}
-            </span>
-            {!isExpired && (
-              <div className="w-4 h-4 rounded-full border-2 border-primary/20 border-t-primary animate-spin" />
-            )}
+        {!verified && (
+          <div className="mt-6 flex flex-col items-center gap-2">
+            <div className="flex items-center gap-2 text-sm">
+              <span className={isExpired ? "text-destructive font-semibold" : "text-muted-foreground"}>
+                {isExpired ? "Code Expired" : `Code expires in ${timeLeft}s`}
+              </span>
+              {!isExpired && (
+                <div className="w-4 h-4 rounded-full border-2 border-primary/20 border-t-primary animate-spin" />
+              )}
+            </div>
+            <p className="text-sm text-muted-foreground">
+              Didn't get a code?{" "}
+              <button
+                onClick={() => {
+                  const email = sessionStorage.getItem("pending_email");
+                  const otp = sessionStorage.getItem("pending_otp");
+                  if (email && otp) {
+                    toast.promise(sendOTP(email, "Shopper", otp), {
+                      loading: "Resending code...",
+                      success: "Code sent successfully!",
+                      error: "Failed to resend code.",
+                    });
+                    setTimeLeft(60);
+                    setIsExpired(false);
+                    setDigits(Array(CODE_LENGTH).fill(""));
+                    inputRefs.current[0]?.focus();
+                  }
+                }}
+                className="font-semibold text-primary hover:underline underline-offset-4"
+              >
+                Click to resend
+              </button>
+            </p>
           </div>
-          <p className="text-sm text-muted-foreground">
-            Didn't get a code?{" "}
-            <button
-              onClick={() => {
-                const email = sessionStorage.getItem("pending_email");
-                const otp = sessionStorage.getItem("pending_otp");
-                if (email && otp) {
-                  toast.promise(sendOTP(email, "Shopper", otp), {
-                    loading: "Resending code...",
-                    success: "Code sent successfully!",
-                    error: "Failed to resend code.",
-                  });
-                  setTimeLeft(60);
-                  setIsExpired(false);
-                  setDigits(Array(CODE_LENGTH).fill(""));
-                  inputRefs.current[0]?.focus();
-                }
-              }}
-              className="font-semibold text-primary hover:underline underline-offset-4"
-            >
-              Click to resend
-            </button>
-          </p>
-        </div>
+        )}
 
         <p className="mt-12 text-center text-[10px] text-muted-foreground/50 uppercase tracking-widest">
           Secure Verification by NeXgro Systems

@@ -105,33 +105,46 @@ export default function Login() {
     e.preventDefault();
     setDemoNote(false);
     
-    if (email && password) {
-      const users = getRegisteredUsers();
-      const lowerEmail = email.toLowerCase().trim();
-      const bannedEmails = JSON.parse(localStorage.getItem("nexgro_banned_users") || "[]");
-      const isDeviceRestricted = localStorage.getItem("nexgro_device_restricted") === "true";
-      
-      if (bannedEmails.includes(lowerEmail) || isDeviceRestricted) {
-        window.location.href = "/banned";
-        return;
-      }
-      
-      const storedUser = users[lowerEmail];
-      const storedPassword = typeof storedUser === "string" ? storedUser : (storedUser as any).password;
-      const hashedInput = await hashPassword(password);
-      
-      if (storedPassword === hashedInput) {
-        localStorage.setItem("isLoggedIn", "true");
-        localStorage.setItem("currentUserEmail", lowerEmail);
-        toast.success("Welcome back!");
-        window.location.href = "/location-setup"; 
-      } else {
-        toast.error("Invalid credentials. Please check your email and password.");
-        setIsShaking(true);
-        setTimeout(() => setIsShaking(false), 500);
-      }
-    } else {
+    if (!email.trim() || !password.trim()) {
       toast.error("Please enter both email and password.");
+      return;
+    }
+
+    if (!email.toLowerCase().endsWith("@gmail.com")) {
+      toast.error("@gmail.com is missing");
+      return;
+    }
+
+    const users = getRegisteredUsers();
+    const lowerEmail = email.toLowerCase().trim();
+    const bannedEmails = JSON.parse(localStorage.getItem("nexgro_banned_users") || "[]");
+    const isDeviceRestricted = localStorage.getItem("nexgro_device_restricted") === "true";
+    
+    if (bannedEmails.includes(lowerEmail) || isDeviceRestricted) {
+      window.location.href = "/banned";
+      return;
+    }
+    
+    const storedUser = users[lowerEmail];
+    if (!storedUser) {
+      toast.error("Invalid credentials. Please check your email and password.");
+      setIsShaking(true);
+      setTimeout(() => setIsShaking(false), 500);
+      return;
+    }
+
+    const storedPassword = typeof storedUser === "string" ? storedUser : (storedUser as any).password;
+    const hashedInput = await hashPassword(password);
+    
+    if (storedPassword === hashedInput) {
+      localStorage.setItem("isLoggedIn", "true");
+      localStorage.setItem("currentUserEmail", lowerEmail);
+      toast.success("Welcome back!");
+      window.location.href = "/location-setup"; 
+    } else {
+      toast.error("Invalid credentials. Please check your email and password.");
+      setIsShaking(true);
+      setTimeout(() => setIsShaking(false), 500);
     }
   }
 

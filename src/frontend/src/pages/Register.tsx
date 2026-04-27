@@ -5,6 +5,7 @@ import { useState } from "react";
 import { sendOTP } from "@/services/emailService";
 import { getRegisteredUsers, findEmailByPhone, hashPassword } from "@/lib/auth";
 import { cn } from "@/lib/utils";
+import { toast } from "sonner";
 
 const features = [
   {
@@ -49,14 +50,28 @@ export default function Register() {
     const errs: Partial<typeof form> = {};
     if (!form.firstName.trim()) errs.firstName = "First name is required";
     if (!form.lastName.trim()) errs.lastName = "Last name is required";
-    if (!form.email.trim() || !form.email.toLowerCase().endsWith("@gmail.com"))
-      errs.email = "Please enter a valid @gmail.com address";
-    if (!form.phone.trim() || form.phone.length < 7)
-      errs.phone = "Enter a valid phone number";
-    const pass = form.password;
-    const strongRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#$%^&*])(?=.{8,})/;
-    if (!pass || !strongRegex.test(pass))
-      errs.password = "Password must be 8+ chars with uppercase, number & symbol";
+    
+    const email = form.email.trim().toLowerCase();
+    if (!email) {
+      errs.email = "Email is required";
+    } else if (!email.endsWith("@gmail.com")) {
+      errs.email = "@gmail.com is missing";
+    }
+    
+    if (!form.phone.trim()) {
+      errs.phone = "Phone number is required";
+    } else if (form.phone.length < 10) {
+      errs.phone = "Enter a valid 10-digit phone number";
+    }
+    
+    if (!form.password) {
+      errs.password = "Password is required";
+    } else {
+      const strongRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#$%^&*])(?=.{8,})/;
+      if (!strongRegex.test(form.password))
+        errs.password = "Password must be 8+ chars with uppercase, number & symbol";
+    }
+    
     return errs;
   }
 
@@ -71,9 +86,21 @@ export default function Register() {
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
+    
+    // Check if any field is empty
+    const allFieldsFilled = Object.values(form).every(val => val.trim() !== "");
+    if (!allFieldsFilled) {
+      toast.error("Please fill every detail to register");
+      setErrors(validate());
+      return;
+    }
+
     const errs = validate();
     if (Object.keys(errs).length > 0) {
       setErrors(errs);
+      if (errs.email === "@gmail.com is missing") {
+        toast.error("@gmail.com is missing");
+      }
       return;
     }
 
@@ -87,13 +114,15 @@ export default function Register() {
 
     const registeredUsers = getRegisteredUsers();
     if (registeredUsers[form.email.toLowerCase().trim()]) {
-      setErrors({ email: "This email is already registered. Please login instead." });
+      toast.error("Already registered with this email");
+      setErrors({ email: "Already registered" });
       return;
     }
     
     const existingEmailForPhone = findEmailByPhone(form.phone);
     if (existingEmailForPhone) {
-      setErrors({ phone: "This phone number is already registered." });
+      toast.error("Already registered with this phone number");
+      setErrors({ phone: "Already registered" });
       return;
     }
 
