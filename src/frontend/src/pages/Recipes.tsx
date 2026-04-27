@@ -543,13 +543,6 @@ export default function RecipesPage() {
                         </>
                       )}
                     </button>
-                    <button
-                      onClick={() => handleAddToCart(recipe)}
-                      disabled={adding === recipe.id}
-                      className="w-full py-3 rounded-2xl bg-muted text-foreground font-bold hover:bg-muted/80 transition-all flex items-center justify-center gap-3 active:scale-95"
-                    >
-                      <ShoppingCart className="w-4 h-4 text-primary" />
-                      <span className="text-[11px]">Add Ingredients to Cart</span>
                     </button>
                   </div>
                 </div>

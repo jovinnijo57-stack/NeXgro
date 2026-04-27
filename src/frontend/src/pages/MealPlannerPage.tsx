@@ -22,15 +22,27 @@ import { useQueryClient } from "@tanstack/react-query";
 const DAYS = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
 
 export default function MealPlannerPage() {
+  const navigate = useNavigate();
   const qc = useQueryClient();
   const { data: recipes } = useRecipes();
   const { data: mealPlans } = useMealPlans();
   const addToCart = useAddToCart();
-  const [selectedDay, setSelectedDay] = useState(0);
+  const [selectedDate, setSelectedDate] = useState<string>(new Date().toISOString().split("T")[0]);
   const [adding, setAdding] = useState<string | null>(null);
 
-  const handleAddAllToCart = () => {
-    toast.success("All ingredients for the week added to cart!");
+  // Derive selectedDay (0-6) for the weekly bar, if within current week
+  const today = new Date();
+  const startOfWeek = new Date(today);
+  startOfWeek.setDate(today.getDate() - today.getDay() + 1); // Monday
+
+  const handleDayClick = (dayIndex: number) => {
+    const date = new Date(startOfWeek);
+    date.setDate(startOfWeek.getDate() + dayIndex);
+    setSelectedDate(date.toISOString().split("T")[0]);
+  };
+
+  const handleDateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setSelectedDate(e.target.value);
   };
 
   const handleDeletePlan = (id: string) => {
@@ -57,12 +69,10 @@ export default function MealPlannerPage() {
     }
   };
 
-  const filteredMealPlans = mealPlans?.filter(mp => {
-    const dayDate = new Date();
-    dayDate.setDate(24 + selectedDay);
-    const dayStr = dayDate.toISOString().split("T")[0];
-    return mp.plannedDate === dayStr;
-  });
+  const filteredMealPlans = mealPlans?.filter(mp => mp.plannedDate === selectedDate);
+
+  const displayDate = new Date(selectedDate).toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" });
+  const displayDayName = new Date(selectedDate).toLocaleDateString("en-US", { weekday: "short" });
 
   return (
     <div className="max-w-2xl mx-auto px-4 sm:px-6 py-6 space-y-8 pb-24" data-ocid="meal-planner.page">
@@ -79,45 +89,61 @@ export default function MealPlannerPage() {
             <h1 className="font-display font-black text-foreground text-2xl tracking-tight">
               Meal Planner
             </h1>
-            <p className="text-xs font-bold text-muted-foreground uppercase tracking-widest mt-0.5">April 24 - 30</p>
+            <p className="text-xs font-bold text-muted-foreground uppercase tracking-widest mt-0.5">
+              {displayDate}
+            </p>
           </div>
         </div>
         <button
-          onClick={handleAddAllToCart}
-          className="p-3 rounded-2xl bg-primary text-white shadow-lg shadow-primary/20 active:scale-95 transition-all"
+          onClick={() => navigate({ to: "/cart" })}
+          className="w-12 h-12 rounded-[1.2rem] bg-[#007000] text-white shadow-lg shadow-[#007000]/20 active:scale-95 transition-all flex items-center justify-center"
         >
           <ShoppingCart className="w-5 h-5" />
         </button>
       </div>
 
-      {/* Week Selector */}
+      {/* Week Selector & Date Picker */}
       <div className="bg-card border border-border rounded-[2rem] p-6 shadow-sm">
         <div className="flex items-center justify-between mb-6 px-2">
           <div className="flex items-center gap-2">
-            <Calendar className="w-5 h-5 text-primary" />
+            <Calendar className="w-5 h-5 text-[#007000]" />
             <h2 className="font-black text-foreground tracking-tight">Weekly Schedule</h2>
           </div>
-          <div className="flex gap-2">
-            <button className="p-2 rounded-xl bg-muted hover:bg-muted/80 transition-colors"><ChevronLeft className="w-4 h-4" /></button>
-            <button className="p-2 rounded-xl bg-muted hover:bg-muted/80 transition-colors"><ChevronRight className="w-4 h-4" /></button>
+          <div className="relative group">
+            <input 
+              type="date" 
+              value={selectedDate}
+              onChange={handleDateChange}
+              className="absolute inset-0 opacity-0 cursor-pointer"
+            />
+            <button className="p-2.5 rounded-xl bg-muted hover:bg-muted/80 transition-all flex items-center gap-2">
+              <Calendar className="w-4 h-4 text-primary" />
+              <span className="text-[10px] font-black uppercase tracking-widest">Pick Date</span>
+            </button>
           </div>
         </div>
         <div className="grid grid-cols-7 gap-2">
-          {DAYS.map((day, i) => (
-            <button
-              key={day}
-              onClick={() => setSelectedDay(i)}
-              className={cn(
-                "flex flex-col items-center py-3 rounded-2xl transition-all border-2",
-                selectedDay === i 
-                  ? "bg-primary border-primary text-white shadow-lg shadow-primary/20 scale-105" 
-                  : "bg-muted/50 border-transparent text-muted-foreground hover:bg-muted"
-              )}
-            >
-              <span className="text-[10px] font-black uppercase tracking-tighter">{day}</span>
-              <span className="text-lg font-black mt-0.5">{24 + i}</span>
-            </button>
-          ))}
+          {DAYS.map((day, i) => {
+            const date = new Date(startOfWeek);
+            date.setDate(startOfWeek.getDate() + i);
+            const dateStr = date.toISOString().split("T")[0];
+            const isSelected = selectedDate === dateStr;
+            return (
+              <button
+                key={day}
+                onClick={() => handleDayClick(i)}
+                className={cn(
+                  "flex flex-col items-center py-3 rounded-2xl transition-all border-2",
+                  isSelected 
+                    ? "bg-[#007000] border-[#007000] text-white shadow-lg shadow-[#007000]/20 scale-105" 
+                    : "bg-muted/50 border-transparent text-muted-foreground hover:bg-muted"
+                )}
+              >
+                <span className="text-[10px] font-black uppercase tracking-tighter">{day}</span>
+                <span className="text-lg font-black mt-0.5">{date.getDate()}</span>
+              </button>
+            );
+          })}
         </div>
       </div>
 
@@ -125,12 +151,12 @@ export default function MealPlannerPage() {
       <div className="space-y-6">
         <div className="flex items-center justify-between px-2">
           <h3 className="font-black text-xl text-foreground flex items-center gap-2 tracking-tight">
-            <UtensilsCrossed className="w-6 h-6 text-primary" />
-            {DAYS[selectedDay]}'s Menu
+            <UtensilsCrossed className="w-6 h-6 text-[#007000]" />
+            {displayDayName}'s Menu
           </h3>
           <Link
             to="/recipes"
-            className="bg-primary/10 text-primary px-4 py-2 rounded-xl text-xs font-black uppercase tracking-widest hover:bg-primary hover:text-white transition-all flex items-center gap-2"
+            className="bg-[#007000]/10 text-[#007000] px-4 py-2 rounded-xl text-xs font-black uppercase tracking-widest hover:bg-[#007000] hover:text-white transition-all flex items-center gap-2"
           >
             <Plus className="w-4 h-4" /> Add
           </Link>
@@ -156,7 +182,7 @@ export default function MealPlannerPage() {
                           <h4 className="font-black text-foreground text-xl tracking-tight leading-tight">{recipe?.title || recipe?.name || "Recipe"}</h4>
                           <div className="flex items-center gap-3 mt-1.5 text-muted-foreground">
                             <span className="flex items-center gap-1 text-[11px] font-bold uppercase tracking-wider"><Clock className="w-3.5 h-3.5" /> {recipe?.time || "25 min"}</span>
-                            <span className="flex items-center gap-1 text-[11px] font-bold uppercase tracking-wider text-primary"><Flame className="w-3.5 h-3.5" /> {recipe?.calories || "400 kcal"}</span>
+                            <span className="flex items-center gap-1 text-[11px] font-bold uppercase tracking-wider text-[#007000]"><Flame className="w-3.5 h-3.5" /> {recipe?.calories || "400 kcal"}</span>
                           </div>
                         </div>
                         <button 
@@ -171,7 +197,7 @@ export default function MealPlannerPage() {
                       <div className="grid grid-cols-3 gap-2 bg-muted/50 rounded-2xl p-3">
                         <div className="text-center">
                           <p className="text-[9px] font-bold text-muted-foreground uppercase tracking-widest">Protein</p>
-                          <p className="text-xs font-black text-primary">{recipe?.protein || "12g"}</p>
+                          <p className="text-xs font-black text-[#007000]">{recipe?.protein || "12g"}</p>
                         </div>
                         <div className="text-center border-x border-border">
                           <p className="text-[9px] font-bold text-muted-foreground uppercase tracking-widest">Fat</p>
@@ -186,7 +212,7 @@ export default function MealPlannerPage() {
                       {/* Ingredients List */}
                       <div className="space-y-3 pt-2">
                         <div className="flex items-center gap-2 text-foreground">
-                          <ShoppingCart className="w-4 h-4 text-primary" />
+                          <ShoppingCart className="w-4 h-4 text-[#007000]" />
                           <span className="text-[11px] font-black uppercase tracking-widest">Ingredients</span>
                         </div>
                         <div className="flex flex-wrap gap-2">
@@ -201,13 +227,13 @@ export default function MealPlannerPage() {
                       {/* Instructions */}
                       <div className="space-y-3 pt-2">
                         <div className="flex items-center gap-2 text-foreground">
-                          <BookOpen className="w-4 h-4 text-primary" />
+                          <BookOpen className="w-4 h-4 text-[#007000]" />
                           <span className="text-[11px] font-black uppercase tracking-widest">How to Cook</span>
                         </div>
                         <ul className="space-y-2">
                           {(recipe?.instructions || ["Ready in 25 minutes.", "Serve hot with side salad."]).map((step: string, idx: number) => (
                             <li key={idx} className="flex gap-3 text-xs text-muted-foreground leading-relaxed">
-                              <span className="font-black text-primary min-w-[12px]">{idx + 1}.</span>
+                              <span className="font-black text-[#007000] min-w-[12px]">{idx + 1}.</span>
                               {step}
                             </li>
                           ))}
@@ -218,7 +244,7 @@ export default function MealPlannerPage() {
                         <button 
                           onClick={() => handleAddToCart(recipe)}
                           disabled={adding === recipe?.id}
-                          className="flex-1 py-3.5 rounded-2xl bg-primary text-white text-[11px] font-black uppercase tracking-widest shadow-lg shadow-primary/20 hover:opacity-90 transition-all flex items-center justify-center gap-2 active:scale-95"
+                          className="flex-1 py-3.5 rounded-2xl bg-[#007000] text-white text-[11px] font-black uppercase tracking-widest shadow-lg shadow-[#007000]/20 hover:opacity-90 transition-all flex items-center justify-center gap-2 active:scale-95"
                         >
                           <ShoppingCart className="w-4 h-4" />
                           Add Ingredients to Cart
@@ -236,7 +262,7 @@ export default function MealPlannerPage() {
             <p className="text-muted-foreground font-bold tracking-tight">
               Your menu for this day is empty.
             </p>
-            <Link to="/recipes" className="bg-primary text-white px-6 py-3 rounded-2xl text-[11px] font-black uppercase tracking-widest mt-6 inline-block shadow-lg shadow-primary/20 transition-all active:scale-95">Browse Recipes</Link>
+            <Link to="/recipes" className="bg-[#007000] text-white px-6 py-3 rounded-2xl text-[11px] font-black uppercase tracking-widest mt-6 inline-block shadow-lg shadow-[#007000]/20 transition-all active:scale-95">Browse Recipes</Link>
           </div>
         )}
       </div>
