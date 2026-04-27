@@ -621,31 +621,6 @@ export default function Layout({ children }: LayoutProps) {
   const loc = useLocation();
   const year = new Date().getFullYear();
 
-  useEffect(() => {
-    console.log("🔔 Layout mounted: Initializing notifications...");
-    // Request FCM token on mount
-    const setupNotifications = async () => {
-      const token = await requestForToken();
-      if (token) {
-        console.log("✅ FCM Token retrieved successfully");
-      } else {
-        console.log("❌ FCM Token could not be retrieved (Check config/permissions)");
-      }
-    };
-
-    setupNotifications();
-
-    // Listen for foreground messages
-    onMessageListener().then((payload: any) => {
-      if (payload?.notification) {
-        toast.info(`${payload.notification.title}: ${payload.notification.body}`, {
-          duration: 5000,
-          position: "top-center"
-        });
-      }
-    });
-  }, []);
-
   return (
     <div className="min-h-screen flex flex-col bg-background pt-[env(safe-area-inset-top)]">
       {/* Top Header */}

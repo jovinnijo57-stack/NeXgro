@@ -18,6 +18,8 @@ import {
 import { LoadingSpinner } from "@/components/ui/LoadingSpinner";
 // ─── Lazy page imports ───────────────────────────────────────────────────────
 import { Suspense, lazy, useEffect, useState } from "react";
+import { requestForToken, onMessageListener } from "@/lib/firebase";
+import { toast } from "sonner";
 
 const Home = lazy(() => import("@/pages/Home"));
 const CategoryPage = lazy(() => import("@/pages/CategoryPage"));
@@ -787,6 +789,31 @@ export default function App() {
     };
 
     checkSubscription();
+  }, []);
+
+  useEffect(() => {
+    console.log("🔔 App mounted: Initializing notifications...");
+    // Request FCM token on mount
+    const setupNotifications = async () => {
+      const token = await requestForToken();
+      if (token) {
+        console.log("✅ FCM Token retrieved successfully");
+      } else {
+        console.log("❌ FCM Token could not be retrieved (Check config/permissions)");
+      }
+    };
+
+    setupNotifications();
+
+    // Listen for foreground messages
+    onMessageListener().then((payload: any) => {
+      if (payload?.notification) {
+        toast.info(`${payload.notification.title}: ${payload.notification.body}`, {
+          duration: 5000,
+          position: "top-center"
+        });
+      }
+    });
   }, []);
 
   return (
