@@ -156,11 +156,11 @@ export default function Search() {
 
       {/* Restored Original Banner */}
       <div className="max-w-6xl mx-auto px-4 py-6">
-        <div className="relative overflow-hidden rounded-[2rem] aspect-[3/2] md:aspect-[8/2] bg-muted shadow-lg group">
+        <div className="relative overflow-hidden rounded-[2rem] aspect-video sm:aspect-[3/2] md:aspect-[8/2] bg-muted shadow-lg group">
           <img 
             src="/assets/banner2.png" 
             alt="Search Banner" 
-            className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+            className="w-full h-full object-cover object-left sm:object-center transition-transform duration-700 group-hover:scale-105"
             onError={(e) => {
               (e.target as HTMLImageElement).src = "https://images.unsplash.com/photo-1542838132-92c53300491e?auto=format&fit=crop&q=80&w=1200";
             }}
@@ -173,6 +173,7 @@ export default function Search() {
         <div className="flex gap-8">
           {/* Desktop Filters */}
           <aside className="hidden md:block w-64 shrink-0">
+            {/* ... desktop filters remain the same ... */}
             <div className="bg-card rounded-[2rem] border border-border p-6 sticky top-28 shadow-sm">
               <div className="flex items-center gap-2 mb-6">
                 <Filter className="w-4 h-4 text-primary" />
@@ -329,7 +330,7 @@ export default function Search() {
       {showFilters && (
         <div className="fixed inset-0 z-50 md:hidden">
           <div className="absolute inset-0 bg-black/60 backdrop-blur-sm animate-in fade-in" onClick={() => setShowFilters(false)} />
-          <div className="absolute bottom-0 left-0 right-0 bg-card rounded-t-[3rem] p-8 max-h-[85vh] overflow-y-auto animate-in slide-in-from-bottom duration-500 shadow-2xl">
+          <div className="absolute bottom-0 left-0 right-0 bg-card rounded-t-[3rem] p-8 max-h-[90vh] overflow-y-auto animate-in slide-in-from-bottom duration-500 shadow-2xl">
             <div className="w-12 h-1.5 bg-muted rounded-full mx-auto mb-8" />
             <div className="flex items-center justify-between mb-8">
               <h3 className="text-2xl font-black tracking-tight">Refine</h3>
@@ -338,7 +339,7 @@ export default function Search() {
               </button>
             </div>
             
-            <div className="space-y-10 pb-8">
+            <div className="space-y-8 pb-8">
                 <div>
                   <p className="text-[10px] font-black uppercase tracking-widest mb-4 text-muted-foreground">Categories</p>
                   <div className="flex flex-wrap gap-2">
@@ -367,6 +368,28 @@ export default function Search() {
                 </div>
 
                 <div>
+                  <p className="text-[10px] font-black uppercase tracking-widest mb-4 text-muted-foreground">Sort By</p>
+                  <div className="grid grid-cols-2 gap-3">
+                    {[
+                      { id: "rating", label: "Top Rated" },
+                      { id: "price_asc", label: "Price: Low to High" },
+                      { id: "price_desc", label: "Price: High to Low" }
+                    ].map(s => (
+                      <button 
+                        key={s.id}
+                        onClick={() => setSort(s.id)}
+                        className={cn(
+                          "px-4 py-3 rounded-2xl text-[10px] font-black uppercase tracking-wider border-2 transition-all",
+                          sort === s.id ? "bg-primary border-primary text-white shadow-md shadow-primary/20" : "border-border"
+                        )}
+                      >
+                        {s.label}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                <div>
                   <div className="flex items-center justify-between mb-4">
                     <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Max Budget</p>
                     <span className="text-sm font-black text-primary">₹{priceRange[1]}</span>
@@ -378,12 +401,48 @@ export default function Search() {
                   />
                 </div>
 
-                <div className="flex gap-4">
+                <div>
+                  <p className="text-[10px] font-black uppercase tracking-widest mb-4 text-muted-foreground">Quick Filters</p>
+                  <div className="flex flex-wrap gap-3">
+                    <button 
+                      onClick={() => setOnlyInStock(!onlyInStock)}
+                      className={cn(
+                        "px-4 py-3 rounded-2xl text-[10px] font-black uppercase tracking-wider border-2 transition-all",
+                        onlyInStock ? "bg-primary border-primary text-white" : "border-border"
+                      )}
+                    >
+                      In Stock Only
+                    </button>
+                    <button 
+                      onClick={() => setOnlyOffers(!onlyOffers)}
+                      className={cn(
+                        "px-4 py-3 rounded-2xl text-[10px] font-black uppercase tracking-wider border-2 transition-all",
+                        onlyOffers ? "bg-primary border-primary text-white" : "border-border"
+                      )}
+                    >
+                      Best Sellers
+                    </button>
+                    <button 
+                      onClick={() => setMinRating(minRating === 4 ? 0 : 4)}
+                      className={cn(
+                        "px-4 py-3 rounded-2xl text-[10px] font-black uppercase tracking-wider border-2 transition-all",
+                        minRating >= 4 ? "bg-primary border-primary text-white" : "border-border"
+                      )}
+                    >
+                      Rating 4+
+                    </button>
+                  </div>
+                </div>
+
+                <div className="flex gap-4 pt-4">
                   <button 
                     onClick={() => { 
                         setPriceRange([0, 1000]); 
                         setSelectedCategoryId(""); 
                         setOnlyInStock(false);
+                        setOnlyOffers(false);
+                        setSort("rating");
+                        setMinRating(0);
                     }}
                     className="flex-1 py-4 bg-muted rounded-2xl text-[11px] font-black uppercase tracking-widest active:scale-95 transition-all"
                   >
@@ -393,7 +452,7 @@ export default function Search() {
                     onClick={() => setShowFilters(false)}
                     className="flex-[2] py-4 bg-primary text-white rounded-2xl text-[11px] font-black uppercase tracking-widest shadow-lg shadow-primary/20 active:scale-95 transition-all"
                   >
-                    Apply Results
+                    Apply Filters
                   </button>
                 </div>
             </div>

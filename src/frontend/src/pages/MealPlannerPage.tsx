@@ -1,6 +1,6 @@
 import { useMealPlans, useRecipes, useAddToCart } from "@/hooks/useBackend";
 import { cn } from "@/lib/utils";
-import { Link } from "@tanstack/react-router";
+import { Link, useNavigate } from "@tanstack/react-router";
 import {
   ArrowLeft,
   Calendar,

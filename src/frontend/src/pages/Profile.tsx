@@ -724,23 +724,6 @@ export default function Profile() {
         </div>
       </div>
 
-      {/* Meal Planner Link */}
-      <Link
-        to="/meal-planner"
-        className="bg-card border border-border rounded-2xl p-5 shadow-card flex items-center justify-between group hover:border-primary transition-all"
-        data-ocid="profile.meal_planner_link"
-      >
-        <div className="flex items-center gap-4">
-          <div className="w-12 h-12 bg-primary/10 rounded-xl flex items-center justify-center text-primary">
-            <ShoppingCart className="w-6 h-6" />
-          </div>
-          <div>
-            <h3 className="font-bold text-foreground">Meal Planner & Recipes</h3>
-            <p className="text-xs text-muted-foreground">Schedule meals & auto-buy ingredients</p>
-          </div>
-        </div>
-        <ChevronDown className="w-5 h-5 text-muted-foreground -rotate-90 group-hover:text-primary transition-all" />
-      </Link>
 
       {/* Notifications */}
       <div

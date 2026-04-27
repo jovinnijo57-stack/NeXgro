@@ -947,7 +947,7 @@ function FeatureQuickAccess() {
   const navigate = useNavigate();
   const features = [
     { id: "ai", title: "AI Shopper", icon: Sparkles, color: "bg-purple-500", path: "/ai-shopper" },
-    { id: "recipes", title: "Recipes", icon: Utensils, color: "bg-orange-500", path: "/recipes" },
+    { id: "meal-planner", title: "Meal Planner", icon: CalendarRange, color: "bg-[#007000]", path: "/meal-planner" },
     { id: "pantry", title: "Smart Pantry", icon: Bell, color: "bg-amber-500", path: "/smart-pantry" },
     { id: "subs", title: "Subscriptions", icon: RefreshCw, color: "bg-blue-500", path: "/subscriptions" },
   ];
