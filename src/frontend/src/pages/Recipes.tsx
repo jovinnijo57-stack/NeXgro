@@ -543,7 +543,6 @@ export default function RecipesPage() {
                         </>
                       )}
                     </button>
-                    </button>
                   </div>
                 </div>
               </div>
