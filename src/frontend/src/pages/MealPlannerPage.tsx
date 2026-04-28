@@ -4,29 +4,6 @@ import { Link, useNavigate } from "@tanstack/react-router";
 import {
   ArrowLeft,
   Calendar,
-  ChevronLeft,
-  ChevronRight,
-  Plus,
-  ShoppingCart,
-  Trash2,
-  UtensilsCrossed,
-  Flame,
-  Clock,
-  Info,
-  BookOpen
-} from "lucide-react";
-import { useState } from "react";
-import { toast } from "sonner";
-import { useQueryClient } from "@tanstack/react-query";
-
-const DAYS = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
-
-import { useMealPlans, useRecipes, useAddToCart } from "@/hooks/useBackend";
-import { cn } from "@/lib/utils";
-import { Link, useNavigate } from "@tanstack/react-router";
-import {
-  ArrowLeft,
-  Calendar,
   Plus,
   ShoppingCart,
   Trash2,
