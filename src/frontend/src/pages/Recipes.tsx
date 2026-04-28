@@ -1141,6 +1141,175 @@ export const ALL_RECIPES: Recipe[] = [
       "Ensure even coating while wings are still warm",
       "Serve with celery sticks and dip"
     ]
+  },
+  // VEG SPECIALS
+  {
+    id: "vs1",
+    title: "PANEER TIKKA",
+    category: "Veg",
+    time: "20 min",
+    serves: 3,
+    calories: "280 kcal",
+    protein: "18g",
+    fat: "14g",
+    carbs: "12g",
+    image: "https://images.unsplash.com/photo-1567184109411-42021662c161?w=800&q=80",
+    ingredients: [
+      { id: "p30", name: "Paneer", qty: 1 },
+      { id: "p105", name: "Yogurt", qty: 1 },
+      { id: "p138", name: "Besan (Gram flour)", qty: 1 }
+    ],
+    instructions: [
+      "Mix 1/2 cup yogurt, 1 tbsp besan, and spices into a paste",
+      "Marinate 200g paneer cubes and veggies for 30 min",
+      "Thread paneer and peppers onto skewers",
+      "Grill or pan-sear for 5–8 min until charred",
+      "Sprinkle with 1/2 tsp chaat masala and lemon"
+    ]
+  },
+  {
+    id: "vs2",
+    title: "ALOO GOBI",
+    category: "Veg",
+    time: "20 min",
+    serves: 4,
+    calories: "180 kcal",
+    protein: "4g",
+    fat: "8g",
+    carbs: "24g",
+    image: "https://images.unsplash.com/photo-1568584711075-3d021a7c3ec3?w=800&q=80",
+    ingredients: [
+      { id: "p13", name: "Potatoes (Aloo)", qty: 2 },
+      { id: "p139", name: "Cauliflower (Gobi)", qty: 1 },
+      { id: "p113", name: "Ginger", qty: 1 }
+    ],
+    instructions: [
+      "Sauté 1 tsp cumin and 1 tbsp ginger in oil",
+      "Add 2 chopped potatoes and 1 head cauliflower florets",
+      "Season with 1/2 tsp turmeric and 1 tsp salt",
+      "Cover and cook on low heat for 15 min (no water needed)",
+      "Garnish with fresh cilantro before serving"
+    ]
+  },
+  {
+    id: "vs3",
+    title: "CHANA MASALA",
+    category: "Veg",
+    time: "20 min",
+    serves: 4,
+    calories: "220 kcal",
+    protein: "12g",
+    fat: "6g",
+    carbs: "35g",
+    image: "https://images.unsplash.com/photo-1585914966076-7649e3e78a2e?w=800&q=80",
+    ingredients: [
+      { id: "p140", name: "Chickpeas (Chana)", qty: 1 },
+      { id: "p14", name: "Onion", qty: 1 },
+      { id: "p1", name: "Tomato", qty: 2 }
+    ],
+    instructions: [
+      "Soak 1 cup chickpeas overnight and pressure cook until soft",
+      "Sauté 1 large onion and 2 tomatoes into a soft paste",
+      "Add 2 tsp chana masala powder and the cooked beans",
+      "Simmer with 1/2 cup water for 10 min",
+      "Mash a few chickpeas to thicken the gravy"
+    ]
+  },
+  {
+    id: "vs4",
+    title: "RAJMA",
+    category: "Veg",
+    time: "25 min",
+    serves: 4,
+    calories: "240 kcal",
+    protein: "14g",
+    fat: "6g",
+    carbs: "38g",
+    image: "https://images.unsplash.com/photo-1585914966076-7649e3e78a2e?w=800&q=80",
+    ingredients: [
+      { id: "p141", name: "Kidney beans (Rajma)", qty: 1 },
+      { id: "p113", name: "Ginger", qty: 1 },
+      { id: "p84", name: "Ghee", qty: 1 }
+    ],
+    instructions: [
+      "Soak 1 cup rajma for 8 hours and pressure cook well",
+      "Sauté puree with ginger in 1 tbsp ghee until oil separates",
+      "Add cooked beans and 1 tsp salt",
+      "Simmer for 15 min on low heat until creamy",
+      "Serve hot with steamed Basmati rice"
+    ]
+  },
+  {
+    id: "vs5",
+    title: "VEG KURMA",
+    category: "Veg",
+    time: "15 min",
+    serves: 4,
+    calories: "210 kcal",
+    protein: "5g",
+    fat: "14g",
+    carbs: "18g",
+    image: "https://images.unsplash.com/photo-1567121298481-63bc48b30f81?w=800&q=80",
+    ingredients: [
+      { id: "p93", name: "Coconut", qty: 1 },
+      { id: "p112", name: "Cashews", qty: 1 },
+      { id: "p142", name: "Poppy seeds", qty: 1 }
+    ],
+    instructions: [
+      "Grind 1/2 cup coconut and 5 cashews into a smooth paste",
+      "Boil 2 cups mixed veggies (carrots, beans, peas)",
+      "Sauté spices and add the coconut paste + veggies",
+      "Simmer for 5 min until the sauce thickens",
+      "Add a splash of water for desired consistency"
+    ]
+  },
+  {
+    id: "vs6",
+    title: "MUSHROOM CURRY",
+    category: "Veg",
+    time: "15 min",
+    serves: 2,
+    calories: "180 kcal",
+    protein: "6g",
+    fat: "12g",
+    carbs: "10g",
+    image: "https://images.unsplash.com/photo-1567121298481-63bc48b30f81?w=800&q=80",
+    ingredients: [
+      { id: "p143", name: "Mushrooms", qty: 1 },
+      { id: "p14", name: "Onion", qty: 1 },
+      { id: "p113", name: "Garlic", qty: 1 },
+      { id: "p40", name: "Cream", qty: 1 }
+    ],
+    instructions: [
+      "Sauté 250g sliced mushrooms until they release water",
+      "Add 1 chopped onion and 1 tsp garlic paste",
+      "Stir in 1/2 cup tomato puree and spices",
+      "Cook for 8 min until mushrooms are tender",
+      "Finish with 2 tbsp heavy cream for a rich texture"
+    ]
+  },
+  {
+    id: "vs7",
+    title: "BHINDI FRY",
+    category: "Veg",
+    time: "15 min",
+    serves: 2,
+    calories: "160 kcal",
+    protein: "4g",
+    fat: "10g",
+    carbs: "14g",
+    image: "https://images.unsplash.com/photo-1453306458620-5bbef13a5bca?w=800&q=80",
+    ingredients: [
+      { id: "p144", name: "Okra (Bhindi)", qty: 1 },
+      { id: "p145", name: "Amchur", qty: 1 }
+    ],
+    instructions: [
+      "Wash and dry 250g okra completely; slice into rounds",
+      "Heat 2 tbsp oil and sauté okra on medium-high",
+      "Add 1/2 tsp turmeric and 1 tsp salt",
+      "Fry for 10 min without a lid to avoid sliminess",
+      "Toss with 1/2 tsp amchur powder for tanginess"
+    ]
   }
 ];
 
