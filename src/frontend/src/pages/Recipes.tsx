@@ -754,6 +754,198 @@ export const ALL_RECIPES: Recipe[] = [
       "Pour into a container and seal tightly",
       "Freeze for 6–8 hours until firm"
     ]
+  },
+  // HEALTHY
+  {
+    id: "h1",
+    title: "SPROUTS SALAD",
+    category: "Healthy",
+    time: "10 min",
+    serves: 2,
+    calories: "150 kcal",
+    protein: "12g",
+    fat: "2g",
+    carbs: "22g",
+    image: "https://images.unsplash.com/photo-1512621776951-a57141f2eefd?w=800&q=80",
+    ingredients: [
+      { id: "p125", name: "Moong sprouts", qty: 1 },
+      { id: "p14", name: "Onion", qty: 1 },
+      { id: "p1", name: "Tomato", qty: 1 },
+      { id: "p12", name: "Cucumber", qty: 1 }
+    ],
+    instructions: [
+      "Steam 1 cup moong sprouts for 5 min (optional)",
+      "Finely chop 1 onion, 1 tomato, and 1 cucumber",
+      "Mix sprouts with veggies and 1/4 tsp black salt",
+      "Squeeze 1/2 lemon over the mixture",
+      "Garnish with fresh coriander and green chilies"
+    ]
+  },
+  {
+    id: "h2",
+    title: "GRILLED FISH",
+    category: "Healthy",
+    time: "15 min",
+    serves: 1,
+    calories: "320 kcal",
+    protein: "45g",
+    fat: "14g",
+    carbs: "2g",
+    image: "https://images.unsplash.com/photo-1519708227418-c8fd9a32b7a2?w=800&q=80",
+    ingredients: [
+      { id: "p62", name: "Fish fillet", qty: 1 },
+      { id: "p59", name: "Olive oil", qty: 1 },
+      { id: "p113", name: "Garlic", qty: 1 }
+    ],
+    instructions: [
+      "Marinate 200g fish with 1 tbsp lemon juice and garlic",
+      "Sprinkle a pinch of salt and 1/2 tsp black pepper",
+      "Heat 1 tbsp olive oil in a grill pan",
+      "Sear fish for 4 min on each side",
+      "Serve with a side of steamed asparagus or greens"
+    ]
+  },
+  {
+    id: "h3",
+    title: "MILLET DISH",
+    category: "Healthy",
+    time: "15 min",
+    serves: 2,
+    calories: "280 kcal",
+    protein: "8g",
+    fat: "6g",
+    carbs: "52g",
+    image: "https://images.unsplash.com/photo-1599487488170-d11ec9c175f0?w=800&q=80",
+    ingredients: [
+      { id: "p126", name: "Foxtail/Barnyard millet", qty: 1 },
+      { id: "p15", name: "Veggies", qty: 1 },
+      { id: "p113", name: "Ginger", qty: 1 }
+    ],
+    instructions: [
+      "Soak 1 cup millet for 30 min; drain well",
+      "Sauté ginger and mixed veggies in 1 tsp oil",
+      "Add 2 cups water and bring to a boil",
+      "Add millet and cook on low heat for 10–12 min",
+      "Fluff with a fork and serve warm"
+    ]
+  },
+  {
+    id: "h4",
+    title: "DETOX DRINK",
+    category: "Healthy",
+    time: "5 min",
+    serves: 4,
+    calories: "10 kcal",
+    protein: "0g",
+    fat: "0g",
+    carbs: "2g",
+    image: "https://images.unsplash.com/photo-1556881286-fc6915169721?w=800&q=80",
+    ingredients: [
+      { id: "p12", name: "Cucumber", qty: 1 },
+      { id: "p127", name: "Mint", qty: 1 },
+      { id: "p113", name: "Ginger", qty: 1 }
+    ],
+    instructions: [
+      "Slice 1/2 cucumber and 1 inch ginger thinly",
+      "Add to a pitcher with 1 liter water",
+      "Add 10 fresh mint leaves and lemon slices",
+      "Refrigerate for 4 hours to infuse",
+      "Drink throughout the day for hydration"
+    ]
+  },
+  // DRINKS
+  {
+    id: "dr1",
+    title: "COFFEE",
+    category: "Drinks",
+    time: "15 min",
+    serves: 1,
+    calories: "120 kcal",
+    protein: "6g",
+    fat: "5g",
+    carbs: "15g",
+    image: "https://images.unsplash.com/photo-1541167760496-162955ed8a9f?w=800&q=80",
+    ingredients: [
+      { id: "p128", name: "Coffee powder", qty: 1 },
+      { id: "p4", name: "Milk", qty: 1 },
+      { id: "p57", name: "Sugar", qty: 1 }
+    ],
+    instructions: [
+      "Add 2 tbsp coffee powder to the top of a filter",
+      "Pour 1/2 cup boiling water; let decoction drip for 15 min",
+      "Boil 1 cup full-fat milk until frothy",
+      "Mix 2 tbsp decoction with milk and 1 tsp sugar",
+      "Pour between two cups to create a rich foam"
+    ]
+  },
+  {
+    id: "dr2",
+    title: "BUTTERMILK",
+    category: "Drinks",
+    time: "5 min",
+    serves: 2,
+    calories: "60 kcal",
+    protein: "4g",
+    fat: "3g",
+    carbs: "6g",
+    image: "https://images.unsplash.com/photo-1571212247484-29005df5015e?w=800&q=80",
+    ingredients: [
+      { id: "p105", name: "Curd", qty: 1 },
+      { id: "p113", name: "Ginger", qty: 1 }
+    ],
+    instructions: [
+      "Whisk 1/2 cup curd with 1.5 cups cold water",
+      "Crush 1 small ginger piece and 1 green chili",
+      "Add crushed spices and salt to the liquid",
+      "Stir in chopped curry leaves",
+      "Serve chilled as a natural probiotic drink"
+    ]
+  },
+  {
+    id: "dr3",
+    title: "FRESH JUICE",
+    category: "Drinks",
+    time: "5 min",
+    serves: 1,
+    calories: "90 kcal",
+    protein: "1g",
+    fat: "0g",
+    carbs: "22g",
+    image: "https://images.unsplash.com/photo-1587049352846-4a222e784d38?w=800&q=80",
+    ingredients: [
+      { id: "p81", name: "Watermelon", qty: 2 },
+      { id: "p127", name: "Mint", qty: 1 }
+    ],
+    instructions: [
+      "Blend 2 cups chilled watermelon chunks (seedless)",
+      "Add 3-4 mint leaves for freshness",
+      "Add a pinch of black salt to enhance flavor",
+      "Pulse for 30 seconds; do not over-blend",
+      "Pour into a glass over 3 ice cubes"
+    ]
+  },
+  {
+    id: "dr4",
+    title: "TENDER COCONUT DRINK",
+    category: "Drinks",
+    time: "5 min",
+    serves: 1,
+    calories: "150 kcal",
+    protein: "2g",
+    fat: "5g",
+    carbs: "25g",
+    image: "https://images.unsplash.com/photo-1550258114-189f39308311?w=800&q=80",
+    ingredients: [
+      { id: "p129", name: "Tender coconut water", qty: 1 },
+      { id: "p96", name: "Honey", qty: 1 }
+    ],
+    instructions: [
+      "Pour 1 cup coconut water into a glass",
+      "Scoop out the soft coconut meat and chop finely",
+      "Stir meat into the water with 1 tsp honey",
+      "Add a squeeze of lime for a zesty twist",
+      "Serve immediately while cold"
+    ]
   }
 ];
 
