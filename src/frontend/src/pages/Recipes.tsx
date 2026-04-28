@@ -946,6 +946,201 @@ export const ALL_RECIPES: Recipe[] = [
       "Add a squeeze of lime for a zesty twist",
       "Serve immediately while cold"
     ]
+  },
+  // INTERNATIONAL
+  {
+    id: "i1",
+    title: "PIZZA",
+    category: "International",
+    time: "20 min",
+    serves: 2,
+    calories: "650 kcal",
+    protein: "25g",
+    fat: "28g",
+    carbs: "75g",
+    image: "https://images.unsplash.com/photo-1513104890138-7c749659a591?w=800&q=80",
+    ingredients: [
+      { id: "p130", name: "Pizza dough", qty: 1 },
+      { id: "p1", name: "Tomato sauce", qty: 1 },
+      { id: "p131", name: "Mozzarella", qty: 1 },
+      { id: "p111", name: "Oregano", qty: 1 }
+    ],
+    instructions: [
+      "Roll 200g dough into a 10-inch circle",
+      "Spread 3 tbsp tomato sauce evenly across the base",
+      "Sprinkle 1 cup mozzarella cheese over the sauce",
+      "Add your favorite toppings (veggies or meat)",
+      "Bake at 220°C for 12–15 min until crust is golden"
+    ]
+  },
+  {
+    id: "i2",
+    title: "PASTA",
+    category: "International",
+    time: "15 min",
+    serves: 2,
+    calories: "450 kcal",
+    protein: "15g",
+    fat: "12g",
+    carbs: "68g",
+    image: "https://images.unsplash.com/photo-1551183053-bf91a1d81141?w=800&q=80",
+    ingredients: [
+      { id: "p132", name: "Penne pasta", qty: 1 },
+      { id: "p1", name: "Tomato puree", qty: 1 },
+      { id: "p113", name: "Garlic", qty: 3 }
+    ],
+    instructions: [
+      "Boil 2 cups pasta in salted water until 'al dente'",
+      "Sauté 3 cloves minced garlic and 1 tsp chili flakes in oil",
+      "Add 1 cup tomato puree and simmer for 5 min",
+      "Toss the cooked pasta into the sauce",
+      "Garnish with 1 tbsp parmesan cheese and basil"
+    ]
+  },
+  {
+    id: "i3",
+    title: "TACOS",
+    category: "International",
+    time: "15 min",
+    serves: 2,
+    calories: "380 kcal",
+    protein: "22g",
+    fat: "18g",
+    carbs: "32g",
+    image: "https://images.unsplash.com/photo-1551504734-5ee1c4a1479b?w=800&q=80",
+    ingredients: [
+      { id: "p133", name: "Tortilla shells", qty: 1 },
+      { id: "p37", name: "Ground meat", qty: 1 },
+      { id: "p134", name: "Salsa", qty: 1 }
+    ],
+    instructions: [
+      "Cook 250g filling with taco seasoning and onions",
+      "Warm 3 tortilla shells on a dry pan",
+      "Fill each shell with 2 tbsp meat and shredded lettuce",
+      "Top with 1 tbsp salsa and a sprinkle of cheese",
+      "Serve with a lime wedge on the side"
+    ]
+  },
+  {
+    id: "i4",
+    title: "RAMEN",
+    category: "International",
+    time: "15 min",
+    serves: 1,
+    calories: "420 kcal",
+    protein: "18g",
+    fat: "14g",
+    carbs: "55g",
+    image: "https://images.unsplash.com/photo-1552611052-33e04de081de?w=800&q=80",
+    ingredients: [
+      { id: "p135", name: "Ramen noodles", qty: 1 },
+      { id: "p37", name: "Boiled egg", qty: 1 },
+      { id: "p136", name: "Scallions", qty: 1 }
+    ],
+    instructions: [
+      "Simmer 2 cups broth with 1 tbsp soy sauce and ginger",
+      "Cook 1 serving of noodles separately and drain",
+      "Place noodles in a bowl and pour hot broth over them",
+      "Top with a soft-boiled egg (cut in half)",
+      "Garnish with sliced scallions and seaweed"
+    ]
+  },
+  // NON-VEG SPECIALS
+  {
+    id: "nv1",
+    title: "MUTTON CURRY",
+    category: "Non-Veg",
+    time: "45 min",
+    serves: 4,
+    calories: "550 kcal",
+    protein: "35g",
+    fat: "38g",
+    carbs: "15g",
+    image: "https://images.unsplash.com/photo-1546833999-b9f581a1996d?w=800&q=80",
+    ingredients: [
+      { id: "p63", name: "Mutton", qty: 1 },
+      { id: "p14", name: "Onions", qty: 3 },
+      { id: "p113", name: "Ginger-Garlic paste", qty: 2 }
+    ],
+    instructions: [
+      "Sauté 3 sliced onions until deep brown",
+      "Add 500g mutton and 2 tbsp G-G paste",
+      "Add 1 tsp turmeric, 2 tsp chili powder, and 1 tsp salt",
+      "Pressure cook with 1 cup water for 6–8 whistles",
+      "Simmer uncovered for 10 min to thicken the gravy"
+    ]
+  },
+  {
+    id: "nv2",
+    title: "PRAWN CURRY",
+    category: "Non-Veg",
+    time: "15 min",
+    serves: 2,
+    calories: "320 kcal",
+    protein: "28g",
+    fat: "22g",
+    carbs: "8g",
+    image: "https://images.unsplash.com/photo-1567121298481-63bc48b30f81?w=800&q=80",
+    ingredients: [
+      { id: "p64", name: "Prawns", qty: 1 },
+      { id: "p41", name: "Coconut milk", qty: 1 },
+      { id: "p103", name: "Tamarind", qty: 1 }
+    ],
+    instructions: [
+      "Clean and devein 250g prawns",
+      "Simmer 1 cup coconut milk with turmeric and chilies",
+      "Add 1 tsp tamarind paste and salt to taste",
+      "Drop prawns into the boiling liquid",
+      "Cook for only 3–5 min until prawns turn pink/opaque"
+    ]
+  },
+  {
+    id: "nv3",
+    title: "EGG ROAST",
+    category: "Non-Veg",
+    time: "15 min",
+    serves: 2,
+    calories: "280 kcal",
+    protein: "14g",
+    fat: "18g",
+    carbs: "12g",
+    image: "https://images.unsplash.com/photo-1510627489930-0c1b0ba9448f?w=800&q=80",
+    ingredients: [
+      { id: "p37", name: "Boiled eggs", qty: 4 },
+      { id: "p14", name: "Onions", qty: 2 },
+      { id: "p1", name: "Tomato", qty: 1 }
+    ],
+    instructions: [
+      "Hard-boil 4 eggs and peel them",
+      "Sauté 2 large onions with curry leaves until soft",
+      "Add 1 chopped tomato and 1 tsp garam masala",
+      "Make small slits in the eggs and add to the masala",
+      "Toss gently for 5 min until the eggs are well coated"
+    ]
+  },
+  {
+    id: "nv4",
+    title: "CHICKEN WINGS",
+    category: "Non-Veg",
+    time: "25 min",
+    serves: 2,
+    calories: "450 kcal",
+    protein: "32g",
+    fat: "32g",
+    carbs: "8g",
+    image: "https://images.unsplash.com/photo-1527477396000-e27163b481c2?w=800&q=80",
+    ingredients: [
+      { id: "p37", name: "Chicken wings", qty: 1 },
+      { id: "p114", name: "Flour", qty: 1 },
+      { id: "p137", name: "Buffalo sauce", qty: 1 }
+    ],
+    instructions: [
+      "Coat 10 wings in a mix of flour and garlic powder",
+      "Bake at 200°C or deep fry until crispy (15–20 min)",
+      "Toss hot wings in 3 tbsp sauce of your choice",
+      "Ensure even coating while wings are still warm",
+      "Serve with celery sticks and dip"
+    ]
   }
 ];
 

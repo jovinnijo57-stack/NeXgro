@@ -377,5 +377,181 @@ export const STATIC_RECIPES: Record<string, any> = {
       "Pour into a container and seal tightly",
       "Freeze for 6–8 hours until firm"
     ]
+  },
+  "SPROUTS SALAD": {
+    water: "None",
+    time: "10 minutes",
+    steps: [
+      "Steam 1 cup moong sprouts for 5 min (optional)",
+      "Finely chop 1 onion, 1 tomato, and 1 cucumber",
+      "Mix sprouts with veggies and 1/4 tsp black salt",
+      "Squeeze 1/2 lemon over the mixture",
+      "Garnish with fresh coriander and green chilies"
+    ]
+  },
+  "GRILLED FISH": {
+    water: "None",
+    time: "15 minutes",
+    steps: [
+      "Marinate 200g fish with 1 tbsp lemon juice and garlic",
+      "Sprinkle a pinch of salt and 1/2 tsp black pepper",
+      "Heat 1 tbsp olive oil in a grill pan",
+      "Sear fish for 4 min on each side",
+      "Serve with a side of steamed asparagus or greens"
+    ]
+  },
+  "MILLET DISH": {
+    water: "2 cups",
+    time: "15 minutes + soaking",
+    steps: [
+      "Soak 1 cup millet for 30 min; drain well",
+      "Sauté ginger and mixed veggies in 1 tsp oil",
+      "Add 2 cups water and bring to a boil",
+      "Add millet and cook on low heat for 10–12 min",
+      "Fluff with a fork and serve warm"
+    ]
+  },
+  "DETOX DRINK": {
+    water: "1 liter",
+    time: "5 minutes + 4 hours infusing",
+    steps: [
+      "Slice 1/2 cucumber and 1 inch ginger thinly",
+      "Add to a pitcher with 1 liter water",
+      "Add 10 fresh mint leaves and lemon slices",
+      "Refrigerate for 4 hours to infuse",
+      "Drink throughout the day for hydration"
+    ]
+  },
+  "COFFEE": {
+    water: "1/2 cup boiling water",
+    time: "15 minutes",
+    steps: [
+      "Add 2 tbsp coffee powder to the top of a filter",
+      "Pour 1/2 cup boiling water; let decoction drip for 15 min",
+      "Boil 1 cup full-fat milk until frothy",
+      "Mix 2 tbsp decoction with milk and 1 tsp sugar",
+      "Pour between two cups to create a rich foam"
+    ]
+  },
+  "BUTTERMILK": {
+    water: "1.5 cups cold water",
+    time: "5 minutes",
+    steps: [
+      "Whisk 1/2 cup curd with 1.5 cups cold water",
+      "Crush 1 small ginger piece and 1 green chili",
+      "Add crushed spices and salt to the liquid",
+      "Stir in chopped curry leaves",
+      "Serve chilled as a natural probiotic drink"
+    ]
+  },
+  "FRESH JUICE": {
+    water: "None (uses chilled watermelon)",
+    time: "5 minutes",
+    steps: [
+      "Blend 2 cups chilled watermelon chunks (seedless)",
+      "Add 3-4 mint leaves for freshness",
+      "Add a pinch of black salt to enhance flavor",
+      "Pulse for 30 seconds; do not over-blend",
+      "Pour into a glass over 3 ice cubes"
+    ]
+  },
+  "TENDER COCONUT DRINK": {
+    water: "1 cup coconut water",
+    time: "5 minutes",
+    steps: [
+      "Pour 1 cup coconut water into a glass",
+      "Scoop out the soft coconut meat and chop finely",
+      "Stir meat into the water with 1 tsp honey",
+      "Add a squeeze of lime for a zesty twist",
+      "Serve immediately while cold"
+    ]
+  },
+  "PIZZA": {
+    water: "None (uses dough)",
+    time: "20 minutes",
+    steps: [
+      "Roll 200g dough into a 10-inch circle",
+      "Spread 3 tbsp tomato sauce evenly across the base",
+      "Sprinkle 1 cup mozzarella cheese over the sauce",
+      "Add your favorite toppings (veggies or meat)",
+      "Bake at 220°C for 12–15 min until crust is golden"
+    ]
+  },
+  "PASTA": {
+    water: "For boiling pasta",
+    time: "15 minutes",
+    steps: [
+      "Boil 2 cups pasta in salted water until 'al dente'",
+      "Sauté 3 cloves minced garlic and 1 tsp chili flakes in oil",
+      "Add 1 cup tomato puree and simmer for 5 min",
+      "Toss the cooked pasta into the sauce",
+      "Garnish with 1 tbsp parmesan cheese and basil"
+    ]
+  },
+  "TACOS": {
+    water: "None",
+    time: "15 minutes",
+    steps: [
+      "Cook 250g filling with taco seasoning and onions",
+      "Warm 3 tortilla shells on a dry pan",
+      "Fill each shell with 2 tbsp meat and shredded lettuce",
+      "Top with 1 tbsp salsa and a sprinkle of cheese",
+      "Serve with a lime wedge on the side"
+    ]
+  },
+  "RAMEN": {
+    water: "2 cups broth",
+    time: "15 minutes",
+    steps: [
+      "Simmer 2 cups broth with 1 tbsp soy sauce and ginger",
+      "Cook 1 serving of noodles separately and drain",
+      "Place noodles in a bowl and pour hot broth over them",
+      "Top with a soft-boiled egg (cut in half)",
+      "Garnish with sliced scallions and seaweed"
+    ]
+  },
+  "MUTTON CURRY": {
+    water: "1 cup",
+    time: "45 minutes",
+    steps: [
+      "Sauté 3 sliced onions until deep brown",
+      "Add 500g mutton and 2 tbsp G-G paste",
+      "Add 1 tsp turmeric, 2 tsp chili powder, and 1 tsp salt",
+      "Pressure cook with 1 cup water for 6–8 whistles",
+      "Simmer uncovered for 10 min to thicken the gravy"
+    ]
+  },
+  "PRAWN CURRY": {
+    water: "None (uses 1 cup coconut milk)",
+    time: "15 minutes",
+    steps: [
+      "Clean and devein 250g prawns",
+      "Simmer 1 cup coconut milk with turmeric and chilies",
+      "Add 1 tsp tamarind paste and salt to taste",
+      "Drop prawns into the boiling liquid",
+      "Cook for only 3–5 min until prawns turn pink/opaque"
+    ]
+  },
+  "EGG ROAST": {
+    water: "For boiling eggs",
+    time: "15 minutes",
+    steps: [
+      "Hard-boil 4 eggs and peel them",
+      "Sauté 2 large onions with curry leaves until soft",
+      "Add 1 chopped tomato and 1 tsp garam masala",
+      "Make small slits in the eggs and add to the masala",
+      "Toss gently for 5 min until the eggs are well coated"
+    ]
+  },
+  "CHICKEN WINGS": {
+    water: "None",
+    time: "25 minutes",
+    steps: [
+      "Coat 10 wings in a mix of flour and garlic powder",
+      "Bake at 200°C or deep fry until crispy (15–20 min)",
+      "Toss hot wings in 3 tbsp sauce of your choice",
+      "Ensure even coating while wings are still warm",
+      "Serve with celery sticks and dip"
+    ]
   }
 };
