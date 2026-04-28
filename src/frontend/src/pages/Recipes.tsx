@@ -533,6 +533,227 @@ export const ALL_RECIPES: Recipe[] = [
       "Ensure internal temp reaches 75°C",
       "Rest for 5 min before slicing"
     ]
+  },
+  // SNACKS
+  {
+    id: "s1",
+    title: "SAMOSA",
+    category: "Snacks",
+    time: "25 min",
+    serves: 4,
+    calories: "280 kcal",
+    protein: "6g",
+    fat: "15g",
+    carbs: "32g",
+    image: "https://images.unsplash.com/photo-1601050690597-df056fb0ce08?w=800&q=80",
+    ingredients: [
+      { id: "p114", name: "Flour (Maida)", qty: 2 },
+      { id: "p13", name: "Potatoes", qty: 3 },
+      { id: "p75", name: "Peas", qty: 1 }
+    ],
+    instructions: [
+      "Mix 2 cups flour with 2 tbsp oil and water; knead stiffly",
+      "Boil 3 potatoes and mash with 1/2 cup peas and spices",
+      "Roll dough into circles, cut in half, and fold into cones",
+      "Stuff with 2 tbsp filling and seal edges with water",
+      "Deep fry in hot oil for 8–10 min until golden"
+    ]
+  },
+  {
+    id: "s2",
+    title: "BANANA FRY",
+    category: "Snacks",
+    time: "10 min",
+    serves: 3,
+    calories: "310 kcal",
+    protein: "4g",
+    fat: "12g",
+    carbs: "48g",
+    image: "https://images.unsplash.com/photo-1571771894821-ad9b5886479b?w=800&q=80",
+    ingredients: [
+      { id: "p115", name: "Ripe bananas (Nendran)", qty: 2 },
+      { id: "p114", name: "Flour", qty: 1 },
+      { id: "p57", name: "Sugar", qty: 1 }
+    ],
+    instructions: [
+      "Make a batter with 1 cup flour, 1 tbsp sugar, and a pinch of turmeric",
+      "Add water to reach a thick, coating consistency",
+      "Slice 2 ripe bananas lengthwise into thin strips",
+      "Dip slices into batter until fully coated",
+      "Fry in hot oil for 3 min per side until crispy"
+    ]
+  },
+  {
+    id: "s3",
+    title: "VADA",
+    category: "Snacks",
+    time: "20 min",
+    serves: 4,
+    calories: "240 kcal",
+    protein: "8g",
+    fat: "14g",
+    carbs: "22g",
+    image: "https://images.unsplash.com/photo-1589301760014-d929f3979dbc?w=800&q=80",
+    ingredients: [
+      { id: "p88", name: "Urad dal", qty: 1 },
+      { id: "p116", name: "Peppercorns", qty: 1 },
+      { id: "p113", name: "Ginger", qty: 1 }
+    ],
+    instructions: [
+      "Soak 1 cup urad dal for 3 hours; grind to a thick, fluffy paste",
+      "Mix in 1 tsp pepper, chopped ginger, and salt",
+      "Wet palms and take a small ball of batter",
+      "Make a hole in the center and drop gently into hot oil",
+      "Fry until deep golden brown and crunchy"
+    ]
+  },
+  {
+    id: "s4",
+    title: "SHAWARMA",
+    category: "Snacks",
+    time: "20 min",
+    serves: 1,
+    calories: "450 kcal",
+    protein: "28g",
+    fat: "22g",
+    carbs: "35g",
+    image: "https://images.unsplash.com/photo-1561651823-34feb02250e4?w=800&q=80",
+    ingredients: [
+      { id: "p37", name: "Chicken strips", qty: 1 },
+      { id: "p117", name: "Pita bread", qty: 1 },
+      { id: "p118", name: "Mayonnaise", qty: 1 }
+    ],
+    instructions: [
+      "Marinate 300g chicken in yogurt, lemon, and spices for 2 hours",
+      "Pan-roast chicken until charred and shredded",
+      "Spread 1 tbsp garlic mayo on a warm pita or wrap",
+      "Add chicken, sliced onions, and pickled cucumbers",
+      "Roll tightly and toast the wrap for 1 min on a pan"
+    ]
+  },
+  // DESSERTS
+  {
+    id: "ds1",
+    title: "PAYASAM",
+    category: "Desserts",
+    time: "20 min",
+    serves: 4,
+    calories: "320 kcal",
+    protein: "6g",
+    fat: "10g",
+    carbs: "55g",
+    image: "https://images.unsplash.com/photo-1589119908995-c6837fa14848?w=800&q=80",
+    ingredients: [
+      { id: "p119", name: "Vermicelli", qty: 1 },
+      { id: "p4", name: "Milk", qty: 4 },
+      { id: "p57", name: "Sugar", qty: 1 }
+    ],
+    instructions: [
+      "Roast 1/2 cup vermicelli in 1 tsp ghee until golden",
+      "Boil 4 cups milk and add the roasted vermicelli",
+      "Simmer for 10 min until soft; add 3/4 cup sugar",
+      "Stir in 1/2 tsp cardamom powder",
+      "Garnish with fried cashews and raisins"
+    ]
+  },
+  {
+    id: "ds2",
+    title: "GULAB JAMUN",
+    category: "Desserts",
+    time: "30 min",
+    serves: 5,
+    calories: "420 kcal",
+    protein: "8g",
+    fat: "18g",
+    carbs: "62g",
+    image: "https://images.unsplash.com/photo-1589119908995-c6837fa14848?w=800&q=80",
+    ingredients: [
+      { id: "p120", name: "Milk powder", qty: 1 },
+      { id: "p114", name: "Flour", qty: 1 },
+      { id: "p57", name: "Sugar", qty: 2 },
+      { id: "p121", name: "Rose water", qty: 1 }
+    ],
+    instructions: [
+      "Make a syrup with 2 cups sugar and 2 cups water; simmer for 5 min",
+      "Knead 1 cup milk powder with 2 tbsp flour into a soft dough",
+      "Form small, smooth balls (no cracks)",
+      "Fry in low-heat oil until dark golden brown",
+      "Soak in warm syrup for at least 2 hours"
+    ]
+  },
+  {
+    id: "ds3",
+    title: "PUDDING",
+    category: "Desserts",
+    time: "35 min",
+    serves: 4,
+    calories: "280 kcal",
+    protein: "10g",
+    fat: "12g",
+    carbs: "35g",
+    image: "https://images.unsplash.com/photo-1551024506-0bccd828d307?w=800&q=80",
+    ingredients: [
+      { id: "p37", name: "Eggs", qty: 3 },
+      { id: "p4", name: "Milk", qty: 2 },
+      { id: "p57", name: "Sugar", qty: 1 },
+      { id: "p122", name: "Vanilla extract", qty: 1 }
+    ],
+    instructions: [
+      "Melt 1/4 cup sugar in a pan until it turns golden caramel",
+      "Pour caramel into a mold and let it set",
+      "Whisk 3 eggs, 1.5 cups milk, and 1/2 cup sugar",
+      "Pour mixture over the caramel; cover with foil",
+      "Steam for 25 min until set; chill before serving"
+    ]
+  },
+  {
+    id: "ds4",
+    title: "BROWNIES",
+    category: "Desserts",
+    time: "40 min",
+    serves: 6,
+    calories: "450 kcal",
+    protein: "6g",
+    fat: "25g",
+    carbs: "52g",
+    image: "https://images.unsplash.com/photo-1543208541-0961a29a8837?w=800&q=80",
+    ingredients: [
+      { id: "p46", name: "Dark chocolate", qty: 1 },
+      { id: "p85", name: "Butter", qty: 1 },
+      { id: "p37", name: "Eggs", qty: 2 },
+      { id: "p123", name: "Cocoa powder", qty: 1 }
+    ],
+    instructions: [
+      "Melt 150g chocolate and 1/2 cup butter together",
+      "Whisk in 2 eggs and 3/4 cup sugar",
+      "Fold in 1/2 cup flour and 1/4 cup cocoa powder",
+      "Pour into a square tin and bake at 180°C for 20 min",
+      "Let cool completely before cutting into squares"
+    ]
+  },
+  {
+    id: "ds5",
+    title: "ICE CREAM",
+    category: "Desserts",
+    time: "15 min",
+    serves: 4,
+    calories: "380 kcal",
+    protein: "6g",
+    fat: "22g",
+    carbs: "40g",
+    image: "https://images.unsplash.com/photo-1501443762994-82bd5dace89a?w=800&q=80",
+    ingredients: [
+      { id: "p40", name: "Heavy cream", qty: 1 },
+      { id: "p124", name: "Condensed milk", qty: 1 },
+      { id: "p122", name: "Vanilla extract", qty: 1 }
+    ],
+    instructions: [
+      "Whip 2 cups cold heavy cream until stiff peaks form",
+      "Gently fold in 1 can (400g) condensed milk",
+      "Add 1 tbsp vanilla extract",
+      "Pour into a container and seal tightly",
+      "Freeze for 6–8 hours until firm"
+    ]
   }
 ];
 

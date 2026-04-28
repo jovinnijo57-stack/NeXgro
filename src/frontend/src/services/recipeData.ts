@@ -278,5 +278,104 @@ export const STATIC_RECIPES: Record<string, any> = {
       "Ensure internal temp reaches 75°C",
       "Rest for 5 min before slicing"
     ]
+  },
+  "SAMOSA": {
+    water: "As needed for dough",
+    time: "25 minutes",
+    steps: [
+      "Mix 2 cups flour with 2 tbsp oil and water; knead stiffly",
+      "Boil 3 potatoes and mash with 1/2 cup peas and spices",
+      "Roll dough into circles, cut in half, and fold into cones",
+      "Stuff with 2 tbsp filling and seal edges with water",
+      "Deep fry in hot oil for 8–10 min until golden"
+    ]
+  },
+  "BANANA FRY": {
+    water: "As needed for batter",
+    time: "10 minutes",
+    steps: [
+      "Make a batter with 1 cup flour, 1 tbsp sugar, and a pinch of turmeric",
+      "Add water to reach a thick, coating consistency",
+      "Slice 2 ripe bananas lengthwise into thin strips",
+      "Dip slices into batter until fully coated",
+      "Fry in hot oil for 3 min per side until crispy"
+    ]
+  },
+  "VADA": {
+    water: "Minimal for grinding",
+    time: "20 minutes + soaking",
+    steps: [
+      "Soak 1 cup urad dal for 3 hours; grind to a thick, fluffy paste",
+      "Mix in 1 tsp pepper, chopped ginger, and salt",
+      "Wet palms and take a small ball of batter",
+      "Make a hole in the center and drop gently into hot oil",
+      "Fry until deep golden brown and crunchy"
+    ]
+  },
+  "SHAWARMA": {
+    water: "None",
+    time: "20 minutes + marination",
+    steps: [
+      "Marinate 300g chicken in yogurt, lemon, and spices for 2 hours",
+      "Pan-roast chicken until charred and shredded",
+      "Spread 1 tbsp garlic mayo on a warm pita or wrap",
+      "Add chicken, sliced onions, and pickled cucumbers",
+      "Roll tightly and toast the wrap for 1 min on a pan"
+    ]
+  },
+  "PAYASAM": {
+    water: "None (uses 4 cups milk)",
+    time: "20 minutes",
+    steps: [
+      "Roast 1/2 cup vermicelli in 1 tsp ghee until golden",
+      "Boil 4 cups milk and add the roasted vermicelli",
+      "Simmer for 10 min until soft; add 3/4 cup sugar",
+      "Stir in 1/2 tsp cardamom powder",
+      "Garnish with fried cashews and raisins"
+    ]
+  },
+  "GULAB JAMUN": {
+    water: "2 cups for syrup",
+    time: "30 minutes + 2 hours soaking",
+    steps: [
+      "Make a syrup with 2 cups sugar and 2 cups water; simmer for 5 min",
+      "Knead 1 cup milk powder with 2 tbsp flour into a soft dough",
+      "Form small, smooth balls (no cracks)",
+      "Fry in low-heat oil until dark golden brown",
+      "Soak in warm syrup for at least 2 hours"
+    ]
+  },
+  "PUDDING": {
+    water: "For steaming",
+    time: "35 minutes + chilling",
+    steps: [
+      "Melt 1/4 cup sugar in a pan until it turns golden caramel",
+      "Pour caramel into a mold and let it set",
+      "Whisk 3 eggs, 1.5 cups milk, and 1/2 cup sugar",
+      "Pour mixture over the caramel; cover with foil",
+      "Steam for 25 min until set; chill before serving"
+    ]
+  },
+  "BROWNIES": {
+    water: "None",
+    time: "40 minutes",
+    steps: [
+      "Melt 150g chocolate and 1/2 cup butter together",
+      "Whisk in 2 eggs and 3/4 cup sugar",
+      "Fold in 1/2 cup flour and 1/4 cup cocoa powder",
+      "Pour into a square tin and bake at 180°C for 20 min",
+      "Let cool completely before cutting into squares"
+    ]
+  },
+  "ICE CREAM": {
+    water: "None",
+    time: "15 minutes + 8 hours freezing",
+    steps: [
+      "Whip 2 cups cold heavy cream until stiff peaks form",
+      "Gently fold in 1 can (400g) condensed milk",
+      "Add 1 tbsp vanilla extract",
+      "Pour into a container and seal tightly",
+      "Freeze for 6–8 hours until firm"
+    ]
   }
 };
