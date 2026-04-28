@@ -105,9 +105,11 @@ export default function MealPlannerPage() {
     setAnalyzing(recipe.id);
     try {
       const analysis = await analyzeRecipe(recipe.title, recipe.ingredients);
-      if (analysis) {
+      if (analysis && Array.isArray(analysis.steps)) {
         setAiAnalysis(prev => ({ ...prev, [recipe.id]: analysis }));
         toast.success("AI Analysis Complete! ✨");
+      } else {
+        toast.error("AI returned invalid data. Please try again.");
       }
     } catch {
       toast.error("AI Analysis failed.");

@@ -58,6 +58,7 @@ import {
 import type { AdminBundle, ShopLocation } from "@/hooks/useBackend";
 import type { DeliveryZone } from "@/types";
 import OSMMapPicker from "@/components/OSMMapPicker";
+import { uploadToCloudinary } from "@/services/cloudinaryService";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { cn } from "@/lib/utils";
 import type {
@@ -710,11 +711,20 @@ function ProductsView() {
                   <input
                     type="file"
                     accept="image/*"
-                    onChange={(e) => {
+                    onChange={async (e) => {
                       const file = e.target.files?.[0];
                       if (file) {
-                        const url = URL.createObjectURL(file);
-                        setForm(f => ({ ...f, imageUrl: url }));
+                        toast.promise(uploadToCloudinary(file), {
+                          loading: "Uploading to Cloudinary...",
+                          success: (url) => {
+                            if (url) {
+                              setForm(f => ({ ...f, imageUrl: url }));
+                              return "Image uploaded successfully! ✨";
+                            }
+                            throw new Error("Upload failed");
+                          },
+                          error: "Cloudinary upload failed. Check your config.",
+                        });
                       }
                     }}
                     className="hidden"
@@ -1577,16 +1587,25 @@ function BannersView() {
                     <p className="text-xs text-muted-foreground">Select a high-resolution banner image</p>
                   </div>
                 )}
-                <input
+                 <input
                   type="file"
                   id="banner-image-file"
                   className="hidden"
                   accept="image/*"
-                  onChange={(e) => {
+                  onChange={async (e) => {
                     const file = e.target.files?.[0];
                     if (file) {
-                      const url = URL.createObjectURL(file);
-                      setForm(f => ({ ...f, imageUrl: url }));
+                      toast.promise(uploadToCloudinary(file), {
+                        loading: "Uploading banner...",
+                        success: (url) => {
+                          if (url) {
+                            setForm(f => ({ ...f, imageUrl: url }));
+                            return "Banner uploaded! 📸";
+                          }
+                          throw new Error("Upload failed");
+                        },
+                        error: "Upload failed. Check your Cloudinary Cloud Name.",
+                      });
                     }
                   }}
                 />

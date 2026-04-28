@@ -62,7 +62,10 @@ export default function AIShopper() {
     try {
       const result = await model.generateContent(systemPrompt);
       const response = await result.response;
-      const aiText = response.text();
+      let aiText = response.text();
+      
+      // Clean markdown code blocks if present
+      aiText = aiText.replace(/```json/g, "").replace(/```/g, "").trim();
       
       // Extract product IDs
       const match = aiText.match(/\[RECOMMEND: (.*?)\]/);

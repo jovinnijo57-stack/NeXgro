@@ -1,9 +1,8 @@
 import { GoogleGenerativeAI } from "@google/generative-ai";
-
-const API_KEY = import.meta.env.VITE_GEMINI_API_KEY || "";
+import { GEMINI_API_KEY, GEMINI_MODEL } from "../config/ai";
 
 export async function analyzeRecipe(recipeTitle: string, ingredients: any[]) {
-  if (!API_KEY) {
+  if (!GEMINI_API_KEY) {
     console.warn("Gemini API Key missing. Returning default analysis.");
     return {
       water: "2-3 cups (approx.)",
@@ -17,8 +16,8 @@ export async function analyzeRecipe(recipeTitle: string, ingredients: any[]) {
     };
   }
 
-  const genAI = new GoogleGenerativeAI(API_KEY);
-  const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+  const genAI = new GoogleGenerativeAI(GEMINI_API_KEY);
+  const model = genAI.getGenerativeModel({ model: GEMINI_MODEL });
 
   const prompt = `Analyze this recipe: "${recipeTitle}". 
   Ingredients provided: ${JSON.stringify(ingredients)}.
@@ -33,12 +32,24 @@ export async function analyzeRecipe(recipeTitle: string, ingredients: any[]) {
   try {
     const result = await model.generateContent(prompt);
     const response = await result.response;
-    const text = response.text();
-    // Extract JSON from response if needed
-    const jsonMatch = text.match(/\{[\s\S]*\}/);
-    return jsonMatch ? JSON.parse(jsonMatch[0]) : JSON.parse(text);
-  } catch (error) {
+    let text = response.text();
+    
+    // Clean markdown code blocks if present
+    text = text.replace(/```json/g, "").replace(/```/g, "").trim();
+
+    // Find the first { and last }
+    const firstBrace = text.indexOf("{");
+    const lastBrace = text.lastIndexOf("}");
+    
+    if (firstBrace !== -1 && lastBrace !== -1) {
+      const jsonStr = text.substring(firstBrace, lastBrace + 1);
+      return JSON.parse(jsonStr);
+    }
+    
+    return JSON.parse(text);
+  } catch (error: any) {
     console.error("Gemini analysis failed:", error);
+    // Return null so the UI can show an error toast
     return null;
   }
 }
