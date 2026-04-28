@@ -18,8 +18,13 @@ import { useState, useEffect } from "react";
 import { toast } from "sonner";
 import { useQueryClient } from "@tanstack/react-query";
 import { analyzeRecipe } from "@/services/gemini";
+import { SAMPLE_PRODUCTS } from "@/types";
 
 const DAYS = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
+
+const getLocalDateString = (d: Date) => {
+  return [d.getFullYear(), String(d.getMonth() + 1).padStart(2, '0'), String(d.getDate()).padStart(2, '0')].join('-');
+};
 
 export default function MealPlannerPage() {
   const navigate = useNavigate();
@@ -27,7 +32,7 @@ export default function MealPlannerPage() {
   const { data: recipes } = useRecipes();
   const { data: mealPlans } = useMealPlans();
   const addToCart = useAddToCart();
-  const [selectedDate, setSelectedDate] = useState<string>(new Date().toISOString().split("T")[0]);
+  const [selectedDate, setSelectedDate] = useState<string>(getLocalDateString(new Date()));
   const [adding, setAdding] = useState<string | null>(null);
   const [aiAnalysis, setAiAnalysis] = useState<Record<string, any>>({});
   const [analyzing, setAnalyzing] = useState<string | null>(null);
@@ -40,7 +45,7 @@ export default function MealPlannerPage() {
   const handleDayClick = (dayIndex: number) => {
     const date = new Date(startOfWeek);
     date.setDate(startOfWeek.getDate() + dayIndex);
-    setSelectedDate(date.toISOString().split("T")[0]);
+    setSelectedDate(getLocalDateString(date));
   };
 
   const handleDateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -173,7 +178,7 @@ export default function MealPlannerPage() {
           {DAYS.map((day, i) => {
             const date = new Date(startOfWeek);
             date.setDate(startOfWeek.getDate() + i);
-            const dateStr = date.toISOString().split("T")[0];
+            const dateStr = getLocalDateString(date);
             const isSelected = selectedDate === dateStr;
             return (
               <button
@@ -262,14 +267,19 @@ export default function MealPlannerPage() {
                           <span className="text-[10px] font-bold text-muted-foreground">{(recipe?.ingredients || []).length} Items</span>
                         </div>
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                          {(recipe?.ingredients || []).map((ing: any, idx: number) => (
+                          {(recipe?.ingredients || []).map((ing: any, idx: number) => {
+                            const matchedProduct = SAMPLE_PRODUCTS.find(p => p.id === ing.id);
+                            return (
                             <div key={idx} className="flex items-center gap-3 bg-muted/50 p-3 rounded-2xl border border-border">
-                              <div className="w-8 h-8 rounded-lg bg-[#007000]/10 flex items-center justify-center text-[#007000] font-black text-xs">
-                                {ing.qty}
+                              <div className="w-10 h-10 rounded-lg overflow-hidden shrink-0 bg-white">
+                                <img src={matchedProduct?.imageUrl || "/assets/placeholder.png"} className="w-full h-full object-cover" alt={ing.name} />
                               </div>
-                              <span className="text-xs font-bold text-foreground">{ing.name}</span>
+                              <div className="flex-1 min-w-0">
+                                <span className="text-xs font-bold text-foreground block truncate">{ing.name}</span>
+                                <span className="text-[10px] font-black text-[#007000] uppercase tracking-widest">Qty: {ing.qty}</span>
+                              </div>
                             </div>
-                          ))}
+                          )})}
                         </div>
                       </div>
 

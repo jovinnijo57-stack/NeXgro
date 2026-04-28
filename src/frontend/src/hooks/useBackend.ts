@@ -531,11 +531,17 @@ export function useCart() {
   return useQuery<CartItem[]>({
     queryKey: ["cart"],
     queryFn: async () => {
-      if (!actor) return [];
+      if (!actor) {
+        try {
+          const raw = localStorage.getItem("nexgro_cart_v1");
+          if (raw) return JSON.parse(raw);
+        } catch {}
+        return [];
+      }
       const result = await actor.getUserCart();
       return result.map(adaptCartItem);
     },
-    enabled: !!actor && !isFetching,
+    enabled: true,
     initialData: [],
   });
 }
@@ -555,10 +561,14 @@ export function useAddToCart() {
       if (!actor && mockData) {
         qc.setQueryData<CartItem[]>(["cart"], (old = []) => {
           const existing = old.find(i => i.productId === mockData.productId);
+          let newCart;
           if (existing) {
-            return old.map(i => i.productId === mockData.productId ? { ...i, quantity: i.quantity + mockData.qty } : i);
+            newCart = old.map(i => i.productId === mockData.productId ? { ...i, quantity: i.quantity + mockData.qty } : i);
+          } else {
+            newCart = [...old, { userId: "mock", productId: mockData.productId, quantity: mockData.qty, addedAt: BigInt(Date.now()) }];
           }
-          return [...old, { userId: "mock", productId: mockData.productId, quantity: mockData.qty, addedAt: BigInt(Date.now()) }];
+          localStorage.setItem("nexgro_cart_v1", JSON.stringify(newCart));
+          return newCart;
         });
       }
       qc.invalidateQueries({ queryKey: ["cart"] });
@@ -576,7 +586,11 @@ export function useRemoveFromCart() {
     },
     onSuccess: (mockProductId) => {
       if (!actor && mockProductId) {
-        qc.setQueryData<CartItem[]>(["cart"], (old = []) => old.filter(i => i.productId !== mockProductId));
+        qc.setQueryData<CartItem[]>(["cart"], (old = []) => {
+          const newCart = old.filter(i => i.productId !== mockProductId);
+          localStorage.setItem("nexgro_cart_v1", JSON.stringify(newCart));
+          return newCart;
+        });
       }
       qc.invalidateQueries({ queryKey: ["cart"] });
     },
@@ -596,9 +610,11 @@ export function useUpdateCartQty() {
     },
     onSuccess: (mockData) => {
       if (!actor && mockData) {
-        qc.setQueryData<CartItem[]>(["cart"], (old = []) => 
-          old.map(i => i.productId === mockData.productId ? { ...i, quantity: mockData.qty } : i)
-        );
+        qc.setQueryData<CartItem[]>(["cart"], (old = []) => {
+          const newCart = old.map(i => i.productId === mockData.productId ? { ...i, quantity: mockData.qty } : i);
+          localStorage.setItem("nexgro_cart_v1", JSON.stringify(newCart));
+          return newCart;
+        });
       }
       qc.invalidateQueries({ queryKey: ["cart"] });
     },
@@ -3073,29 +3089,13 @@ export function useDeleteDeliveryZone() {
 export function useMealPlans() {
   return useQuery<MealPlan[]>({
     queryKey: ["meal-plans"],
-    queryFn: async () => [
-      {
-        id: "mp1",
-        userId: "u1",
-        recipeId: "r1",
-        plannedDate: new Date().toISOString().split("T")[0],
-        servings: 2,
-      },
-      {
-        id: "mp2",
-        userId: "u1",
-        recipeId: "r3",
-        plannedDate: new Date().toISOString().split("T")[0],
-        servings: 1,
-      },
-      {
-        id: "mp3",
-        userId: "u1",
-        recipeId: "r4",
-        plannedDate: new Date(Date.now() + 86400000).toISOString().split("T")[0],
-        servings: 2,
-      },
-    ],
+    queryFn: async () => {
+      try {
+        const raw = localStorage.getItem("nexgro_meal_plans");
+        if (raw) return JSON.parse(raw);
+      } catch {}
+      return [];
+    },
     initialData: [],
   });
 }

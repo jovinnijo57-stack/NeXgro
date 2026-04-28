@@ -334,7 +334,7 @@ const DAYS = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];export default fu
       const plannedDate = new Date();
       plannedDate.setDate(now.getDate() + diff);
       
-      const dateStr = plannedDate.toISOString().split("T")[0];
+      const dateStr = [plannedDate.getFullYear(), String(plannedDate.getMonth() + 1).padStart(2, '0'), String(plannedDate.getDate()).padStart(2, '0')].join('-');
 
       const existing = JSON.parse(localStorage.getItem("nexgro_meal_plans") || "[]");
       const newPlan = {
