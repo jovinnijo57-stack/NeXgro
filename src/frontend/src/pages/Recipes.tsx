@@ -24,11 +24,35 @@ interface Recipe {
   instructions: string[];
 }
 
-const ALL_RECIPES: Recipe[] = [
+export const ALL_RECIPES: Recipe[] = [
   // BREAKFAST
   {
     id: "b1",
-    title: "Masala Dosa",
+    title: "IDLI",
+    category: "Breakfast",
+    time: "12 min",
+    serves: 4,
+    calories: "280 kcal",
+    protein: "10g",
+    fat: "2g",
+    carbs: "48g",
+    image: "https://images.unsplash.com/photo-1589301760014-d929f3979dbc?w=800&q=80",
+    ingredients: [{ id: "p36", name: "Rice", qty: 2 }, { id: "p88", name: "Urad dal", qty: 1 }, { id: "p58", name: "Salt", qty: 1 }],
+    instructions: [
+      "Take 2 cups rice and wash well",
+      "Take 1 cup urad dal and wash separately",
+      "Soak rice in 3 cups water and dal in 2 cups water for 6 hours",
+      "Grind dal with 1/2 cup water → smooth",
+      "Grind rice with 3/4 cup water → coarse",
+      "Mix both + add 1 tsp salt",
+      "Ferment for 8–10 hours",
+      "Pour 80 ml batter into molds",
+      "Steam with 2 cups water for 12 min"
+    ]
+  },
+  {
+    id: "b2",
+    title: "DOSA",
     category: "Breakfast",
     time: "20 min",
     serves: 2,
@@ -37,324 +61,494 @@ const ALL_RECIPES: Recipe[] = [
     fat: "12g",
     carbs: "55g",
     image: "https://images.unsplash.com/photo-1630383249896-424e482df921?w=800&q=80",
-    ingredients: [{ id: "p13", name: "Potatoes", qty: 2 }, { id: "p14", name: "Onion", qty: 1 }],
-    instructions: ["Spread batter thinly on a hot griddle.", "Apply ghee and cook until crisp.", "Add potato masala and fold."]
-  },
-  {
-    id: "b2",
-    title: "Idli with Sambar",
-    category: "Breakfast",
-    time: "15 min",
-    serves: 2,
-    calories: "280 kcal",
-    protein: "10g",
-    fat: "4g",
-    carbs: "48g",
-    image: "https://images.unsplash.com/photo-1589301760014-d929f3979dbc?w=800&q=80",
-    ingredients: [{ id: "p15", name: "Carrot", qty: 1 }, { id: "p1", name: "Tomato", qty: 2 }],
-    instructions: ["Steam idlis in a mold for 10 mins.", "Heat sambar with fresh vegetables.", "Serve hot with coconut chutney."]
+    ingredients: [{ id: "p36", name: "Rice", qty: 3 }, { id: "p88", name: "Urad dal", qty: 1 }, { id: "p58", name: "Salt", qty: 1 }, { id: "p59", name: "Oil", qty: 1 }],
+    instructions: [
+      "Soak 3 cups rice, 1 cup urad dal, and 1 tsp fenugreek for 5 hours",
+      "Grind to a very smooth, pourable batter",
+      "Add 1 tsp salt and ferment for 8 hours",
+      "Heat a pan and grease with 1 tsp oil",
+      "Spread 1 ladle of batter in a thin circle",
+      "Cook for 2 min until edges are crispy"
+    ]
   },
   {
     id: "b3",
-    title: "Kerala Puttu & Kadala",
+    title: "APPAM",
     category: "Breakfast",
     time: "25 min",
-    serves: 2,
+    serves: 3,
     calories: "410 kcal",
     protein: "14g",
     fat: "12g",
     carbs: "62g",
     image: "https://images.unsplash.com/photo-1599487488170-d11ec9c175f0?w=800&q=80",
-    ingredients: [{ id: "p23", name: "Rice Powder", qty: 1 }, { id: "p24", name: "Black Chickpeas", qty: 1 }],
-    instructions: ["Steam rice powder with coconut layers.", "Prepare spicy chickpea curry.", "Serve hot together."]
+    ingredients: [{ id: "p36", name: "Raw rice", qty: 2 }, { id: "p93", name: "Coconut", qty: 1 }, { id: "p94", name: "Yeast", qty: 1 }, { id: "p57", name: "Sugar", qty: 1 }, { id: "p58", name: "Salt", qty: 1 }],
+    instructions: [
+      "Soak 2 cups raw rice for 4 hours",
+      "Grind rice with 1 cup grated coconut and 1/2 cup cooked rice",
+      "Add 1/2 tsp yeast and 1 tbsp sugar",
+      "Ferment for 6–8 hours until bubbly",
+      "Pour into an Appam pan and swirl to coat edges",
+      "Steam covered for 3 min"
+    ]
   },
   {
     id: "b4",
-    title: "Rava Upma",
+    title: "PUTTU",
+    category: "Breakfast",
+    time: "15 min",
+    serves: 2,
+    calories: "320 kcal",
+    protein: "6g",
+    fat: "8g",
+    carbs: "55g",
+    image: "https://images.unsplash.com/photo-1599487488170-d11ec9c175f0?w=800&q=80",
+    ingredients: [{ id: "p92", name: "Rice flour", qty: 2 }, { id: "p93", name: "Grated coconut", qty: 1 }, { id: "p58", name: "Salt", qty: 1 }],
+    instructions: [
+      "Mix 2 cups rice flour with 1/2 tsp salt",
+      "Sprinkle 3/4 cup water gradually while mixing",
+      "Texture should be moist but crumbly (no lumps)",
+      "Layer 2 tbsp coconut then 1 cup flour mixture in puttu maker",
+      "Steam for 6–8 min until steam escapes top"
+    ]
+  },
+  {
+    id: "b5",
+    title: "UPMA",
     category: "Breakfast",
     time: "15 min",
     serves: 2,
     calories: "260 kcal",
     protein: "6g",
-    fat: "8g",
-    carbs: "45g",
+    fat: "10g",
+    carbs: "42g",
     image: "https://images.unsplash.com/photo-1599487488170-d11ec9c175f0?w=800&q=80",
-    ingredients: [{ id: "p25", name: "Semolina", qty: 1 }, { id: "p26", name: "Veggies", qty: 1 }],
-    instructions: ["Roast semolina until fragrant.", "Sauté veggies and add water.", "Stir in semolina and cook until soft."]
+    ingredients: [{ id: "p90", name: "Rava (Semolina)", qty: 1 }, { id: "p14", name: "Onion", qty: 1 }, { id: "p84", name: "Ghee", qty: 2 }],
+    instructions: [
+      "Roast 1 cup rava until fragrant; set aside",
+      "Sauté 1 tsp mustard seeds, 1 chopped onion, and chilies in 2 tbsp ghee",
+      "Add 2.5 cups water and bring to a boil",
+      "Slowly pour in rava while stirring constantly",
+      "Cover and cook on low heat for 5 min"
+    ]
   },
   {
-    id: "b5",
-    title: "Aloo Paratha",
+    id: "b6",
+    title: "PONGAL",
     category: "Breakfast",
-    time: "30 min",
+    time: "25 min",
+    serves: 3,
+    calories: "450 kcal",
+    protein: "12g",
+    fat: "15g",
+    carbs: "65g",
+    image: "https://images.unsplash.com/photo-1599487488170-d11ec9c175f0?w=800&q=80",
+    ingredients: [{ id: "p36", name: "Raw rice", qty: 1 }, { id: "p89", name: "Moong dal", qty: 1 }, { id: "p84", name: "Ghee", qty: 3 }, { id: "p58", name: "Salt", qty: 1 }],
+    instructions: [
+      "Pressure cook 1 cup rice and 1/2 cup moong dal with 4.5 cups water",
+      "Mash the cooked mixture slightly",
+      "Heat 3 tbsp ghee; fry 1 tsp pepper, 1 tsp cumin, and ginger",
+      "Pour the tempering over the rice mixture",
+      "Add 1 tsp salt and mix well"
+    ]
+  },
+  {
+    id: "b7",
+    title: "POHA",
+    category: "Breakfast",
+    time: "10 min",
+    serves: 2,
+    calories: "310 kcal",
+    protein: "7g",
+    fat: "12g",
+    carbs: "45g",
+    image: "https://images.unsplash.com/photo-1599487488170-d11ec9c175f0?w=800&q=80",
+    ingredients: [{ id: "p91", name: "Flattened rice (Poha)", qty: 2 }, { id: "p14", name: "Onion", qty: 1 }, { id: "p59", name: "Oil", qty: 1 }],
+    instructions: [
+      "Rinse 2 cups thick poha in a colander; drain well",
+      "Sauté 1/2 cup peanuts, 1 onion, and 1/2 tsp turmeric in oil",
+      "Add poha and 1 tsp salt; toss gently",
+      "Cover and steam for 2 min",
+      "Finish with 1 tbsp lemon juice and cilantro"
+    ]
+  },
+  {
+    id: "b8",
+    title: "PARATHA",
+    category: "Breakfast",
+    time: "20 min",
     serves: 2,
     calories: "380 kcal",
     protein: "9g",
     fat: "15g",
     carbs: "52g",
     image: "https://images.unsplash.com/photo-1606491956689-2ea866880c84?w=800&q=80",
-    ingredients: [{ id: "p27", name: "Wheat Flour", qty: 1 }, { id: "p13", name: "Potatoes", qty: 1 }],
-    instructions: ["Stuff dough with spiced mashed potatoes.", "Roll out and cook on tawa with ghee.", "Serve with curd and pickle."]
+    ingredients: [{ id: "p56", name: "Whole wheat flour", qty: 2 }, { id: "p58", name: "Salt", qty: 1 }, { id: "p59", name: "Oil", qty: 1 }],
+    instructions: [
+      "Knead 2 cups flour, 1/2 tsp salt, and 3/4 cup water into a dough",
+      "Rest dough for 20 min",
+      "Roll into a 6-inch circle, brush with oil, and fold",
+      "Roll out again and cook on a hot griddle",
+      "Apply 1 tsp ghee on both sides until golden brown"
+    ]
   },
-
+  {
+    id: "b9",
+    title: "OMELETTE",
+    category: "Breakfast",
+    time: "5 min",
+    serves: 1,
+    calories: "220 kcal",
+    protein: "14g",
+    fat: "16g",
+    carbs: "4g",
+    image: "https://images.unsplash.com/photo-1510627489930-0c1b0ba9448f?w=800&q=80",
+    ingredients: [{ id: "p37", name: "Eggs", qty: 2 }, { id: "p14", name: "Onion", qty: 2 }, { id: "p4", name: "Milk", qty: 1 }, { id: "p85", name: "Butter", qty: 1 }],
+    instructions: [
+      "Whisk 2 eggs with 1 tbsp milk and a pinch of salt/pepper",
+      "Sauté 2 tbsp chopped onions in 1 tsp butter",
+      "Pour egg mixture into the pan",
+      "Cook for 2 min until base is set",
+      "Fold in half and serve hot"
+    ]
+  },
+  {
+    id: "b10",
+    title: "FRENCH TOAST",
+    category: "Breakfast",
+    time: "10 min",
+    serves: 1,
+    calories: "350 kcal",
+    protein: "12g",
+    fat: "14g",
+    carbs: "45g",
+    image: "https://images.unsplash.com/photo-1484723091739-30a097e8f929?w=800&q=80",
+    ingredients: [{ id: "p31", name: "Bread slices", qty: 2 }, { id: "p37", name: "Egg", qty: 1 }, { id: "p4", name: "Milk", qty: 1 }, { id: "p95", name: "Maple syrup", qty: 1 }],
+    instructions: [
+      "Whisk 1 egg, 1/4 cup milk, and 1/4 tsp cinnamon",
+      "Dip 2 slices of bread into the mixture for 10 seconds per side",
+      "Melt 1 tbsp butter on a skillet",
+      "Fry bread for 3 min per side until golden",
+      "Top with 1 tbsp maple syrup"
+    ]
+  },
+  {
+    id: "b11",
+    title: "PANCAKES",
+    category: "Breakfast",
+    time: "15 min",
+    serves: 2,
+    calories: "450 kcal",
+    protein: "10g",
+    fat: "12g",
+    carbs: "75g",
+    image: "https://images.unsplash.com/photo-1528207776546-365bb710ee93?w=800&q=80",
+    ingredients: [{ id: "p56", name: "Flour", qty: 1 }, { id: "p4", name: "Milk", qty: 1 }, { id: "p37", name: "Egg", qty: 1 }, { id: "p57", name: "Sugar", qty: 1 }],
+    instructions: [
+      "Mix 1 cup flour, 1 tbsp sugar, and 2 tsp baking powder",
+      "Whisk in 1 cup milk and 1 egg until smooth",
+      "Pour 1/4 cup batter onto a greased hot pan",
+      "Flip when bubbles form on top (about 2 min)",
+      "Cook other side for 1 min"
+    ]
+  },
+  {
+    id: "b12",
+    title: "SANDWICH",
+    category: "Breakfast",
+    time: "10 min",
+    serves: 1,
+    calories: "380 kcal",
+    protein: "14g",
+    fat: "18g",
+    carbs: "42g",
+    image: "https://images.unsplash.com/photo-1528735602780-2552fd46c7af?w=800&q=80",
+    ingredients: [{ id: "p31", name: "Bread", qty: 2 }, { id: "p11", name: "Cheese", qty: 1 }, { id: "p1", name: "Tomato", qty: 2 }, { id: "p85", name: "Butter", qty: 1 }],
+    instructions: [
+      "Spread 1 tsp butter on 2 slices of bread",
+      "Layer 1 slice cheese, 2 slices tomato, and lettuce",
+      "Close the sandwich and grill on a pan",
+      "Toast for 3 min per side until cheese melts",
+      "Cut diagonally and serve"
+    ]
+  },
+  {
+    id: "b13",
+    title: "SMOOTHIE BOWL",
+    category: "Breakfast",
+    time: "5 min",
+    serves: 1,
+    calories: "320 kcal",
+    protein: "8g",
+    fat: "6g",
+    carbs: "62g",
+    image: "https://images.unsplash.com/photo-1511690656952-34342bb7c2f2?w=800&q=80",
+    ingredients: [{ id: "p99", name: "Almond milk", qty: 1 }, { id: "p97", name: "Granola", qty: 2 }, { id: "p98", name: "Chia seeds", qty: 1 }],
+    instructions: [
+      "Blend 1 frozen banana, 1/2 cup berries, and 1/4 cup milk",
+      "Texture should be thick (like soft serve)",
+      "Pour into a bowl",
+      "Top with 2 tbsp granola and 1 tsp chia seeds",
+      "Add fresh fruit slices for garnish"
+    ]
+  },
+  {
+    id: "b14",
+    title: "OATS PORRIDGE",
+    category: "Breakfast",
+    time: "10 min",
+    serves: 1,
+    calories: "290 kcal",
+    protein: "12g",
+    fat: "6g",
+    carbs: "48g",
+    image: "https://images.unsplash.com/photo-1504113888839-1c8003673ef2?w=800&q=80",
+    ingredients: [{ id: "p100", name: "Rolled oats", qty: 1 }, { id: "p4", name: "Milk", qty: 1 }, { id: "p96", name: "Honey", qty: 1 }],
+    instructions: [
+      "Combine 1/2 cup oats and 1 cup milk in a pot",
+      "Simmer for 5–7 min while stirring",
+      "Add 1 tsp honey for sweetness",
+      "Top with 1 tbsp chopped nuts",
+      "Serve warm with sliced fruit"
+    ]
+  },
   // LUNCH
   {
     id: "l1",
-    title: "Chicken Biryani",
+    title: "SAMBAR",
     category: "Lunch",
-    time: "45 min",
+    time: "25 min",
     serves: 4,
-    calories: "650 kcal",
-    protein: "35g",
-    fat: "25g",
-    carbs: "75g",
-    image: "https://images.unsplash.com/photo-1563379091339-03b21bc4a4f8?w=800&q=80",
-    ingredients: [{ id: "p7", name: "Basmati Rice", qty: 2 }, { id: "p8", name: "Chicken", qty: 1 }],
-    instructions: ["Marinate chicken with spices.", "Layer rice and chicken.", "Cook on dum for 20 mins."]
+    calories: "180 kcal",
+    protein: "8g",
+    fat: "4g",
+    carbs: "25g",
+    image: "https://images.unsplash.com/photo-1589301760014-d929f3979dbc?w=800&q=80",
+    ingredients: [{ id: "p101", name: "Toor dal", qty: 1 }, { id: "p102", name: "Sambar powder", qty: 2 }, { id: "p103", name: "Tamarind", qty: 1 }],
+    instructions: [
+      "Pressure cook 1 cup toor dal with 3 cups water",
+      "Boil 2 cups vegetables in 1/2 cup tamarind water",
+      "Add 2 tbsp sambar powder and 1 tsp salt",
+      "Mix in mashed dal and simmer for 5 min",
+      "Temper with 1 tsp mustard seeds and curry leaves"
+    ]
   },
   {
     id: "l2",
-    title: "Fish Curry (Kerala Style)",
+    title: "RASAM",
     category: "Lunch",
-    time: "30 min",
-    serves: 3,
-    calories: "420 kcal",
-    protein: "28g",
-    fat: "22g",
-    carbs: "12g",
-    image: "https://images.unsplash.com/photo-1544943910-4c1dc44aab44?w=800&q=80",
-    ingredients: [{ id: "p62", name: "King Fish", qty: 1 }, { id: "p6", name: "Coconut Milk", qty: 1 }],
-    instructions: ["Sauté shallots and spices in clay pot.", "Add coconut milk and fish pieces.", "Simmer with kudampuli until thick."]
+    time: "10 min",
+    serves: 4,
+    calories: "80 kcal",
+    protein: "2g",
+    fat: "3g",
+    carbs: "10g",
+    image: "https://images.unsplash.com/photo-1546833999-b9f581a1996d?w=800&q=80",
+    ingredients: [{ id: "p1", name: "Tomatoes", qty: 2 }, { id: "p103", name: "Tamarind", qty: 1 }, { id: "p113", name: "Garlic", qty: 4 }],
+    instructions: [
+      "Mash 2 tomatoes into 2 cups tamarind water",
+      "Crush 4 cloves garlic, 1 tsp pepper, and 1 tsp cumin",
+      "Add spices to the water and bring to a simmer",
+      "Do not boil; turn off heat when frothy",
+      "Temper with 1 tsp ghee and mustard seeds"
+    ]
   },
   {
     id: "l3",
-    title: "Vegetable Thali",
+    title: "CHICKEN CURRY",
     category: "Lunch",
-    time: "40 min",
-    serves: 1,
-    calories: "750 kcal",
-    protein: "20g",
-    fat: "28g",
-    carbs: "95g",
-    image: "https://images.unsplash.com/photo-1512621776951-a57141f2eefd?w=800&q=80",
-    ingredients: [{ id: "p10", name: "Rice", qty: 1 }, { id: "p11", name: "Dal & Veggies", qty: 1 }],
-    instructions: ["Cook rice and various vegetable dishes.", "Serve with sambar, rasam, and curd.", "Finish with papad and sweet."]
+    time: "30 min",
+    serves: 3,
+    calories: "450 kcal",
+    protein: "35g",
+    fat: "25g",
+    carbs: "12g",
+    image: "https://images.unsplash.com/photo-1563379091339-03b21bc4a4f8?w=800&q=80",
+    ingredients: [{ id: "p37", name: "Chicken", qty: 1 }, { id: "p14", name: "Onion", qty: 2 }, { id: "p1", name: "Tomato", qty: 2 }],
+    instructions: [
+      "Sauté 2 sliced onions and 1 tbsp G-G paste in oil",
+      "Add 2 chopped tomatoes and 1 tsp turmeric/chili/coriander",
+      "Add 500g chicken pieces and 1 tsp salt",
+      "Cover and cook in own juices for 20 min",
+      "Garnish with fresh cilantro"
+    ]
   },
-
+  {
+    id: "l4",
+    title: "BIRYANI",
+    category: "Lunch",
+    time: "1 hr 25 min",
+    serves: 4,
+    calories: "650 kcal",
+    protein: "30g",
+    fat: "28g",
+    carbs: "70g",
+    image: "https://images.unsplash.com/photo-1563379091339-03b21bc4a4f8?w=800&q=80",
+    ingredients: [{ id: "p36", name: "Basmati rice", qty: 2 }, { id: "p104", name: "Whole spices", qty: 1 }, { id: "p105", name: "Yogurt", qty: 1 }],
+    instructions: [
+      "Marinate 500g meat in 1/2 cup yogurt and spices for 1 hour",
+      "Parboil 2 cups rice with whole spices until 70% cooked",
+      "Layer meat and rice in a heavy-bottomed pot",
+      "Top with 2 tbsp ghee and fried onions",
+      "Seal lid and cook on 'Dum' (low heat) for 25 min"
+    ]
+  },
+  {
+    id: "l5",
+    title: "CURD RICE",
+    category: "Lunch",
+    time: "10 min",
+    serves: 2,
+    calories: "320 kcal",
+    protein: "10g",
+    fat: "8g",
+    carbs: "50g",
+    image: "https://images.unsplash.com/photo-1546833999-b9f581a1996d?w=800&q=80",
+    ingredients: [{ id: "p36", name: "Cooked rice", qty: 2 }, { id: "p105", name: "Plain yogurt (Curd)", qty: 1 }, { id: "p4", name: "Milk", qty: 1 }, { id: "p106", name: "Pomegranate", qty: 1 }],
+    instructions: [
+      "Mash 2 cups soft cooked rice while warm",
+      "Stir in 1 cup curd and 1/4 cup milk",
+      "Add 1 tsp salt and grated ginger",
+      "Temper with mustard seeds, urad dal, and chilies",
+      "Garnish with 2 tbsp pomegranate seeds"
+    ]
+  },
   // DINNER
   {
     id: "d1",
-    title: "Paneer Butter Masala",
+    title: "ROTI & CURRY",
     category: "Dinner",
-    time: "25 min",
+    time: "20 min",
+    serves: 2,
+    calories: "420 kcal",
+    protein: "12g",
+    fat: "14g",
+    carbs: "60g",
+    image: "https://images.unsplash.com/photo-1606491956689-2ea866880c84?w=800&q=80",
+    ingredients: [{ id: "p56", name: "Atta (Wheat flour)", qty: 2 }, { id: "p58", name: "Salt", qty: 1 }],
+    instructions: [
+      "Knead 2 cups flour with water to make soft dough",
+      "Roll into thin 7-inch circles",
+      "Cook on hot griddle until bubbles appear",
+      "Puff over direct flame for 5 seconds",
+      "Serve hot with 1 bowl of prepared curry"
+    ]
+  },
+  {
+    id: "d2",
+    title: "PANEER BUTTER MASALA",
+    category: "Dinner",
+    time: "15 min",
     serves: 2,
     calories: "480 kcal",
     protein: "15g",
     fat: "35g",
     carbs: "22g",
     image: "https://images.unsplash.com/photo-1631452180519-c014fe946bc7?w=800&q=80",
-    ingredients: [{ id: "p12", name: "Paneer", qty: 1 }, { id: "p13", name: "Tomato", qty: 1 }],
-    instructions: ["Saute onions and ginger-garlic.", "Add tomato puree and spices.", "Add paneer and finish with cream."]
-  },
-  {
-    id: "d2",
-    title: "Chicken Roast",
-    category: "Dinner",
-    time: "35 min",
-    serves: 3,
-    calories: "510 kcal",
-    protein: "38g",
-    fat: "30g",
-    carbs: "15g",
-    image: "https://images.unsplash.com/photo-1532550907401-a500c9a57435?w=800&q=80",
-    ingredients: [{ id: "p8", name: "Chicken", qty: 1 }, { id: "p14", name: "Onion", qty: 1 }],
-    instructions: ["Marinate chicken pieces.", "Slow roast with plenty of onions.", "Add curry leaves for aroma."]
+    ingredients: [{ id: "p30", name: "Paneer cubes", qty: 1 }, { id: "p85", name: "Butter", qty: 2 }, { id: "p40", name: "Cream", qty: 1 }, { id: "p112", name: "Cashews", qty: 1 }],
+    instructions: [
+      "Sauté 1 cup tomato puree in 2 tbsp butter",
+      "Add 1/4 cup cashew paste and spices",
+      "Simmer until oil separates",
+      "Add 200g paneer and 2 tbsp heavy cream",
+      "Cook for 3 min; garnish with dried fenugreek"
+    ]
   },
   {
     id: "d3",
-    title: "Vegetable Noodles",
+    title: "NOODLES",
     category: "Dinner",
     time: "15 min",
     serves: 2,
-    calories: "340 kcal",
-    protein: "8g",
-    fat: "10g",
-    carbs: "55g",
-    image: "https://images.unsplash.com/photo-1585032226651-759b368d7246?w=800&q=80",
-    ingredients: [{ id: "p28", name: "Noodles", qty: 1 }, { id: "p15", name: "Carrots/Beans", qty: 1 }],
-    instructions: ["Boil noodles until al dente.", "Stir fry veggies on high heat.", "Toss with noodles and soy sauce."]
-  },
-
-  // SNACKS
-  {
-    id: "s1",
-    title: "Crispy Samosa",
-    category: "Snacks",
-    time: "30 min",
-    serves: 4,
-    calories: "180 kcal",
-    protein: "4g",
-    fat: "10g",
-    carbs: "22g",
-    image: "https://images.unsplash.com/photo-1601050633647-81a3104192df?w=800&q=80",
-    ingredients: [{ id: "p16", name: "Samosa Sheet", qty: 1 }, { id: "p13", name: "Potato", qty: 1 }],
-    instructions: ["Fill sheets with spiced potato.", "Fold into triangles.", "Deep fry until golden."]
-  },
-  {
-    id: "s2",
-    title: "Onion Pakora",
-    category: "Snacks",
-    time: "20 min",
-    serves: 3,
-    calories: "220 kcal",
-    protein: "5g",
-    fat: "14g",
-    carbs: "18g",
-    image: "https://images.unsplash.com/photo-1601050633647-81a3104192df?w=800&q=80",
-    ingredients: [{ id: "p14", name: "Onion", qty: 1 }, { id: "p29", name: "Gram Flour", qty: 1 }],
-    instructions: ["Slice onions thinly.", "Mix with flour and spices.", "Deep fry small portions."]
-  },
-
-  // DESSERTS
-  {
-    id: "ds1",
-    title: "Gulab Jamun",
-    category: "Desserts",
-    time: "20 min",
-    serves: 4,
-    calories: "220 kcal",
-    protein: "3g",
-    fat: "12g",
-    carbs: "35g",
-    image: "https://images.unsplash.com/photo-1589119908995-c6837fa14848?w=800&q=80",
-    ingredients: [{ id: "p18", name: "Khoya", qty: 1 }, { id: "p19", name: "Sugar", qty: 1 }],
-    instructions: ["Make balls from khoya.", "Fry until dark brown.", "Soak in sugar syrup."]
-  },
-  {
-    id: "ds2",
-    title: "Rice Payasam",
-    category: "Desserts",
-    time: "40 min",
-    serves: 5,
-    calories: "290 kcal",
-    protein: "6g",
-    fat: "10g",
-    carbs: "45g",
-    image: "https://images.unsplash.com/photo-1589119908995-c6837fa14848?w=800&q=80",
-    ingredients: [{ id: "p4", name: "Milk", qty: 1 }, { id: "p7", name: "Basmati Rice", qty: 1 }],
-    instructions: ["Boil rice in milk until soft.", "Add sugar and cardamom.", "Garnish with roasted nuts."]
-  },
-
-  // HEALTHY
-  {
-    id: "h1",
-    title: "Fresh Fruit Bowl",
-    category: "Healthy",
-    time: "10 min",
-    serves: 1,
-    calories: "150 kcal",
-    protein: "2g",
-    fat: "0g",
-    carbs: "38g",
-    image: "https://images.unsplash.com/photo-1512621776951-a57141f2eefd?w=800&q=80",
-    ingredients: [{ id: "p1", name: "Tomato", qty: 1 }, { id: "p2", name: "Avocado", qty: 1 }],
-    instructions: ["Chop seasonal fruits.", "Mix with a dash of honey.", "Serve chilled."]
-  },
-  {
-    id: "h2",
-    title: "Mixed Sprouts Salad",
-    category: "Healthy",
-    time: "15 min",
-    serves: 2,
-    calories: "180 kcal",
+    calories: "400 kcal",
     protein: "12g",
-    fat: "2g",
-    carbs: "25g",
-    image: "https://images.unsplash.com/photo-1512621776951-a57141f2eefd?w=800&q=80",
-    ingredients: [{ id: "p30", name: "Sprouts", qty: 1 }, { id: "p14", name: "Onion", qty: 1 }],
-    instructions: ["Steam sprouts lightly.", "Mix with chopped onion and tomato.", "Add lemon juice and salt."]
+    fat: "15g",
+    carbs: "55g",
+    image: "https://images.unsplash.com/photo-1550547660-d9450f859349?w=800&q=80",
+    ingredients: [{ id: "p48", name: "Egg/Veg noodles", qty: 1 }, { id: "p107", name: "Soy sauce", qty: 1 }, { id: "p108", name: "Vinegar", qty: 1 }],
+    instructions: [
+      "Boil 200g noodles; drain and toss in 1 tsp oil",
+      "Stir-fry veggies/chicken on high heat for 5 min",
+      "Add noodles + 1 tbsp soy sauce + 1 tsp vinegar",
+      "Toss well for 2 min until charred",
+      "Season with 1/2 tsp black pepper"
+    ]
+  },
+  {
+    id: "d4",
+    title: "TOMATO SOUP",
+    category: "Dinner",
+    time: "20 min",
+    serves: 2,
+    calories: "210 kcal",
+    protein: "4g",
+    fat: "12g",
+    carbs: "24g",
+    image: "https://images.unsplash.com/photo-1547592115-30777e4d8961?w=800&q=80",
+    ingredients: [{ id: "p1", name: "Tomatoes", qty: 4 }, { id: "p14", name: "Onion", qty: 1 }, { id: "p85", name: "Butter", qty: 1 }, { id: "p109", name: "Croutons", qty: 1 }],
+    instructions: [
+      "Pressure cook 4 tomatoes and 1 onion with 1 cup water",
+      "Blend until smooth and strain through a sieve",
+      "Simmer with 1 tbsp butter and 1/2 tsp sugar",
+      "Add 1/4 cup cream for richness",
+      "Serve with 5-6 toasted croutons"
+    ]
+  },
+  {
+    id: "d5",
+    title: "STEAMED VEGETABLES",
+    category: "Dinner",
+    time: "10 min",
+    serves: 2,
+    calories: "120 kcal",
+    protein: "6g",
+    fat: "4g",
+    carbs: "15g",
+    image: "https://images.unsplash.com/photo-1453306458620-5bbef13a5bca?w=800&q=80",
+    ingredients: [{ id: "p110", name: "Broccoli", qty: 1 }, { id: "p15", name: "Carrots", qty: 2 }, { id: "p28", name: "Beans", qty: 1 }],
+    instructions: [
+      "Chop vegetables into even bite-sized pieces",
+      "Place in a steamer basket over boiling water",
+      "Steam for 6–8 min (until fork-tender but crisp)",
+      "Toss with 1 tsp olive oil or butter",
+      "Season with lemon juice and cracked pepper"
+    ]
+  },
+  {
+    id: "d6",
+    title: "GRILLED CHICKEN",
+    category: "Dinner",
+    time: "15 min",
+    serves: 1,
+    calories: "320 kcal",
+    protein: "45g",
+    fat: "12g",
+    carbs: "4g",
+    image: "https://images.unsplash.com/photo-1532550907401-a500c9a57435?w=800&q=80",
+    ingredients: [{ id: "p37", name: "Chicken breast", qty: 2 }, { id: "p111", name: "Oregano", qty: 1 }, { id: "p59", name: "Olive oil", qty: 1 }],
+    instructions: [
+      "Marinate 2 chicken breasts in oil, lemon, and herbs",
+      "Preheat grill or pan to medium-high",
+      "Grill for 6–7 min per side",
+      "Ensure internal temp reaches 75°C",
+      "Rest for 5 min before slicing"
+    ]
   }
 ];
 
-const CATEGORIES = [
-  { name: "Breakfast", icon: Clock, color: "text-amber-500" },
-  { name: "Lunch", icon: Utensils, color: "text-emerald-500" },
-  { name: "Dinner", icon: Flame, color: "text-orange-500" },
-  { name: "Snacks", icon: ChefHat, color: "text-rose-500" },
-  { name: "Desserts", icon: Info, color: "text-purple-500" },
-  { name: "Healthy", icon: BookOpen, color: "text-blue-500" },
-];
-
-const DAYS = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];export default function RecipesPage() {
+export default function Recipes() {
   const navigate = useNavigate();
   const qc = useQueryClient();
-  const [searchQuery, setSearchQuery] = useState("");
-  const [selectedCategory, setSelectedCategory] = useState<string>("All");
-  const [isListening, setIsListening] = useState(false);
   const addToCart = useAddToCart();
+  const [searchQuery, setSearchQuery] = useState("");
   const [adding, setAdding] = useState<string | null>(null);
-  const [selectedDays, setSelectedDays] = useState<Record<string, number>>({});
-
-  const startListening = () => {
-    const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
-    if (!SpeechRecognition) {
-      toast.error("Voice recognition not supported.");
-      return;
-    }
-    const recognition = new SpeechRecognition();
-    recognition.lang = "en-US";
-    recognition.onstart = () => setIsListening(true);
-    recognition.onresult = (event: any) => {
-      const text = event.results[0][0].transcript;
-      setSearchQuery(text);
-      setIsListening(false);
-    };
-    recognition.onerror = () => setIsListening(false);
-    recognition.start();
-  };
 
   const filteredRecipes = useMemo(() => {
-    return ALL_RECIPES.filter(recipe => {
-      const matchesCategory = selectedCategory === "All" || recipe.category === selectedCategory;
-      const matchesSearch = recipe.title.toLowerCase().includes(searchQuery.toLowerCase());
-      return matchesCategory && matchesSearch;
-    });
-  }, [searchQuery, selectedCategory]);
-
-  const handleAddToMealPlan = async (recipe: Recipe) => {
-    const dayIndex = selectedDays[recipe.id] ?? 0;
-    setAdding(recipe.id);
-    try {
-      // Calculate date based on current week
-      const now = new Date();
-      const currentDay = now.getDay(); // 0 is Sun, 1 is Mon
-      const targetDay = dayIndex + 1; // DAYS starts from Mon (1)
-      
-      const diff = targetDay - (currentDay === 0 ? 7 : currentDay);
-      const plannedDate = new Date();
-      plannedDate.setDate(now.getDate() + diff);
-      
-      const dateStr = [plannedDate.getFullYear(), String(plannedDate.getMonth() + 1).padStart(2, '0'), String(plannedDate.getDate()).padStart(2, '0')].join('-');
-
-      const existing = JSON.parse(localStorage.getItem("nexgro_meal_plans") || "[]");
-      const newPlan = {
-        id: `mp-${Date.now()}`,
-        recipeId: recipe.id,
-        plannedDate: dateStr,
-        servings: recipe.serves,
-        recipeDetails: recipe 
-      };
-      localStorage.setItem("nexgro_meal_plans", JSON.stringify([...existing, newPlan]));
-      
-      qc.invalidateQueries({ queryKey: ["meal-plans"] });
-      toast.success(`"${recipe.title}" added to ${DAYS[dayIndex]}'s Plan! 📅`);
-      navigate({ to: "/meal-planner" });
-    } catch {
-      toast.error("Failed to add to meal planner.");
-    } finally {
-      setAdding(null);
-    }
-  };
+    return ALL_RECIPES.filter(r => 
+      r.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      r.category.toLowerCase().includes(searchQuery.toLowerCase())
+    );
+  }, [searchQuery]);
 
   const handleAddToCart = async (recipe: Recipe) => {
     setAdding(recipe.id + "-cart");
@@ -370,214 +564,130 @@ const DAYS = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];export default fu
     }
   };
 
-  const handleAnalyzeRecipe = (recipe: Recipe) => {
-    toast.info(`Analyzing "${recipe.title}" with Gemini AI... 🤖`, {
-      description: "Fetching step-by-step quantity and cooking details."
-    });
-    // In a real app, this would call Gemini. For now we redirect to meal planner 
-    // where we'll show the detailed view we're about to implement.
+  const handleAddToMealPlan = (recipe: Recipe) => {
+    const today = new Date();
+    const dateStr = [today.getFullYear(), String(today.getMonth() + 1).padStart(2, '0'), String(today.getDate()).padStart(2, '0')].join('-');
+    
+    const newPlan = {
+      id: Date.now().toString(),
+      recipeId: recipe.id,
+      plannedDate: dateStr,
+      recipeDetails: recipe
+    };
+
+    const existing = JSON.parse(localStorage.getItem("nexgro_meal_plans") || "[]");
+    localStorage.setItem("nexgro_meal_plans", JSON.stringify([...existing, newPlan]));
+    qc.invalidateQueries({ queryKey: ["meal-plans"] });
+    toast.success(`"${recipe.title}" added to your Meal Plan for today! 📅`);
     navigate({ to: "/meal-planner" });
   };
 
   return (
-    <div className="min-h-screen bg-background pb-20">
-      {/* Search and Filters ABOVE Banner */}
-      <div className="bg-background/80 backdrop-blur-xl border-b border-border px-4 py-4 space-y-4">
-        <div className="max-w-5xl mx-auto flex items-center justify-between gap-4">
-          <button
-            onClick={() => navigate({ to: "/home" })}
-            className="p-2 rounded-xl hover:bg-muted transition-colors text-muted-foreground hover:text-foreground shrink-0"
-          >
+    <div className="min-h-screen bg-background pb-24">
+      {/* Header */}
+      <div className="bg-[#007000] p-8 text-white relative overflow-hidden">
+        <div className="absolute top-0 right-0 p-8 opacity-10">
+          <ChefHat className="w-48 h-48 rotate-12" />
+        </div>
+        <div className="relative z-10">
+          <button onClick={() => navigate({ to: "/home" })} className="p-2 bg-white/20 rounded-xl mb-4 hover:bg-white/30 transition-all">
             <ArrowLeft className="w-5 h-5" />
           </button>
-
-          <div className="flex-1 max-w-xl relative group">
-            <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground group-focus-within:text-primary transition-colors" />
-            <input
-              type="text"
-              placeholder="Search recipes, ingredients..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full bg-muted/50 border-2 border-transparent rounded-2xl pl-12 pr-14 py-3.5 text-sm font-bold focus:bg-background focus:border-primary/20 focus:ring-4 focus:ring-primary/10 outline-none transition-all"
-            />
-            <button
-              onClick={startListening}
-              className={cn(
-                "absolute right-2 top-1/2 -translate-y-1/2 w-10 h-10 rounded-xl transition-all flex items-center justify-center",
-                isListening ? "bg-destructive text-white animate-pulse" : "bg-destructive/10 text-destructive hover:bg-destructive hover:text-white"
-              )}
-            >
-              {isListening ? <MicOff className="w-5 h-5" /> : <Mic className="w-5 h-5" />}
-            </button>
-          </div>
-
-          <button 
-            onClick={() => navigate({ to: "/meal-planner" })}
-            className="hidden sm:flex items-center gap-2 bg-[#007000]/10 text-[#007000] px-4 py-2.5 rounded-2xl font-black text-[10px] uppercase tracking-wider hover:bg-[#007000] hover:text-white transition-all shadow-lg shadow-[#007000]/5"
-          >
-            <Calendar className="w-4 h-4" />
-            My Planner
-          </button>
-        </div>
-
-        <div className="max-w-5xl mx-auto flex items-center gap-2 overflow-x-auto pb-2 no-scrollbar px-2">
-          <button
-            onClick={() => setSelectedCategory("All")}
-            className={cn(
-              "px-4 py-2 rounded-xl text-xs font-bold whitespace-nowrap transition-all",
-              selectedCategory === "All" 
-                ? "bg-[#007000] text-white shadow-lg shadow-[#007000]/20" 
-                : "bg-muted text-muted-foreground hover:bg-muted/80"
-            )}
-          >
-            All Recipes
-          </button>
-          {CATEGORIES.map((cat) => {
-            const Icon = cat.icon;
-            return (
-              <button
-                key={cat.name}
-                onClick={() => setSelectedCategory(cat.name)}
-                className={cn(
-                  "px-4 py-2 rounded-xl text-xs font-bold whitespace-nowrap flex items-center gap-2 transition-all",
-                  selectedCategory === cat.name 
-                    ? "bg-[#007000] text-white shadow-lg shadow-[#007000]/20" 
-                    : "bg-muted text-muted-foreground hover:bg-muted/80"
-                )}
-              >
-                <Icon className={cn("w-4 h-4", selectedCategory === cat.name ? "text-white" : cat.color)} />
-                {cat.name}
-              </button>
-            );
-          })}
+          <h1 className="font-display text-4xl font-black italic tracking-tight">Chef's Corner</h1>
+          <p className="text-white/80 text-sm mt-2 max-w-xs font-medium">Curated recipes for your healthy lifestyle. Add ingredients directly to your cart.</p>
         </div>
       </div>
 
-      {/* Hero Banner (Now Below Search) */}
-      <div className="relative h-48 sm:h-64 bg-black overflow-hidden">
-        <img
-          src="https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=1200&q=80"
-          alt="Chef's Corner"
-          className="w-full h-full object-cover opacity-60"
-        />
-        <div className="absolute inset-0 bg-gradient-to-t from-black via-black/20 to-transparent" />
-        <div className="absolute inset-0 flex flex-col items-center justify-center text-center px-4">
-          <h1 className="text-3xl sm:text-5xl font-black text-white mb-2 tracking-tighter animate-in fade-in slide-in-from-bottom-6 duration-700">
-            Chef's Corner
-          </h1>
-          <p className="text-white/70 text-xs sm:text-sm max-w-lg font-medium animate-in fade-in slide-in-from-bottom-8 duration-1000">
-            Discover hand-picked recipes and plan your weekly meals with ease.
-          </p>
+      <div className="max-w-6xl mx-auto px-4 -mt-8 relative z-20 space-y-6">
+        {/* Search */}
+        <div className="relative group">
+          <Search className="absolute left-5 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground group-focus-within:text-primary transition-colors" />
+          <input
+            type="text"
+            placeholder="Search healthy recipes..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="w-full bg-card border-2 border-transparent pl-14 pr-6 py-5 rounded-[2rem] text-sm font-bold shadow-xl focus:border-primary/20 outline-none transition-all"
+          />
         </div>
-      </div>
 
-      {/* Recipe Grid */}
-      <div className="max-w-5xl mx-auto px-4 py-8">
-        {filteredRecipes.length === 0 ? (
-          <div className="py-20 text-center">
-            <Utensils className="w-16 h-16 mx-auto mb-4 text-muted-foreground/20" />
-            <p className="text-muted-foreground font-medium">No recipes found for "{searchQuery}" in {selectedCategory}.</p>
-          </div>
-        ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-            {filteredRecipes.map((recipe) => (
-              <div key={recipe.id} className="group bg-card border border-border rounded-[2rem] overflow-hidden shadow-card hover:shadow-elevated transition-all duration-300">
-                <div className="relative aspect-video overflow-hidden">
-                  <img
-                    src={recipe.image}
-                    alt={recipe.title}
-                    className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent opacity-80" />
-                  <div className="absolute bottom-3 left-3 right-3">
-                    <h3 className="font-display font-bold text-white text-lg leading-tight mb-1">
-                      {recipe.title}
-                    </h3>
-                    <div className="flex items-center gap-3">
-                      <span className="flex items-center gap-1 text-[10px] font-bold text-white/90 bg-white/20 backdrop-blur-md px-2 py-0.5 rounded-full border border-white/10">
-                        <Clock className="w-3 h-3" /> {recipe.time}
-                      </span>
-                      <span className="flex items-center gap-1 text-[10px] font-bold text-white/90 bg-white/20 backdrop-blur-md px-2 py-0.5 rounded-full border border-white/10">
-                        <Flame className="w-3 h-3 text-orange-400" /> {recipe.calories}
-                      </span>
-                    </div>
-                  </div>
-                  {/* AI Analysis Quick Button */}
-                  <button 
-                    onClick={() => handleAnalyzeRecipe(recipe)}
-                    className="absolute top-3 right-3 w-8 h-8 rounded-full bg-white/10 backdrop-blur-xl border border-white/20 flex items-center justify-center text-white hover:bg-primary hover:border-primary transition-all"
-                    title="Analyze with AI"
-                  >
-                    <BookOpen className="w-4 h-4" />
-                  </button>
-                </div>
-
-                <div className="p-4 space-y-4">
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-4">
-                      <div className="text-center">
-                        <p className="text-[9px] font-bold text-muted-foreground uppercase tracking-wider">Protein</p>
-                        <p className="text-xs font-black text-[#007000]">{recipe.protein || "8g"}</p>
-                      </div>
-                      <div className="text-center">
-                        <p className="text-[9px] font-bold text-muted-foreground uppercase tracking-wider">Carbs</p>
-                        <p className="text-xs font-black text-blue-500">{recipe.carbs || "45g"}</p>
-                      </div>
-                    </div>
-                    <div className="flex items-center gap-1.5 text-muted-foreground bg-muted/50 px-2.5 py-1 rounded-lg">
-                      <Users className="w-3.5 h-3.5 text-[#007000]" />
-                      <span className="text-[10px] font-bold">Serves {recipe.serves}</span>
-                    </div>
-                  </div>
-
-                  <div className="pt-2 border-t border-border space-y-3">
-                    <div className="flex items-center gap-2">
-                      <select
-                        value={selectedDays[recipe.id] ?? 0}
-                        onChange={(e) => setSelectedDays(prev => ({ ...prev, [recipe.id]: parseInt(e.target.value) }))}
-                        className="flex-1 bg-muted border-none rounded-xl px-3 py-2 text-[10px] font-bold outline-none focus:ring-2 focus:ring-[#007000]/20 transition-all"
-                      >
-                        {DAYS.map((day, i) => (
-                          <option key={day} value={i}>{day} (This week)</option>
-                        ))}
-                      </select>
-                      <button 
-                        onClick={() => handleAddToCart(recipe)}
-                        disabled={adding === recipe.id + "-cart"}
-                        className="p-2 rounded-xl bg-[#007000]/10 text-[#007000] hover:bg-[#007000] hover:text-white transition-all shadow-sm"
-                      >
-                        {adding === recipe.id + "-cart" ? (
-                          <div className="w-4 h-4 border-2 border-[#007000]/30 border-t-[#007000] rounded-full animate-spin" />
-                        ) : (
-                          <ShoppingCart className="w-4 h-4" />
-                        )}
-                      </button>
-                    </div>
-                    <button
-                      onClick={() => handleAddToMealPlan(recipe)}
-                      disabled={adding === recipe.id}
-                      className={cn(
-                        "w-full py-3 rounded-2xl font-bold transition-all flex items-center justify-center gap-3 active:scale-95",
-                        adding === recipe.id 
-                          ? "bg-muted text-muted-foreground cursor-not-allowed" 
-                          : "bg-[#007000] text-white hover:opacity-90 shadow-lg shadow-[#007000]/10"
-                      )}
-                    >
-                      {adding === recipe.id ? (
-                        <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                      ) : (
-                        <>
-                          <Calendar className="w-4 h-4" />
-                          <span className="text-[11px]">Add to Meal Plan</span>
-                        </>
-                      )}
-                    </button>
-                  </div>
+        {/* Recipe Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+          {filteredRecipes.map((recipe) => (
+            <div key={recipe.id} className="bg-card border border-border rounded-[2.5rem] overflow-hidden shadow-sm hover:shadow-xl transition-all group">
+              <div className="aspect-[4/3] relative overflow-hidden">
+                <img 
+                  src={recipe.image} 
+                  alt={recipe.title} 
+                  className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" 
+                />
+                <div className="absolute top-4 right-4 bg-white/90 backdrop-blur-sm px-3 py-1.5 rounded-full shadow-sm">
+                  <span className="text-[10px] font-black uppercase tracking-widest text-primary">{recipe.category}</span>
                 </div>
               </div>
-            ))}
-          </div>
-        )}
+
+              <div className="p-6 space-y-4">
+                <div className="flex items-start justify-between gap-2">
+                  <h3 className="font-black text-xl text-foreground leading-tight tracking-tight">{recipe.title}</h3>
+                  <div className="flex items-center gap-1 bg-amber-50 px-2 py-1 rounded-lg">
+                    <Flame className="w-3 h-3 text-orange-500" />
+                    <span className="text-[10px] font-black text-orange-700">{recipe.calories}</span>
+                  </div>
+                </div>
+
+                <div className="flex items-center gap-4 text-muted-foreground">
+                  <div className="flex items-center gap-1.5">
+                    <Clock className="w-4 h-4 text-[#007000]" />
+                    <span className="text-xs font-bold">{recipe.time}</span>
+                  </div>
+                  <div className="flex items-center gap-1.5">
+                    <Users className="w-4 h-4 text-[#007000]" />
+                    <span className="text-xs font-bold">Serves {recipe.serves}</span>
+                  </div>
+                </div>
+
+                {/* Macro Preview */}
+                <div className="grid grid-cols-3 gap-2 py-2">
+                  <div className="bg-muted/50 p-2 rounded-xl text-center">
+                    <p className="text-[8px] font-black uppercase text-muted-foreground">Prot</p>
+                    <p className="text-xs font-black text-foreground">{recipe.protein}</p>
+                  </div>
+                  <div className="bg-muted/50 p-2 rounded-xl text-center">
+                    <p className="text-[8px] font-black uppercase text-muted-foreground">Fat</p>
+                    <p className="text-xs font-black text-foreground">{recipe.fat}</p>
+                  </div>
+                  <div className="bg-muted/50 p-2 rounded-xl text-center">
+                    <p className="text-[8px] font-black uppercase text-muted-foreground">Carbs</p>
+                    <p className="text-xs font-black text-foreground">{recipe.carbs}</p>
+                  </div>
+                </div>
+
+                <div className="flex gap-2 pt-2">
+                  <button
+                    onClick={() => handleAddToCart(recipe)}
+                    disabled={adding === recipe.id + "-cart"}
+                    className="flex-1 bg-[#007000] text-white h-12 rounded-2xl text-[10px] font-black uppercase tracking-widest shadow-lg shadow-[#007000]/20 hover:opacity-90 active:scale-95 transition-all flex items-center justify-center gap-2"
+                  >
+                    {adding === recipe.id + "-cart" ? (
+                      <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                    ) : (
+                      <>
+                        <ShoppingCart className="w-4 h-4" /> Add Ingredients
+                      </>
+                    )}
+                  </button>
+                  <button
+                    onClick={() => handleAddToMealPlan(recipe)}
+                    className="w-12 h-12 bg-white border-2 border-border text-foreground rounded-2xl flex items-center justify-center hover:border-[#007000] hover:text-[#007000] active:scale-95 transition-all"
+                    title="Add to Meal Plan"
+                  >
+                    <Calendar className="w-5 h-5" />
+                  </button>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
       </div>
     </div>
   );

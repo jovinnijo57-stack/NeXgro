@@ -1,7 +1,15 @@
 import { GoogleGenerativeAI } from "@google/generative-ai";
 import { GEMINI_API_KEY, GEMINI_MODEL } from "../config/ai";
+import { STATIC_RECIPES } from "./recipeData";
 
 export async function analyzeRecipe(recipeTitle: string, ingredients: any[]) {
+  // Check for static recipe data first
+  const normalizedTitle = recipeTitle.toUpperCase().trim();
+  if (STATIC_RECIPES[normalizedTitle]) {
+    console.log("Using static data for:", normalizedTitle);
+    return STATIC_RECIPES[normalizedTitle];
+  }
+
   if (!GEMINI_API_KEY) {
     console.warn("Gemini API Key missing. Returning default analysis.");
     return {
