@@ -58,6 +58,7 @@ import {
 import type { AdminBundle, ShopLocation } from "@/hooks/useBackend";
 import type { DeliveryZone } from "@/types";
 import OSMMapPicker from "@/components/OSMMapPicker";
+import { useLanguage } from "@/contexts/LanguageContext";
 import { cn } from "@/lib/utils";
 import type {
   Category,
