@@ -37,7 +37,7 @@ const ALL_RECIPES: Recipe[] = [
     fat: "12g",
     carbs: "55g",
     image: "https://images.unsplash.com/photo-1630383249896-424e482df921?w=800&q=80",
-    ingredients: [{ id: "p1", name: "Dosa Batter", qty: 1 }, { id: "p2", name: "Potato Masala", qty: 1 }],
+    ingredients: [{ id: "p13", name: "Potatoes", qty: 2 }, { id: "p14", name: "Onion", qty: 1 }],
     instructions: ["Spread batter thinly on a hot griddle.", "Apply ghee and cook until crisp.", "Add potato masala and fold."]
   },
   {
@@ -51,7 +51,7 @@ const ALL_RECIPES: Recipe[] = [
     fat: "4g",
     carbs: "48g",
     image: "https://images.unsplash.com/photo-1589301760014-d929f3979dbc?w=800&q=80",
-    ingredients: [{ id: "p3", name: "Idli Batter", qty: 1 }, { id: "p4", name: "Sambar Mix", qty: 1 }],
+    ingredients: [{ id: "p15", name: "Carrot", qty: 1 }, { id: "p1", name: "Tomato", qty: 2 }],
     instructions: ["Steam idlis in a mold for 10 mins.", "Heat sambar with fresh vegetables.", "Serve hot with coconut chutney."]
   },
   {

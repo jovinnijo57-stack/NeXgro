@@ -18,15 +18,17 @@ export async function analyzeRecipe(recipeTitle: string, ingredients: any[]) {
   }
 
   const genAI = new GoogleGenerativeAI(API_KEY);
-  const model = genAI.getGenerativeModel({ model: "gemini-pro" });
+  const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
 
   const prompt = `Analyze this recipe: "${recipeTitle}". 
-  Ingredients: ${JSON.stringify(ingredients)}.
-  Please provide:
-  1. Estimated water needed (in cups).
-  2. Total cooking time.
-  3. 4-5 concise, step-by-step cooking instructions with quantities.
-  Return ONLY a JSON object with keys: "water", "time", "steps" (array).`;
+  Ingredients provided: ${JSON.stringify(ingredients)}.
+  
+  Please provide a professional culinary analysis:
+  1. Estimated water needed for cooking (e.g., "2 cups", "500ml").
+  2. Total cooking time (e.g., "35 minutes").
+  3. 4-6 concise, step-by-step cooking instructions. IMPORTANT: Include the specific quantities of ingredients in the steps (e.g., "Add 200g of Paneer...").
+  
+  Return ONLY a valid JSON object with these keys: "water", "time", "steps" (an array of strings).`;
 
   try {
     const result = await model.generateContent(prompt);

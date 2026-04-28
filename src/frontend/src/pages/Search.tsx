@@ -156,14 +156,14 @@ export default function Search() {
 
       {/* Restored Original Banner */}
       <div className="max-w-6xl mx-auto px-4 py-4 sm:py-6">
-        <div className="relative overflow-hidden rounded-[1.5rem] sm:rounded-[2rem] aspect-[16/9] sm:aspect-[21/7] bg-primary/5 shadow-lg group">
+        <div className="relative overflow-hidden rounded-[1.5rem] sm:rounded-[2rem] shadow-xl group">
           <img 
             src="/assets/banner2.png" 
             alt="Search Banner" 
-            className="w-full h-full object-contain transition-transform duration-700 group-hover:scale-105"
+            className="w-full h-auto block transition-transform duration-700 group-hover:scale-105"
             onError={(e) => {
               (e.target as HTMLImageElement).src = "https://images.unsplash.com/photo-1542838132-92c53300491e?auto=format&fit=crop&q=80&w=1200";
-              (e.target as HTMLImageElement).classList.replace('object-contain', 'object-cover');
+              (e.target as HTMLImageElement).className = "w-full aspect-[21/7] object-cover transition-transform duration-700 group-hover:scale-105";
             }}
           />
           <div className="absolute inset-0 bg-gradient-to-t from-black/5 via-transparent to-transparent pointer-events-none" />
