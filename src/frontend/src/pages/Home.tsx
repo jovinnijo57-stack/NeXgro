@@ -940,12 +940,41 @@ function FeatureQuickAccess() {
 }
 
 export default function Home() {
+  const [showFloatingVideo, setShowFloatingVideo] = useState(() => {
+    return sessionStorage.getItem("nexgro_video_dismissed") !== "true";
+  });
   useBanners();
   return (
     <div
       className="max-w-7xl mx-auto px-4 sm:px-6 py-6 space-y-8"
       data-ocid="home.page"
     >
+      {showFloatingVideo && (
+        <div 
+          className="fixed bottom-24 left-6 z-50 w-[150px] aspect-[9/16] bg-black rounded-[2.5rem] overflow-hidden shadow-[0_20px_50px_rgba(0,0,0,0.5)] border-[3px] border-primary/40 group animate-in fade-in slide-in-from-left-10 duration-700"
+          data-ocid="home.floating_video"
+        >
+          <button
+            type="button"
+            onClick={() => {
+              setShowFloatingVideo(false);
+              sessionStorage.setItem("nexgro_video_dismissed", "true");
+            }}
+            className="absolute top-4 right-4 z-20 p-1.5 bg-black/50 text-white rounded-full hover:bg-black/70 transition-colors opacity-0 group-hover:opacity-100 backdrop-blur-md"
+            aria-label="Close video"
+          >
+            <X className="w-3 h-3" />
+          </button>
+          <video
+            src="/video.mp4"
+            autoPlay
+            loop
+            muted
+            playsInline
+            className="w-full h-full object-cover scale-105 group-hover:scale-100 transition-transform duration-700"
+          />
+        </div>
+      )}
       <HeroCarousel />
       <FeatureQuickAccess />
       <CategoryGrid />

@@ -89,61 +89,57 @@ export default function Recipes() {
 
   return (
     <div className="min-h-screen bg-background pb-24">
-      {/* Premium Unified Banner with Search */}
-      <div className="max-w-6xl mx-auto px-4 py-4 sm:py-8">
-        <div className="relative overflow-hidden rounded-[2rem] sm:rounded-[3rem] shadow-2xl group min-h-[300px] md:min-h-[400px] flex flex-col justify-center items-center px-6">
+      {/* Restored Original Banner */}
+      <div className="max-w-6xl mx-auto px-4 py-4 sm:py-6">
+        <div className="relative overflow-hidden rounded-[1.5rem] sm:rounded-[2rem] shadow-xl group">
           <img 
             src="/assets/banner2.png" 
             alt="Chef's Corner Banner" 
-            className="absolute inset-0 w-full h-full object-cover transition-transform duration-1000 group-hover:scale-110"
+            className="w-full h-auto block transition-transform duration-700 group-hover:scale-105"
             onError={(e) => {
-              (e.target as HTMLImageElement).src = "https://images.unsplash.com/photo-1556910103-1c02745aae4d?auto=format&fit=crop&q=80&w=1600";
+              (e.target as HTMLImageElement).src = "https://images.unsplash.com/photo-1542838132-92c53300491e?auto=format&fit=crop&q=80&w=1200";
+              (e.target as HTMLImageElement).className = "w-full aspect-[21/7] object-cover transition-transform duration-700 group-hover:scale-105";
             }}
           />
-          <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-black/30 to-black/70" />
+          <div className="absolute inset-0 bg-gradient-to-t from-black/5 via-transparent to-transparent pointer-events-none" />
           
+          {/* Back Button Overlay */}
           <button 
             onClick={() => navigate({ to: "/home" })} 
-            className="absolute top-6 left-6 p-3 bg-white/10 backdrop-blur-md rounded-2xl border border-white/20 text-white hover:bg-white/20 transition-all active:scale-95 group/back z-20"
+            className="absolute top-4 left-4 p-2.5 bg-white/90 backdrop-blur-md rounded-2xl shadow-lg hover:bg-white transition-all active:scale-95 group/back"
           >
-            <ArrowLeft className="w-5 h-5 group-hover/back:-translate-x-1 transition-transform" />
+            <ArrowLeft className="w-5 h-5 text-[#007000] group-hover/back:-translate-x-1 transition-transform" />
           </button>
 
-          <div className="relative z-10 text-center space-y-6 w-full max-w-2xl">
-            <div className="space-y-2">
-              <h1 className="font-display text-4xl md:text-7xl font-black italic tracking-tighter text-white drop-shadow-2xl animate-in fade-in slide-in-from-bottom-4 duration-700">
-                Chef's Corner
-              </h1>
-              <p className="text-white/80 text-sm md:text-base font-bold tracking-wide uppercase drop-shadow-md animate-in fade-in slide-in-from-bottom-4 duration-700 delay-100">
-                Premium Recipes for a Better Lifestyle
-              </p>
-            </div>
-
-            {/* Integrated Search Bar */}
-            <div className="relative group/search max-w-xl mx-auto animate-in fade-in slide-in-from-bottom-4 duration-700 delay-200">
-              <Search className="absolute left-6 top-1/2 -translate-y-1/2 w-5 h-5 text-white/50 group-focus-within/search:text-white transition-colors" />
-              <input
-                type="text"
-                placeholder="Search over 40+ healthy recipes..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full bg-white/10 backdrop-blur-xl border border-white/20 pl-14 pr-16 py-5 rounded-[2rem] text-white placeholder:text-white/40 text-sm font-bold shadow-2xl focus:bg-white/20 focus:border-white/40 outline-none transition-all"
-              />
-              <button
-                onClick={startListening}
-                className={cn(
-                  "absolute right-3 top-1/2 -translate-y-1/2 p-3 rounded-2xl transition-all",
-                  isListening ? "bg-destructive text-white animate-pulse" : "hover:bg-white/10 text-white/70 hover:text-white"
-                )}
-              >
-                {isListening ? <MicOff className="w-5 h-5" /> : <Mic className="w-5 h-5" />}
-              </button>
-            </div>
+          {/* Title Overlay */}
+          <div className="absolute bottom-6 left-6 md:bottom-10 md:left-10 z-10">
+            <h1 className="font-display text-3xl md:text-5xl font-black italic tracking-tight text-white drop-shadow-lg">Chef's Corner</h1>
+            <p className="text-white/90 text-xs md:text-sm mt-2 max-w-xs font-bold drop-shadow-md">Curated recipes for your healthy lifestyle.</p>
           </div>
         </div>
       </div>
 
       <div className="max-w-6xl mx-auto px-4 space-y-6">
+        {/* Search */}
+        <div className="relative group">
+          <Search className="absolute left-6 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground group-focus-within:text-primary transition-colors" />
+          <input
+            type="text"
+            placeholder="Search healthy recipes..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="w-full bg-card border-2 border-border pl-14 pr-14 py-5 rounded-[2rem] text-sm font-bold shadow-xl focus:border-primary/20 outline-none transition-all group-focus-within:ring-4 group-focus-within:ring-primary/10"
+          />
+          <button
+            onClick={startListening}
+            className={cn(
+              "absolute right-3 top-1/2 -translate-y-1/2 p-3 rounded-2xl transition-all",
+              isListening ? "bg-destructive text-white animate-pulse" : "hover:bg-primary/10 text-primary"
+            )}
+          >
+            {isListening ? <MicOff className="w-5 h-5" /> : <Mic className="w-5 h-5" />}
+          </button>
+        </div>
 
         {/* Recipe Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">

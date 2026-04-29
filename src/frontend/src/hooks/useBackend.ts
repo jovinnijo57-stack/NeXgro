@@ -338,11 +338,18 @@ export function useProducts(filters?: ProductFilters) {
   return useQuery<Product[]>({
     queryKey: ["products", filters],
     queryFn: async () => {
-      if (!actor) return [];
+      if (!actor) {
+        const local = JSON.parse(localStorage.getItem("nexgro_products") || "[]");
+        const all = local.length > 0 ? local : SAMPLE_PRODUCTS;
+        if (filters?.categoryId) {
+          return all.filter((p: Product) => p.categoryId === filters.categoryId);
+        }
+        return all;
+      }
       const result = await actor.getProducts(buildBackendFilters(filters));
       return result.map(adaptProduct);
     },
-    enabled: !!actor && !isFetching,
+    enabled: true,
     initialData: [],
   });
 }
@@ -366,11 +373,14 @@ export function useCategories() {
   return useQuery<Category[]>({
     queryKey: ["categories"],
     queryFn: async () => {
-      if (!actor) return [];
+      if (!actor) {
+        const local = JSON.parse(localStorage.getItem("nexgro_categories") || "[]");
+        return local.length > 0 ? local : SAMPLE_CATEGORIES;
+      }
       const result = await actor.getCategories();
       return result.map(adaptCategory);
     },
-    enabled: !!actor && !isFetching,
+    enabled: true,
     initialData: [],
   });
 }
@@ -436,11 +446,13 @@ export function useBanners() {
   return useQuery<Banner[]>({
     queryKey: ["banners"],
     queryFn: async () => {
-      if (!actor) return [];
+      if (!actor) {
+        return JSON.parse(localStorage.getItem("nexgro_banners") || "[]");
+      }
       const result = await actor.getBanners();
       return result.map(adaptBanner);
     },
-    enabled: !!actor && !isFetching,
+    enabled: true,
     initialData: [],
   });
 }
@@ -479,10 +491,15 @@ export function useProductReviews(productId: string) {
 // ─── Seasonal Collections ─────────────────────────────────────────────────────
 
 export function useSeasonalCollections() {
+  const { actor } = useBackendActor();
   return useQuery<SeasonalCollection[]>({
     queryKey: ["seasonal-collections"],
     queryFn: async () => {
-      // Backend method not yet available — use static fallback
+      if (!actor) {
+        const local = JSON.parse(localStorage.getItem("nexgro_collections") || "[]");
+        return local.length > 0 ? local : STATIC_SEASONAL_COLLECTIONS;
+      }
+      // Backend method not yet available — use static fallback or local storage
       return STATIC_SEASONAL_COLLECTIONS;
     },
     initialData: STATIC_SEASONAL_COLLECTIONS,
@@ -696,11 +713,15 @@ export function useOrders() {
   return useQuery<Order[]>({
     queryKey: ["orders"],
     queryFn: async () => {
-      if (!actor) return [];
+      if (!actor) {
+        const email = localStorage.getItem("currentUserEmail") || "guest";
+        const ordersKey = `nexgro_orders_${email.toLowerCase()}`;
+        return JSON.parse(localStorage.getItem(ordersKey) || "[]");
+      }
       const result = await actor.getUserOrders();
       return result.map(adaptOrder);
     },
-    enabled: !!actor && !isFetching,
+    enabled: true,
     initialData: [],
   });
 }
@@ -710,11 +731,16 @@ export function useOrderById(id: string) {
   return useQuery<Order | null>({
     queryKey: ["order", id],
     queryFn: async () => {
-      if (!actor) return null;
+      if (!actor) {
+        const email = localStorage.getItem("currentUserEmail") || "guest";
+        const ordersKey = `nexgro_orders_${email.toLowerCase()}`;
+        const localOrders = JSON.parse(localStorage.getItem(ordersKey) || "[]");
+        return localOrders.find((o: any) => o.id === id) || null;
+      }
       const result = await actor.getOrderById(BigInt(id));
       return result ? adaptOrder(result) : null;
     },
-    enabled: !!actor && !isFetching && !!id,
+    enabled: true,
     initialData: null,
   });
 }
@@ -736,6 +762,41 @@ export function usePlaceOrder() {
         // Demo fallback
         console.warn("Backend not connected. Using demo order placement.");
         const orderId = `DEMO-${Date.now()}`;
+        
+        // Save to local storage for consistency
+        const email = localStorage.getItem("currentUserEmail") || "guest";
+        const ordersKey = `nexgro_orders_${email.toLowerCase()}`;
+        const localOrders = JSON.parse(localStorage.getItem(ordersKey) || "[]");
+        
+        // Get cart items to build order
+        const cart = JSON.parse(localStorage.getItem("nexgro_cart_v1") || "[]");
+        const total = cart.reduce((acc: number, item: any) => acc + (item.price || 10) * item.quantity, 0);
+
+        const newOrder: Order = {
+          id: orderId,
+          userId: email,
+          items: cart.map((i: any) => ({
+            productId: i.productId,
+            productName: "Product",
+            price: 10,
+            quantity: i.quantity,
+            imageUrl: "",
+          })),
+          subtotal: total,
+          deliveryFee: 2,
+          tax: total * 0.05,
+          total: total + 2 + (total * 0.05),
+          status: "Pending",
+          statusHistory: [{ status: "Pending", timestamp: BigInt(Date.now()) }],
+          paymentMethod: "COD",
+          paymentStatus: "Pending",
+          createdAt: BigInt(Date.now()),
+          deliveryAddress: { street: "Main St", city: "Kochi", state: "Kerala", zip: "682001", phone: "123", id: "1", userId: "1", label: "Home", isDefault: true }
+        };
+
+        localStorage.setItem(ordersKey, JSON.stringify([newOrder, ...localOrders]));
+        localStorage.removeItem("nexgro_cart_v1"); // Clear cart
+
         addNotification("Order Confirmed! 🎉", `Your order #${orderId} has been placed. We're getting it ready!`, "order");
         return { success: true, orderId };
       }
@@ -1124,11 +1185,13 @@ export function useAdminCoupons() {
   return useQuery<Coupon[]>({
     queryKey: ["admin-coupons"],
     queryFn: async () => {
-      if (!actor) return [];
+      if (!actor) {
+        return JSON.parse(localStorage.getItem("nexgro_coupons") || "[]");
+      }
       const result = await actor.getCoupons();
       return result.map(adaptCoupon);
     },
-    enabled: !!actor && !isFetching,
+    enabled: true,
     initialData: [],
   });
 }
@@ -1138,11 +1201,13 @@ export function useAdminFlashDeals() {
   return useQuery<FlashDeal[]>({
     queryKey: ["admin-flash-deals"],
     queryFn: async () => {
-      if (!actor) return [];
+      if (!actor) {
+        return JSON.parse(localStorage.getItem("nexgro_flash_deals") || "[]");
+      }
       const result = await actor.getFlashDeals();
       return result.map(adaptFlashDeal);
     },
-    enabled: !!actor && !isFetching,
+    enabled: true,
     initialData: [],
   });
 }
@@ -1152,7 +1217,16 @@ export function useCreateFlashDeal() {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: async (vars: Omit<FlashDeal, "id">) => {
-      if (!actor) throw new Error("Actor not initialized");
+      if (!actor) {
+        const local = JSON.parse(localStorage.getItem("nexgro_flash_deals") || "[]");
+        const newDeal: FlashDeal = {
+          ...vars,
+          id: `fd-${Date.now()}`,
+          isActive: true,
+        };
+        localStorage.setItem("nexgro_flash_deals", JSON.stringify([...local, newDeal]));
+        return newDeal;
+      }
       const result = await actor.createFlashDeal(
         BigInt(vars.productId),
         BigInt(vars.discountPercent),
@@ -1204,6 +1278,15 @@ export function useUpdateOrderStatus() {
   return useMutation({
     mutationFn: async (data: { orderId: string; status: string }) => {
       if (!actor) {
+        // Mock order update in localStorage for user consistency
+        const email = localStorage.getItem("currentUserEmail") || "guest";
+        const ordersKey = `nexgro_orders_${email.toLowerCase()}`;
+        const localOrders = JSON.parse(localStorage.getItem(ordersKey) || "[]");
+        const updatedOrders = localOrders.map((o: any) => 
+          o.id === data.orderId ? { ...o, status: data.status } : o
+        );
+        localStorage.setItem(ordersKey, JSON.stringify(updatedOrders));
+
         if (data.status === "Delivered") {
            addNotification("Package Delivered! 📦", `Your order #${data.orderId} has been delivered. Enjoy!`, "order");
         } else if (data.status === "Shipped") {
@@ -1231,35 +1314,38 @@ export function useUpdateOrderStatus() {
 
 export function useCreateProduct() {
   const qc = useQueryClient();
+  const { actor } = useBackendActor();
   return useMutation({
     mutationFn: async (data: Partial<Product>) => {
-      return data as Product;
-    },
-    onSuccess: (newProduct) => {
-      qc.setQueryData<Product[]>(["products", undefined], (old = []) => {
-        // If the cache is empty (mock mode), use SAMPLE_PRODUCTS as base
-        const base = old.length > 0 ? old : [...SAMPLE_PRODUCTS];
+      if (!actor) {
+        const local = JSON.parse(localStorage.getItem("nexgro_products") || "[]");
+        const base = local.length > 0 ? local : [...SAMPLE_PRODUCTS];
         const id = `p${Date.now()}`;
         const p: Product = {
           id,
-          name: newProduct.name || "New Product",
-          description: newProduct.description || "",
-          price: newProduct.price || 0,
-          categoryId: newProduct.categoryId || "fruits",
-          imageUrl: newProduct.imageUrl || "",
-          stockQty: newProduct.stockQty || 0,
+          name: data.name || "New Product",
+          description: data.description || "",
+          price: data.price || 0,
+          categoryId: data.categoryId || "fruits",
+          imageUrl: data.imageUrl || "",
+          stockQty: data.stockQty || 0,
           rating: 0,
           reviewCount: 0,
           isActive: true,
-          isFeatured: !!newProduct.isFeatured,
-          isBestSeller: !!newProduct.isBestSeller,
-          isNewArrival: !!newProduct.isNewArrival,
+          isFeatured: !!data.isFeatured,
+          isBestSeller: !!data.isBestSeller,
+          isNewArrival: !!data.isNewArrival,
           createdAt: BigInt(Date.now()),
           ageRestricted: false,
           ageCategory: null,
         };
-        return [p, ...base];
-      });
+        localStorage.setItem("nexgro_products", JSON.stringify([p, ...base]));
+        return p;
+      }
+      // Actual backend call would go here
+      return data as Product;
+    },
+    onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["products"] });
     },
   });
@@ -1267,16 +1353,19 @@ export function useCreateProduct() {
 
 export function useUpdateProduct() {
   const qc = useQueryClient();
+  const { actor } = useBackendActor();
   return useMutation({
     mutationFn: async (data: { id: string } & Partial<Product>) => {
+      if (!actor) {
+        const local = JSON.parse(localStorage.getItem("nexgro_products") || "[]");
+        const base = local.length > 0 ? local : [...SAMPLE_PRODUCTS];
+        const updated = base.map(p => p.id === data.id ? { ...p, ...data } : p);
+        localStorage.setItem("nexgro_products", JSON.stringify(updated));
+        return data;
+      }
       return data;
     },
-    onSuccess: (updatedProduct) => {
-      qc.setQueryData<Product[]>(["products", undefined], (old = []) => {
-        // If the cache is empty (mock mode), use SAMPLE_PRODUCTS as base
-        const base = old.length > 0 ? old : [...SAMPLE_PRODUCTS];
-        return base.map(p => p.id === updatedProduct.id ? { ...p, ...updatedProduct } : p);
-      });
+    onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["products"] });
     },
   });
@@ -1287,7 +1376,13 @@ export function useDeleteProduct() {
   const { actor } = useBackendActor();
   return useMutation({
     mutationFn: async (id: string) => {
-      if (!actor) throw new Error("Not connected");
+      if (!actor) {
+        const local = JSON.parse(localStorage.getItem("nexgro_products") || "[]");
+        const base = local.length > 0 ? local : [...SAMPLE_PRODUCTS];
+        const updated = base.filter(p => p.id !== id);
+        localStorage.setItem("nexgro_products", JSON.stringify(updated));
+        return id;
+      }
       await actor.deleteProduct(BigInt(id));
     },
     onSuccess: () => qc.invalidateQueries({ queryKey: ["products"] }),
@@ -1299,7 +1394,19 @@ export function useCreateCategory() {
   const { actor } = useBackendActor();
   return useMutation({
     mutationFn: async (data: Partial<Category>) => {
-      if (!actor) throw new Error("Not connected");
+      if (!actor) {
+        const local = JSON.parse(localStorage.getItem("nexgro_categories") || "[]");
+        const base = local.length > 0 ? local : SAMPLE_CATEGORIES;
+        const newCat: Category = {
+          id: data.name?.toLowerCase().replace(/\s+/g, "-") || `cat-${Date.now()}`,
+          name: data.name || "New Category",
+          displayOrder: Number(data.displayOrder || 0),
+          isActive: true,
+          iconEmoji: data.iconEmoji || "🛒",
+        };
+        localStorage.setItem("nexgro_categories", JSON.stringify([...base, newCat]));
+        return newCat;
+      }
       await actor.createCategory(
         data.name ?? "",
         BigInt(data.displayOrder ?? 0),
@@ -1315,7 +1422,21 @@ export function useCreateCoupon() {
   const { actor } = useBackendActor();
   return useMutation({
     mutationFn: async (data: Partial<Coupon>) => {
-      if (!actor) throw new Error("Not connected");
+      if (!actor) {
+        const local = JSON.parse(localStorage.getItem("nexgro_coupons") || "[]");
+        const newCoupon: Coupon = {
+          id: `c-${Date.now()}`,
+          code: data.code || "COUPON",
+          discountType: data.discountType || "percentage",
+          discountValue: Number(data.discountValue || 0),
+          expirationDate: data.expirationDate || BigInt(Date.now() + 7 * 24 * 3600 * 1000),
+          isActive: true,
+          usageLimit: Number(data.usageLimit || 100),
+          usageCount: 0,
+        };
+        localStorage.setItem("nexgro_coupons", JSON.stringify([...local, newCoupon]));
+        return newCoupon;
+      }
       await actor.createCoupon(
         data.code ?? "",
         data.discountType === "percentage"
@@ -1585,7 +1706,12 @@ export function useAddShopLocation() {
   const { actor } = useBackendActor();
   return useMutation({
     mutationFn: async (data: Omit<ShopLocation, "id">) => {
-      if (!actor) throw new Error("Not connected");
+      if (!actor) {
+        const local = JSON.parse(localStorage.getItem("nexgro_shop_locations") || "[]");
+        const newLoc = { ...data, id: `loc-${Date.now()}` };
+        localStorage.setItem("nexgro_shop_locations", JSON.stringify([...local, newLoc]));
+        return newLoc;
+      }
       try {
         const fn = (actor as unknown as Record<string, unknown>)
           .addShopLocation as
@@ -1875,7 +2001,16 @@ export function useCreateSeasonalCollection() {
   const { actor } = useBackendActor();
   return useMutation({
     mutationFn: async (data: Omit<SeasonalCollection, "id">) => {
-      if (!actor) throw new Error("Not connected");
+      if (!actor) {
+        const local = JSON.parse(localStorage.getItem("nexgro_collections") || "[]");
+        const base = local.length > 0 ? local : STATIC_SEASONAL_COLLECTIONS;
+        const newCol: SeasonalCollection = {
+          ...data,
+          id: `sc-${Date.now()}`,
+        };
+        localStorage.setItem("nexgro_collections", JSON.stringify([...base, newCol]));
+        return newCol;
+      }
       try {
         const fn = (actor as unknown as Record<string, unknown>)
           .createSeasonalCollection as
@@ -1886,7 +2021,7 @@ export function useCreateSeasonalCollection() {
         /* graceful fallback */
       }
     },
-    onSuccess: () => qc.invalidateQueries({ queryKey: ["admin-collections"] }),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ["admin-collections"], refetchType: 'all' }),
   });
 }
 
@@ -2156,7 +2291,16 @@ export function useCreateBanner() {
   const { actor } = useBackendActor();
   return useMutation({
     mutationFn: async (data: Omit<Banner, "id" | "createdAt">) => {
-      if (!actor) throw new Error("Not connected");
+      if (!actor) {
+        const local = JSON.parse(localStorage.getItem("nexgro_banners") || "[]");
+        const newBanner: Banner = {
+          ...data,
+          id: `b-${Date.now()}`,
+          createdAt: BigInt(Date.now()),
+        };
+        localStorage.setItem("nexgro_banners", JSON.stringify([...local, newBanner]));
+        return newBanner;
+      }
       try {
         const fn = (actor as unknown as Record<string, unknown>).createBanner as
           | ((d: unknown) => Promise<unknown>)
@@ -2166,7 +2310,10 @@ export function useCreateBanner() {
         /* graceful fallback */
       }
     },
-    onSuccess: () => qc.invalidateQueries({ queryKey: ["admin-banners"] }),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["admin-banners"] });
+      qc.invalidateQueries({ queryKey: ["banners"] });
+    },
   });
 }
 
@@ -2175,7 +2322,12 @@ export function useDeleteBanner() {
   const { actor } = useBackendActor();
   return useMutation({
     mutationFn: async (id: string) => {
-      if (!actor) throw new Error("Not connected");
+      if (!actor) {
+        const local = JSON.parse(localStorage.getItem("nexgro_banners") || "[]");
+        const updated = local.filter((b: any) => b.id !== id);
+        localStorage.setItem("nexgro_banners", JSON.stringify(updated));
+        return id;
+      }
       try {
         const fn = (actor as unknown as Record<string, unknown>).deleteBanner as
           | ((id: string) => Promise<unknown>)
@@ -2185,7 +2337,10 @@ export function useDeleteBanner() {
         /* graceful fallback */
       }
     },
-    onSuccess: () => qc.invalidateQueries({ queryKey: ["admin-banners"] }),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["admin-banners"] });
+      qc.invalidateQueries({ queryKey: ["banners"] });
+    },
   });
 }
 
