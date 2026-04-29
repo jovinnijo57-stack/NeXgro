@@ -687,27 +687,68 @@ export default function Cart() {
           </div>
 
           {/* Shared Family Cart */}
-          <div className="bg-gradient-to-br from-primary/10 to-accent/10 rounded-2xl border border-primary/20 p-5 flex items-center justify-between group">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-xl bg-white flex items-center justify-center shadow-sm group-hover:scale-110 transition-transform">
-                <Users className="w-5 h-5 text-primary" />
+          <div className="bg-gradient-to-br from-primary/10 to-accent/10 rounded-2xl border border-primary/20 p-5 space-y-4 group">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-xl bg-white flex items-center justify-center shadow-sm group-hover:scale-110 transition-transform">
+                  <Users className="w-5 h-5 text-primary" />
+                </div>
+                <div>
+                  <h3 className="font-bold text-sm text-foreground">Shared Family Cart</h3>
+                  <p className="text-[10px] text-muted-foreground">Shop together with your family members</p>
+                </div>
               </div>
-              <div>
-                <h3 className="font-bold text-sm text-foreground">Shared Family Cart</h3>
-                <p className="text-[10px] text-muted-foreground">Invite members to shop together</p>
-              </div>
+              {localStorage.getItem("nexgro_family_id") ? (
+                <Button 
+                  variant="ghost" 
+                  size="sm" 
+                  className="text-destructive text-[10px] font-black uppercase"
+                  onClick={() => {
+                    localStorage.removeItem("nexgro_family_id");
+                    qc.invalidateQueries({ queryKey: ["cart"] });
+                    toast.success("Left family group");
+                  }}
+                >
+                  Leave
+                </Button>
+              ) : (
+                <Button 
+                  size="sm" 
+                  className="bg-primary text-white rounded-xl text-[10px] font-black uppercase tracking-widest shadow-lg active:scale-95 transition-transform"
+                  onClick={() => {
+                    const id = prompt("Enter Family ID to join:");
+                    if (id) {
+                      localStorage.setItem("nexgro_family_id", id);
+                      qc.invalidateQueries({ queryKey: ["cart"] });
+                      toast.success(`Joined family group: ${id}`);
+                    }
+                  }}
+                >
+                  Join
+                </Button>
+              )}
             </div>
-            <Button 
-              size="sm" 
-              className="bg-primary text-white rounded-xl text-[10px] font-black uppercase tracking-widest shadow-lg active:scale-95 transition-transform"
-              onClick={() => {
-                const url = `${window.location.origin}/shared-wishlist/family_${Date.now()}`;
-                navigator.clipboard.writeText(url);
-                toast.success("Family Invitation Link copied to clipboard!");
-              }}
-            >
-              Invite
-            </Button>
+            
+            <div className="flex items-center gap-2">
+              <p className="text-[10px] text-muted-foreground">
+                {localStorage.getItem("nexgro_family_id") 
+                  ? `Active Group: ${localStorage.getItem("nexgro_family_id")}` 
+                  : "Not in a family group"}
+              </p>
+              <Button 
+                variant="ghost"
+                size="icon"
+                className="h-6 w-6"
+                onClick={() => {
+                  const id = localStorage.getItem("nexgro_family_id") || `fam_${Math.random().toString(36).substring(7)}`;
+                  const url = `${window.location.origin}/cart?familyId=${id}`;
+                  navigator.clipboard.writeText(url);
+                  toast.success("Family invite link copied!");
+                }}
+              >
+                <Tag className="w-3 h-3" />
+              </Button>
+            </div>
           </div>
         </div>
 

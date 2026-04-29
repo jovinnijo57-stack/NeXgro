@@ -423,9 +423,14 @@ export function ProductCard({
                   </span>
                 </div>
               ) : (
-                <span className="text-base font-bold text-primary">
-                  ₹{product.price.toFixed(2)}
-                </span>
+                <div className="flex items-baseline gap-1">
+                  <span className="text-base font-bold text-primary">
+                    ₹{product.price.toFixed(2)}
+                  </span>
+                  <span className="text-[10px] text-muted-foreground uppercase font-black">
+                    / {product.unit}
+                  </span>
+                </div>
               )}
             </div>
 

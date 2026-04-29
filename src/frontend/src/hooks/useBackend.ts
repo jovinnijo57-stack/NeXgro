@@ -69,6 +69,7 @@ function adaptProduct(p: ProductPublic): Product {
     isFeatured: p.isFeatured,
     isBestSeller: p.isBestSeller,
     isNewArrival: p.isNewArrival,
+    unit: SAMPLE_PRODUCTS.find(sp => sp.id === p.id.toString())?.unit || "unit",
     createdAt: p.createdAt,
     ageRestricted: p.ageRestricted,
     ageCategory: p.ageCategory ?? null,
@@ -479,11 +480,25 @@ export function useProductReviews(productId: string) {
   return useQuery<Review[]>({
     queryKey: ["product-reviews", productId],
     queryFn: async () => {
-      if (!actor) return [];
-      const result = await actor.getProductReviews(BigInt(productId));
-      return result.map(adaptReview);
+      // 1. Check local storage first (for newly added reviews)
+      const localReviews: Review[] = JSON.parse(localStorage.getItem(`nexgro_reviews_${productId}`) || "[]");
+      
+      if (!actor) return localReviews;
+      
+      try {
+        const result = await actor.getProductReviews(BigInt(productId));
+        const backendReviews = result.map(adaptReview);
+        // Merge local and backend (avoid duplicates)
+        const all = [...localReviews];
+        backendReviews.forEach(br => {
+          if (!all.find(ar => ar.id === br.id)) all.push(br);
+        });
+        return all;
+      } catch {
+        return localReviews;
+      }
     },
-    enabled: !!actor && !isFetching && !!productId,
+    enabled: !!productId,
     initialData: [],
   });
 }
@@ -544,13 +559,16 @@ export function useSetSubstituteProduct() {
 // ─── Cart ─────────────────────────────────────────────────────────────────────
 
 export function useCart() {
-  const { actor, isFetching } = useBackendActor();
+  const { actor } = useBackendActor();
+  const familyId = localStorage.getItem("nexgro_family_id");
+  const cartKey = familyId ? `nexgro_cart_family_${familyId}` : "nexgro_cart_v1";
+
   return useQuery<CartItem[]>({
-    queryKey: ["cart"],
+    queryKey: ["cart", familyId],
     queryFn: async () => {
       if (!actor) {
         try {
-          const raw = localStorage.getItem("nexgro_cart_v1");
+          const raw = localStorage.getItem(cartKey);
           if (raw) return JSON.parse(raw);
         } catch {}
         return [];
@@ -576,15 +594,30 @@ export function useAddToCart() {
     },
     onSuccess: (mockData) => {
       if (!actor && mockData) {
-        qc.setQueryData<CartItem[]>(["cart"], (old = []) => {
-          const existing = old.find(i => i.productId === mockData.productId);
+        const familyId = localStorage.getItem("nexgro_family_id");
+        const cartKey = familyId ? `nexgro_cart_family_${familyId}` : "nexgro_cart_v1";
+        
+        qc.setQueryData<CartItem[]>(["cart", familyId], (old = []) => {
+          const existing = old.find((i) => i.productId === mockData.productId);
           let newCart;
           if (existing) {
-            newCart = old.map(i => i.productId === mockData.productId ? { ...i, quantity: i.quantity + mockData.qty } : i);
+            newCart = old.map((i) =>
+              i.productId === mockData.productId
+                ? { ...i, quantity: i.quantity + mockData.qty }
+                : i,
+            );
           } else {
-            newCart = [...old, { userId: "mock", productId: mockData.productId, quantity: mockData.qty, addedAt: BigInt(Date.now()) }];
+            newCart = [
+              ...old,
+              {
+                userId: "mock",
+                productId: mockData.productId,
+                quantity: mockData.qty,
+                addedAt: BigInt(Date.now()),
+              },
+            ];
           }
-          localStorage.setItem("nexgro_cart_v1", JSON.stringify(newCart));
+          localStorage.setItem(cartKey, JSON.stringify(newCart));
           return newCart;
         });
       }
@@ -603,9 +636,12 @@ export function useRemoveFromCart() {
     },
     onSuccess: (mockProductId) => {
       if (!actor && mockProductId) {
-        qc.setQueryData<CartItem[]>(["cart"], (old = []) => {
-          const newCart = old.filter(i => i.productId !== mockProductId);
-          localStorage.setItem("nexgro_cart_v1", JSON.stringify(newCart));
+        const familyId = localStorage.getItem("nexgro_family_id");
+        const cartKey = familyId ? `nexgro_cart_family_${familyId}` : "nexgro_cart_v1";
+        
+        qc.setQueryData<CartItem[]>(["cart", familyId], (old = []) => {
+          const newCart = old.filter((i) => i.productId !== mockProductId);
+          localStorage.setItem(cartKey, JSON.stringify(newCart));
           return newCart;
         });
       }
@@ -627,9 +663,16 @@ export function useUpdateCartQty() {
     },
     onSuccess: (mockData) => {
       if (!actor && mockData) {
-        qc.setQueryData<CartItem[]>(["cart"], (old = []) => {
-          const newCart = old.map(i => i.productId === mockData.productId ? { ...i, quantity: mockData.qty } : i);
-          localStorage.setItem("nexgro_cart_v1", JSON.stringify(newCart));
+        const familyId = localStorage.getItem("nexgro_family_id");
+        const cartKey = familyId ? `nexgro_cart_family_${familyId}` : "nexgro_cart_v1";
+
+        qc.setQueryData<CartItem[]>(["cart", familyId], (old = []) => {
+          const newCart = old.map((i) =>
+            i.productId === mockData.productId
+              ? { ...i, quantity: mockData.qty }
+              : i,
+          );
+          localStorage.setItem(cartKey, JSON.stringify(newCart));
           return newCart;
         });
       }
@@ -1067,19 +1110,42 @@ export function useSubmitReview() {
   const qc = useQueryClient();
   const { actor } = useBackendActor();
   return useMutation({
-    mutationFn: async (data: {
+    mutationFn: async ({
+      productId,
+      rating,
+      title,
+      text,
+    }: {
       productId: string;
       rating: number;
       title: string;
       text: string;
     }) => {
-      if (!actor) return data;
-      await actor.submitReview(
-        BigInt(data.productId),
-        BigInt(data.rating),
-        data.title,
-        data.text,
-      );
+      const userEmail = localStorage.getItem("currentUserEmail") || "Guest";
+      const newReview: Review = {
+        id: `rev-${Date.now()}`,
+        productId,
+        userId: userEmail,
+        userName: userEmail.split("@")[0],
+        rating,
+        title,
+        text,
+        isApproved: true, 
+        helpfulCount: 0,
+        createdAt: BigInt(Date.now() * 1_000_000),
+      };
+
+      if (actor) {
+        try {
+          await actor.submitReview(BigInt(productId), BigInt(rating), title, text);
+        } catch (e) {
+          console.error("Backend review submission failed", e);
+        }
+      }
+
+      const current: Review[] = JSON.parse(localStorage.getItem(`nexgro_reviews_${productId}`) || "[]");
+      localStorage.setItem(`nexgro_reviews_${productId}`, JSON.stringify([...current, newReview]));
+      return newReview;
     },
     onSuccess: (mockData, vars) => {
       if (!actor && mockData) {
@@ -1342,7 +1408,28 @@ export function useCreateProduct() {
         localStorage.setItem("nexgro_products", JSON.stringify([p, ...base]));
         return p;
       }
-      // Actual backend call would go here
+      if (actor) {
+        try {
+          await actor.createProduct(
+            data.name || "New Product",
+            data.description || "",
+            BigInt(Math.round((data.price || 0) * 100)),
+            BigInt(data.categoryId || "fruits"),
+            data.imageUrl || "",
+            BigInt(data.stockQty || 0),
+            !!data.isFeatured,
+            !!data.isBestSeller,
+            !!data.isNewArrival,
+            data.harvestDate ? BigInt(data.harvestDate) : null,
+            data.bestBeforeDate ? BigInt(data.bestBeforeDate) : null,
+            data.bundleId ? BigInt(data.bundleId) : null,
+            !!data.ageRestricted,
+            data.ageCategory ? { [data.ageCategory]: null } as any : null,
+          );
+        } catch (err) {
+          console.error("Backend createProduct failed", err);
+        }
+      }
       return data as Product;
     },
     onSuccess: () => {
@@ -1359,9 +1446,37 @@ export function useUpdateProduct() {
       if (!actor) {
         const local = JSON.parse(localStorage.getItem("nexgro_products") || "[]");
         const base = local.length > 0 ? local : [...SAMPLE_PRODUCTS];
-        const updated = base.map(p => p.id === data.id ? { ...p, ...data } : p);
+        const updated = base.map((p: Product) => (p.id === data.id ? { ...p, ...data } : p));
         localStorage.setItem("nexgro_products", JSON.stringify(updated));
         return data;
+      }
+      if (actor) {
+        try {
+          // Fetch existing product to fill in missing fields for updateProduct call
+          const existingResult = await actor.getProductById(BigInt(data.id));
+          if (existingResult) {
+            await actor.updateProduct(
+              BigInt(data.id),
+              data.name ?? existingResult.name,
+              data.description ?? existingResult.description,
+              data.price !== undefined ? BigInt(Math.round(data.price * 100)) : existingResult.price,
+              data.categoryId ? BigInt(data.categoryId) : existingResult.categoryId,
+              data.imageUrl ?? existingResult.imageBlob,
+              data.stockQty !== undefined ? BigInt(data.stockQty) : existingResult.stockQty,
+              data.isActive ?? existingResult.isActive,
+              data.isFeatured ?? existingResult.isFeatured,
+              data.isBestSeller ?? existingResult.isBestSeller,
+              data.isNewArrival ?? existingResult.isNewArrival,
+              data.harvestDate !== undefined ? (data.harvestDate ? BigInt(data.harvestDate) : null) : (existingResult.harvestDate ?? null),
+              data.bestBeforeDate !== undefined ? (data.bestBeforeDate ? BigInt(data.bestBeforeDate) : null) : (existingResult.bestBeforeDate ?? null),
+              data.bundleId !== undefined ? (data.bundleId ? BigInt(data.bundleId) : null) : (existingResult.bundleId ?? null),
+              data.ageRestricted ?? existingResult.ageRestricted,
+              data.ageCategory !== undefined ? (data.ageCategory ? { [data.ageCategory]: null } as any : null) : (existingResult.ageCategory ?? null),
+            );
+          }
+        } catch (err) {
+          console.error("Backend updateProduct failed", err);
+        }
       }
       return data;
     },

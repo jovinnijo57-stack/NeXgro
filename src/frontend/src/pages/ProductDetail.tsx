@@ -431,12 +431,11 @@ export default function ProductDetail() {
               </span>
             </div>
 
-            {/* Price */}
             <div className="flex items-baseline gap-3">
               <span className="text-3xl font-bold text-primary font-display">
                 ₹{product.price.toFixed(2)}
               </span>
-              <span className="text-sm text-muted-foreground">per pack</span>
+              <span className="text-sm text-muted-foreground">per {product.unit}</span>
             </div>
 
             {/* Freshness section */}

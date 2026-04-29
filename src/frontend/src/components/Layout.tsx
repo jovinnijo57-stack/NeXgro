@@ -644,8 +644,8 @@ export default function Layout({ children }: LayoutProps) {
               </span>
             </Link>
 
-            {/* Search bar — desktop */}
-            {!["/home", "/cart", "/orders", "/profile", "/search", "/wishlist", "/ai-shopper", "/recipes"].includes(loc.pathname) && (
+            {/* Search bar — desktop (only on Search and Recipes) */}
+            {(loc.pathname === "/search" || loc.pathname === "/recipes") && (
               <div className="hidden md:flex flex-1 max-w-lg mx-4">
                 <SearchBar />
               </div>
@@ -681,8 +681,8 @@ export default function Layout({ children }: LayoutProps) {
             </div>
           </div>
 
-          {/* Mobile search row */}
-          {!["/home", "/cart", "/orders", "/profile", "/search", "/wishlist", "/ai-shopper", "/recipes"].includes(loc.pathname) && (
+          {/* Mobile search row (only on Search and Recipes) */}
+          {(loc.pathname === "/search" || loc.pathname === "/recipes") && (
             <div className="md:hidden pb-2">
               <SearchBar mobile />
             </div>

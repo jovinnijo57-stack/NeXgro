@@ -4,7 +4,7 @@ import { useNavigate } from "@tanstack/react-router";
 import { SAMPLE_PRODUCTS } from "@/types";
 import { useAddToCart } from "@/hooks/useBackend";
 import { cn } from "@/lib/utils";
-import { GEMINI_API_KEY, GEMINI_MODEL, isGeminiConfigured } from "@/config/ai";
+import { GEMINI_API_KEY, GEMINI_MODEL, isGeminiConfigured, isGroqConfigured } from "@/config/ai";
 import { GoogleGenerativeAI } from "@google/generative-ai";
 
 const genAI = new GoogleGenerativeAI(GEMINI_API_KEY);
