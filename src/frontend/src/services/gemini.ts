@@ -1,5 +1,5 @@
 import { GoogleGenerativeAI } from "@google/generative-ai";
-import { GEMINI_API_KEY, GEMINI_MODEL } from "../config/ai";
+import { GEMINI_API_KEY, GEMINI_MODEL, isGeminiConfigured } from "../config/ai";
 import { STATIC_RECIPES } from "./recipeData";
 
 export async function analyzeRecipe(recipeTitle: string, ingredients: any[]) {
@@ -10,8 +10,8 @@ export async function analyzeRecipe(recipeTitle: string, ingredients: any[]) {
     return STATIC_RECIPES[normalizedTitle];
   }
 
-  if (!GEMINI_API_KEY) {
-    console.warn("Gemini API Key missing. Returning default analysis.");
+  if (!isGeminiConfigured()) {
+    console.warn("Gemini API Key missing or using placeholder. Returning default analysis.");
     return {
       water: "2-3 cups (approx.)",
       time: "25-30 minutes",

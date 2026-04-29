@@ -4,7 +4,7 @@ import { useNavigate } from "@tanstack/react-router";
 import { SAMPLE_PRODUCTS } from "@/types";
 import { useAddToCart } from "@/hooks/useBackend";
 import { cn } from "@/lib/utils";
-import { GEMINI_API_KEY, GEMINI_MODEL } from "@/config/ai";
+import { GEMINI_API_KEY, GEMINI_MODEL, isGeminiConfigured } from "@/config/ai";
 import { GoogleGenerativeAI } from "@google/generative-ai";
 
 const genAI = new GoogleGenerativeAI(GEMINI_API_KEY);
@@ -59,6 +59,13 @@ export default function AIShopper() {
     
     User Question: ${userText}`;
 
+    if (!isGeminiConfigured()) {
+      return {
+        text: "I'm ready to help, but my AI core (Gemini API) isn't configured with a valid key yet. Please set VITE_GEMINI_API_KEY in your environment to unlock my full potential!",
+        recommendations: SAMPLE_PRODUCTS.slice(0, 2)
+      };
+    }
+
     try {
       const result = await model.generateContent(systemPrompt);
       const response = await result.response;
@@ -78,7 +85,7 @@ export default function AIShopper() {
     } catch (error) {
       console.error("Gemini Error:", error);
       return { 
-        text: "I'm having a slight technical hiccup, but I'm still here to help! Could you try rephrasing your question about our fresh Kerala produce?", 
+        text: "I'm having a slight technical hiccup connecting to my Gemini brain. This usually happens if the API key is invalid or has expired. Please check your configuration!", 
         recommendations: [] 
       };
     }
