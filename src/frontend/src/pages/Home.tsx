@@ -390,7 +390,7 @@ function CategoryGrid() {
       <SectionHeader
         icon={<Grid3X3 className="w-5 h-5 text-primary" />}
         title="Shop by Category"
-        linkTo="/categories/fruits"
+        linkTo="/search"
         linkOcid="home.all_categories_link"
         linkLabel="View all →"
       />
@@ -857,12 +857,6 @@ function SeasonalCollectionsSection() {
   );
 }
 
-const PROMO_ITEMS = [
-  { icon: Truck, label: "Free delivery over ₹30", sub: "No hidden fees" },
-  { icon: Zap, label: "30-min express delivery", sub: "Select areas" },
-  { icon: Sparkles, label: "Earn loyalty points", sub: "1 pt per ₹1 spent" },
-  { icon: ShoppingBag, label: "Easy returns", sub: "No questions asked" },
-];
 
 function SearchBar() {
   const navigate = useNavigate();
@@ -917,31 +911,6 @@ function SearchBar() {
   );
 }
 
-function PromoStrip() {
-  return (
-    <section
-      className="grid grid-cols-2 md:grid-cols-4 gap-3"
-      data-ocid="home.promo_strip"
-    >
-      {PROMO_ITEMS.map(({ icon: Icon, label, sub }) => (
-        <div
-          key={label}
-          className="flex items-center gap-3 bg-card border border-border rounded-2xl p-4 dark:bg-card"
-        >
-          <div className="w-9 h-9 rounded-xl bg-primary/10 flex items-center justify-center shrink-0">
-            <Icon className="w-4 h-4 text-primary" />
-          </div>
-          <div className="min-w-0">
-            <p className="text-sm font-semibold text-foreground leading-tight truncate">
-              {label}
-            </p>
-            <p className="text-xs text-muted-foreground mt-0.5">{sub}</p>
-          </div>
-        </div>
-      ))}
-    </section>
-  );
-}
 
 function FeatureQuickAccess() {
   const navigate = useNavigate();
@@ -971,45 +940,14 @@ function FeatureQuickAccess() {
 }
 
 export default function Home() {
-  const [showFloatingVideo, setShowFloatingVideo] = useState(() => {
-    return localStorage.getItem("nexgro_video_dismissed") !== "true";
-  });
   useBanners();
   return (
     <div
       className="max-w-7xl mx-auto px-4 sm:px-6 py-6 space-y-8"
       data-ocid="home.page"
     >
-      {showFloatingVideo && (
-        <div 
-          className="fixed bottom-24 left-6 z-50 w-[150px] aspect-[9/16] bg-black rounded-[2.5rem] overflow-hidden shadow-[0_20px_50px_rgba(0,0,0,0.5)] border-[3px] border-primary/40 group animate-in fade-in slide-in-from-left-10 duration-700"
-          data-ocid="home.floating_video"
-        >
-          <button
-            type="button"
-            onClick={() => {
-              setShowFloatingVideo(false);
-              localStorage.setItem("nexgro_video_dismissed", "true");
-            }}
-            className="absolute top-4 right-4 z-20 p-1.5 bg-black/50 text-white rounded-full hover:bg-black/70 transition-colors opacity-0 group-hover:opacity-100 backdrop-blur-md"
-            aria-label="Close video"
-          >
-            <X className="w-3 h-3" />
-          </button>
-          <video
-            src="/video.mp4"
-            autoPlay
-            loop
-            muted
-            playsInline
-            className="w-full h-full object-cover scale-105 group-hover:scale-100 transition-transform duration-700"
-          />
-        </div>
-      )}
-      {/* Search bar removed as per request */}
       <HeroCarousel />
       <FeatureQuickAccess />
-      <PromoStrip />
       <CategoryGrid />
       <FlashDealsSection />
       <SeasonalCollectionsSection />

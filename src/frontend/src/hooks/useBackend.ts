@@ -1237,6 +1237,8 @@ export function useCreateProduct() {
     },
     onSuccess: (newProduct) => {
       qc.setQueryData<Product[]>(["products", undefined], (old = []) => {
+        // If the cache is empty (mock mode), use SAMPLE_PRODUCTS as base
+        const base = old.length > 0 ? old : [...SAMPLE_PRODUCTS];
         const id = `p${Date.now()}`;
         const p: Product = {
           id,
@@ -1256,7 +1258,7 @@ export function useCreateProduct() {
           ageRestricted: false,
           ageCategory: null,
         };
-        return [p, ...old];
+        return [p, ...base];
       });
       qc.invalidateQueries({ queryKey: ["products"] });
     },
@@ -1271,7 +1273,9 @@ export function useUpdateProduct() {
     },
     onSuccess: (updatedProduct) => {
       qc.setQueryData<Product[]>(["products", undefined], (old = []) => {
-        return old.map(p => p.id === updatedProduct.id ? { ...p, ...updatedProduct } : p);
+        // If the cache is empty (mock mode), use SAMPLE_PRODUCTS as base
+        const base = old.length > 0 ? old : [...SAMPLE_PRODUCTS];
+        return base.map(p => p.id === updatedProduct.id ? { ...p, ...updatedProduct } : p);
       });
       qc.invalidateQueries({ queryKey: ["products"] });
     },

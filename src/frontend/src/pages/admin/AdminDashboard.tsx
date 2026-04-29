@@ -109,6 +109,7 @@ import {
   Clock,
   ShieldAlert,
   Map as MapIcon,
+  BookOpen,
 } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 
@@ -130,6 +131,7 @@ type AdminSection =
   | "promotions"
   | "inventory"
   | "wallets"
+  | "recipes"
   | "chat";
 
 // ─── Constants ────────────────────────────────────────────────────────────────
@@ -150,6 +152,7 @@ const NAV_ITEMS: {
   { id: "locations", label: "Zones", icon: MapPin },
   { id: "users", label: "Users", icon: Users },
   { id: "wallets", label: "Wallets", icon: Wallet },
+  { id: "recipes", label: "Recipes", icon: BookOpen },
   { id: "chat", label: "Support Chat", icon: MessageSquare },
 ];
 
@@ -989,7 +992,370 @@ function CategoriesView() {
   );
 }
 
+// ─── Section: Recipes ─────────────────────────────────────────────────────────
+
+import { getRecipes, saveRecipes, type Recipe as RecipeType } from "@/data/recipes";
+
+function RecipesView() {
+  const [recipes, setRecipes] = useState<RecipeType[]>(() => getRecipes());
+  const [modalOpen, setModalOpen] = useState(false);
+  const [editingRecipe, setEditingRecipe] = useState<RecipeType | null>(null);
+  const [form, setForm] = useState<Partial<RecipeType>>({
+    title: "",
+    category: "Breakfast",
+    time: "",
+    serves: 2,
+    calories: "",
+    protein: "",
+    fat: "",
+    carbs: "",
+    image: "",
+    ingredients: [],
+    instructions: [],
+  });
+
+  const [newIngredient, setNewIngredient] = useState({ id: "", name: "", qty: 1 });
+  const [newStep, setNewStep] = useState("");
+
+  function openAdd() {
+    setEditingRecipe(null);
+    setForm({
+      title: "",
+      category: "Breakfast",
+      time: "",
+      serves: 2,
+      calories: "",
+      protein: "",
+      fat: "",
+      carbs: "",
+      image: "",
+      ingredients: [],
+      instructions: [],
+    });
+    setModalOpen(true);
+  }
+
+  function openEdit(r: RecipeType) {
+    setEditingRecipe(r);
+    setForm(r);
+    setModalOpen(true);
+  }
+
+  function handleSubmit(e: React.FormEvent) {
+    e.preventDefault();
+    let updatedRecipes: RecipeType[];
+    if (editingRecipe) {
+      updatedRecipes = recipes.map(r => r.id === editingRecipe.id ? (form as RecipeType) : r);
+    } else {
+      const newRecipe = {
+        ...form,
+        id: "r-" + Date.now(),
+      } as RecipeType;
+      updatedRecipes = [...recipes, newRecipe];
+    }
+    setRecipes(updatedRecipes);
+    saveRecipes(updatedRecipes);
+    toast.success(editingRecipe ? "Recipe updated!" : "Recipe created!");
+    setModalOpen(false);
+  }
+
+  function deleteRecipe(id: string) {
+    const updated = recipes.filter(r => r.id !== id);
+    setRecipes(updated);
+    saveRecipes(updated);
+    toast.success("Recipe deleted");
+  }
+
+  function addIngredient() {
+    if (!newIngredient.name) return;
+    setForm(f => ({
+      ...f,
+      ingredients: [...(f.ingredients || []), { ...newIngredient, id: newIngredient.id || "p-" + Date.now() }]
+    }));
+    setNewIngredient({ id: "", name: "", qty: 1 });
+  }
+
+  function removeIngredient(index: number) {
+    setForm(f => ({
+      ...f,
+      ingredients: f.ingredients?.filter((_, i) => i !== index)
+    }));
+  }
+
+  function addStep() {
+    if (!newStep) return;
+    setForm(f => ({
+      ...f,
+      instructions: [...(f.instructions || []), newStep]
+    }));
+    setNewStep("");
+  }
+
+  function removeStep(index: number) {
+    setForm(f => ({
+      ...f,
+      instructions: f.instructions?.filter((_, i) => i !== index)
+    }));
+  }
+
+  return (
+    <div data-ocid="admin.recipes_section">
+      <div className="flex items-center justify-between mb-4">
+        <h2 className="font-display text-lg font-bold text-foreground">
+          Recipes
+          <span className="text-muted-foreground font-normal text-sm ml-1">
+            ({recipes.length})
+          </span>
+        </h2>
+        <button
+          type="button"
+          onClick={openAdd}
+          className="flex items-center gap-2 bg-primary text-primary-foreground px-4 py-2 rounded-xl text-sm font-semibold hover:bg-primary/90 transition-colors shadow-card"
+        >
+          <Plus className="w-4 h-4" /> New Recipe
+        </button>
+      </div>
+
+      <div className="bg-card border border-border rounded-xl overflow-hidden">
+        <div className="overflow-x-auto">
+          <table className="w-full text-sm">
+            <thead className="bg-muted/30 border-b border-border">
+              <tr>
+                {["Recipe", "Category", "Time", "Serves", "Stats", "Actions"].map(h => (
+                  <th key={h} className="text-left px-4 py-3 text-xs font-semibold text-muted-foreground uppercase tracking-wide">
+                    {h}
+                  </th>
+                ))}
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-border">
+              {recipes.map((r) => (
+                <tr key={r.id} className="hover:bg-muted/20 transition-colors">
+                  <td className="px-4 py-3">
+                    <div className="flex items-center gap-3">
+                      <img src={r.image} className="w-10 h-10 rounded-lg object-cover" alt="" />
+                      <span className="font-medium text-foreground">{r.title}</span>
+                    </div>
+                  </td>
+                  <td className="px-4 py-3 text-muted-foreground">{r.category}</td>
+                  <td className="px-4 py-3 text-muted-foreground">{r.time}</td>
+                  <td className="px-4 py-3 text-muted-foreground">{r.serves}</td>
+                  <td className="px-4 py-3 text-xs">
+                    <div className="flex gap-2">
+                      <span className="bg-orange-100 text-orange-700 px-1.5 py-0.5 rounded">{r.calories}</span>
+                      <span className="bg-blue-100 text-blue-700 px-1.5 py-0.5 rounded">P: {r.protein}</span>
+                    </div>
+                  </td>
+                  <td className="px-4 py-3">
+                    <div className="flex gap-3">
+                      <button onClick={() => openEdit(r)} className="text-xs text-primary hover:underline font-medium">Edit</button>
+                      <button onClick={() => deleteRecipe(r.id)} className="text-xs text-destructive hover:underline font-medium">Delete</button>
+                    </div>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      {modalOpen && (
+        <Modal
+          title={editingRecipe ? "Edit Recipe" : "Add Recipe"}
+          onClose={() => setModalOpen(false)}
+        >
+          <form onSubmit={handleSubmit} className="space-y-6 max-h-[70vh] overflow-y-auto px-1">
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <label className="text-xs font-medium text-muted-foreground mb-1 block">Title</label>
+                <input
+                  type="text"
+                  value={form.title}
+                  onChange={e => setForm(f => ({ ...f, title: e.target.value }))}
+                  className="w-full px-3 py-2 border rounded-xl bg-background"
+                  required
+                />
+              </div>
+              <div>
+                <label className="text-xs font-medium text-muted-foreground mb-1 block">Category</label>
+                <select
+                  value={form.category}
+                  onChange={e => setForm(f => ({ ...f, category: e.target.value }))}
+                  className="w-full px-3 py-2 border rounded-xl bg-background"
+                >
+                  {["Breakfast", "Lunch", "Healthy", "Drinks", "International", "Non-Veg", "Veg"].map(c => (
+                    <option key={c} value={c}>{c}</option>
+                  ))}
+                </select>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-3 gap-4">
+              <div>
+                <label className="text-xs font-medium text-muted-foreground mb-1 block">Time</label>
+                <input
+                  type="text"
+                  value={form.time}
+                  placeholder="20 min"
+                  onChange={e => setForm(f => ({ ...f, time: e.target.value }))}
+                  className="w-full px-3 py-2 border rounded-xl bg-background"
+                />
+              </div>
+              <div>
+                <label className="text-xs font-medium text-muted-foreground mb-1 block">Serves</label>
+                <input
+                  type="number"
+                  value={form.serves}
+                  onChange={e => setForm(f => ({ ...f, serves: Number(e.target.value) }))}
+                  className="w-full px-3 py-2 border rounded-xl bg-background"
+                />
+              </div>
+              <div>
+                <label className="text-xs font-medium text-muted-foreground mb-1 block">Calories</label>
+                <input
+                  type="text"
+                  value={form.calories}
+                  placeholder="250 kcal"
+                  onChange={e => setForm(f => ({ ...f, calories: e.target.value }))}
+                  className="w-full px-3 py-2 border rounded-xl bg-background"
+                />
+              </div>
+            </div>
+
+            <div className="grid grid-cols-3 gap-4">
+              <div>
+                <label className="text-xs font-medium text-muted-foreground mb-1 block">Protein</label>
+                <input type="text" value={form.protein} onChange={e => setForm(f => ({ ...f, protein: e.target.value }))} className="w-full px-3 py-2 border rounded-xl bg-background" />
+              </div>
+              <div>
+                <label className="text-xs font-medium text-muted-foreground mb-1 block">Fat</label>
+                <input type="text" value={form.fat} onChange={e => setForm(f => ({ ...f, fat: e.target.value }))} className="w-full px-3 py-2 border rounded-xl bg-background" />
+              </div>
+              <div>
+                <label className="text-xs font-medium text-muted-foreground mb-1 block">Carbs</label>
+                <input type="text" value={form.carbs} onChange={e => setForm(f => ({ ...f, carbs: e.target.value }))} className="w-full px-3 py-2 border rounded-xl bg-background" />
+              </div>
+            </div>
+
+            <div>
+              <label className="text-xs font-medium text-muted-foreground mb-1 block">Recipe Image</label>
+              <div className="flex gap-3 items-center">
+                <div className="w-16 h-16 rounded-xl border border-border bg-muted/20 flex items-center justify-center overflow-hidden shrink-0">
+                  {form.image ? (
+                    <img src={form.image} className="w-full h-full object-cover" alt="Preview" />
+                  ) : (
+                    <Image className="w-6 h-6 text-muted-foreground/30" />
+                  )}
+                </div>
+                <div className="flex-1 space-y-2">
+                  <input
+                    type="file"
+                    accept="image/*"
+                    onChange={async (e) => {
+                      const file = e.target.files?.[0];
+                      if (file) {
+                        toast.promise(uploadToCloudinary(file), {
+                          loading: "Uploading to Cloudinary...",
+                          success: (url) => {
+                            if (url) {
+                              setForm(f => ({ ...f, image: url }));
+                              return "Image uploaded successfully! ✨";
+                            }
+                            throw new Error("Upload failed");
+                          },
+                          error: "Cloudinary upload failed. Check your config.",
+                        });
+                      }
+                    }}
+                    className="hidden"
+                    id="recipe-image-file"
+                  />
+                  <label
+                    htmlFor="recipe-image-file"
+                    className="inline-block px-3 py-1.5 bg-muted hover:bg-muted/80 rounded-lg text-xs font-medium cursor-pointer transition-colors border border-border"
+                  >
+                    Choose File
+                  </label>
+                  <input
+                    type="text"
+                    value={form.image}
+                    placeholder="Or enter URL"
+                    onChange={(e) => setForm(f => ({ ...f, image: e.target.value }))}
+                    className="w-full px-3 py-1.5 text-[11px] border border-input rounded-lg bg-background focus:outline-none"
+                  />
+                </div>
+              </div>
+            </div>
+
+            <div className="space-y-3">
+              <label className="text-xs font-bold text-foreground uppercase tracking-wider block">Ingredients</label>
+              <div className="flex gap-2">
+                <input
+                  type="text"
+                  placeholder="Ingredient name"
+                  value={newIngredient.name}
+                  onChange={e => setNewIngredient(n => ({ ...n, name: e.target.value }))}
+                  className="flex-1 px-3 py-2 border rounded-xl text-sm"
+                />
+                <input
+                  type="number"
+                  placeholder="Qty"
+                  value={newIngredient.qty}
+                  onChange={e => setNewIngredient(n => ({ ...n, qty: Number(e.target.value) }))}
+                  className="w-20 px-3 py-2 border rounded-xl text-sm"
+                />
+                <button type="button" onClick={addIngredient} className="p-2 bg-primary/10 text-primary rounded-xl">
+                  <Plus className="w-5 h-5" />
+                </button>
+              </div>
+              <div className="space-y-2">
+                {form.ingredients?.map((ing, idx) => (
+                  <div key={idx} className="flex items-center justify-between bg-muted/30 px-3 py-2 rounded-lg text-sm">
+                    <span>{ing.name} ({ing.qty})</span>
+                    <button type="button" onClick={() => removeIngredient(idx)} className="text-destructive hover:underline">Remove</button>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            <div className="space-y-3">
+              <label className="text-xs font-bold text-foreground uppercase tracking-wider block">Instructions</label>
+              <div className="flex gap-2">
+                <input
+                  type="text"
+                  placeholder="Step description"
+                  value={newStep}
+                  onChange={e => setNewStep(e.target.value)}
+                  className="flex-1 px-3 py-2 border rounded-xl text-sm"
+                />
+                <button type="button" onClick={addStep} className="p-2 bg-primary/10 text-primary rounded-xl">
+                  <Plus className="w-5 h-5" />
+                </button>
+              </div>
+              <div className="space-y-2">
+                {form.instructions?.map((step, idx) => (
+                  <div key={idx} className="flex items-start gap-3 bg-muted/30 px-3 py-2 rounded-lg text-sm">
+                    <span className="font-bold text-primary">{idx + 1}.</span>
+                    <span className="flex-1">{step}</span>
+                    <button type="button" onClick={() => removeStep(idx)} className="text-destructive hover:underline">Remove</button>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            <div className="flex gap-3 pt-2">
+              <button type="button" onClick={() => setModalOpen(false)} className="flex-1 py-3 border rounded-xl font-medium">Cancel</button>
+              <button type="submit" className="flex-1 py-3 bg-primary text-primary-foreground rounded-xl font-bold">Save Recipe</button>
+            </div>
+          </form>
+        </Modal>
+      )}
+    </div>
+  );
+}
+
 // ─── Section: Orders ──────────────────────────────────────────────────────────
+
 
 import { sendOrderUpdateWhatsApp } from "@/services/whatsappService";
 
@@ -4978,6 +5344,8 @@ export default function AdminDashboard() {
         return <WalletsView />;
       case "chat":
         return <ChatView />;
+      case "recipes":
+        return <RecipesView />;
       default:
         return <DashboardView />;
     }

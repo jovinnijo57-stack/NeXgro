@@ -60,8 +60,22 @@ export default function AIShopper() {
     User Question: ${userText}`;
 
     if (!isGeminiConfigured()) {
+      // Local keyword-based fallback for basic questions
+      const lower = userText.toLowerCase();
+      if (lower.includes("healthy") || lower.includes("nutrition")) {
+        return {
+          text: "Healthy eating starts with fresh, organic produce! We recommend high-protein items like organic eggs and fresh greens from our local Kerala farms. Nutritional values for most items are available in the product details.",
+          recommendations: SAMPLE_PRODUCTS.filter(p => ["p10", "p1", "p3"].includes(p.id))
+        };
+      }
+      if (lower.includes("origin") || lower.includes("where")) {
+        return {
+          text: "All our fresh fruits and vegetables are sourced directly from Local Organic Farms in Kerala, ensuring the highest quality and minimal travel time to your doorstep.",
+          recommendations: SAMPLE_PRODUCTS.filter(p => p.categoryId === "fruits").slice(0, 2)
+        };
+      }
       return {
-        text: "I'm ready to help, but my AI core (Gemini API) isn't configured with a valid key yet. Please set VITE_GEMINI_API_KEY in your environment to unlock my full potential!",
+        text: "I'm ready to help! While my advanced AI core (Gemini API) isn't fully configured yet, I can tell you that we source all our produce from Local Organic Farms in Kerala. Try asking about healthy options or where our food comes from!",
         recommendations: SAMPLE_PRODUCTS.slice(0, 2)
       };
     }
@@ -85,8 +99,8 @@ export default function AIShopper() {
     } catch (error) {
       console.error("Gemini Error:", error);
       return { 
-        text: "I'm having a slight technical hiccup connecting to my Gemini brain. This usually happens if the API key is invalid or has expired. Please check your configuration!", 
-        recommendations: [] 
+        text: "I'm having a slight technical hiccup connecting to my Gemini brain. However, I can still tell you that our produce is 100% fresh from Kerala farms! What else would you like to know?", 
+        recommendations: SAMPLE_PRODUCTS.slice(0, 2)
       };
     }
   };
