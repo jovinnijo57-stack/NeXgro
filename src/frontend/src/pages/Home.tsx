@@ -390,7 +390,7 @@ function CategoryGrid() {
       <SectionHeader
         icon={<Grid3X3 className="w-5 h-5 text-primary" />}
         title="Shop by Category"
-        linkTo="/search"
+        linkTo="/categories"
         linkOcid="home.all_categories_link"
         linkLabel="View all →"
       />

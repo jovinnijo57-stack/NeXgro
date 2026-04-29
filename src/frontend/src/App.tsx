@@ -23,6 +23,7 @@ import { toast } from "sonner";
 
 const Home = lazy(() => import("@/pages/Home"));
 const CategoryPage = lazy(() => import("@/pages/CategoryPage"));
+const CategoriesPage = lazy(() => import("@/pages/Categories"));
 const ProductDetail = lazy(() => import("@/pages/ProductDetail"));
 const Cart = lazy(() => import("@/pages/Cart"));
 const Checkout = lazy(() => import("@/pages/Checkout"));
@@ -208,6 +209,20 @@ const categoryRoute = createRoute({
       <Layout>
         <Suspense fallback={<PageLoader />}>
           <CategoryPage />
+        </Suspense>
+      </Layout>
+    </AuthGuard>
+  ),
+});
+
+const categoriesRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: "/categories",
+  component: () => (
+    <AuthGuard>
+      <Layout>
+        <Suspense fallback={<PageLoader />}>
+          <CategoriesPage />
         </Suspense>
       </Layout>
     </AuthGuard>
@@ -710,6 +725,7 @@ const routeTree = rootRoute.addChildren([
   locationSetupRoute,
   homeRoute,
   categoryRoute,
+  categoriesRoute,
   comparisonRoute,
   sharedWishlistRoute,
   productRoute,
