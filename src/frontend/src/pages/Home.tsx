@@ -971,7 +971,9 @@ function FeatureQuickAccess() {
 }
 
 export default function Home() {
-  const [showFloatingVideo, setShowFloatingVideo] = useState(true);
+  const [showFloatingVideo, setShowFloatingVideo] = useState(() => {
+    return localStorage.getItem("nexgro_video_dismissed") !== "true";
+  });
   useBanners();
   return (
     <div
@@ -985,7 +987,10 @@ export default function Home() {
         >
           <button
             type="button"
-            onClick={() => setShowFloatingVideo(false)}
+            onClick={() => {
+              setShowFloatingVideo(false);
+              localStorage.setItem("nexgro_video_dismissed", "true");
+            }}
             className="absolute top-4 right-4 z-20 p-1.5 bg-black/50 text-white rounded-full hover:bg-black/70 transition-colors opacity-0 group-hover:opacity-100 backdrop-blur-md"
             aria-label="Close video"
           >

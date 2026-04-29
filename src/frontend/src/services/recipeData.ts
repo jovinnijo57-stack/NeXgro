@@ -553,5 +553,82 @@ export const STATIC_RECIPES: Record<string, any> = {
       "Ensure even coating while wings are still warm",
       "Serve with celery sticks and dip"
     ]
+  },
+  "PANEER TIKKA": {
+    water: "None",
+    time: "20 minutes + marination",
+    steps: [
+      "Mix 1/2 cup yogurt, 1 tbsp besan, and spices into a paste",
+      "Marinate 200g paneer cubes and veggies for 30 min",
+      "Thread paneer and peppers onto skewers",
+      "Grill or pan-sear for 5–8 min until charred",
+      "Sprinkle with 1/2 tsp chaat masala and lemon"
+    ]
+  },
+  "ALOO GOBI": {
+    water: "None",
+    time: "20 minutes",
+    steps: [
+      "Sauté 1 tsp cumin and 1 tbsp ginger in oil",
+      "Add 2 chopped potatoes and 1 head cauliflower florets",
+      "Season with 1/2 tsp turmeric and 1 tsp salt",
+      "Cover and cook on low heat for 15 min (no water needed)",
+      "Garnish with fresh cilantro before serving"
+    ]
+  },
+  "CHANA MASALA": {
+    water: "1/2 cup",
+    time: "20 minutes",
+    steps: [
+      "Soak 1 cup chickpeas overnight and pressure cook until soft",
+      "Sauté 1 large onion and 2 tomatoes into a soft paste",
+      "Add 2 tsp chana masala powder and the cooked beans",
+      "Simmer with 1/2 cup water for 10 min",
+      "Mash a few chickpeas to thicken the gravy"
+    ]
+  },
+  "RAJMA": {
+    water: "Varies",
+    time: "25 minutes",
+    steps: [
+      "Soak 1 cup rajma for 8 hours and pressure cook well",
+      "Sauté puree with ginger in 1 tbsp ghee until oil separates",
+      "Add cooked beans and 1 tsp salt",
+      "Simmer for 15 min on low heat until creamy",
+      "Serve hot with steamed Basmati rice"
+    ]
+  },
+  "VEG KURMA": {
+    water: "Splash",
+    time: "15 minutes",
+    steps: [
+      "Grind 1/2 cup coconut and 5 cashews into a smooth paste",
+      "Boil 2 cups mixed veggies (carrots, beans, peas)",
+      "Sauté spices and add the coconut paste + veggies",
+      "Simmer for 5 min until the sauce thickens",
+      "Add a splash of water for desired consistency"
+    ]
+  },
+  "MUSHROOM CURRY": {
+    water: "Released from mushrooms",
+    time: "15 minutes",
+    steps: [
+      "Sauté 250g sliced mushrooms until they release water",
+      "Add 1 chopped onion and 1 tsp garlic paste",
+      "Stir in 1/2 cup tomato puree and spices",
+      "Cook for 8 min until mushrooms are tender",
+      "Finish with 2 tbsp heavy cream for a rich texture"
+    ]
+  },
+  "BHINDI FRY": {
+    water: "None",
+    time: "15 minutes",
+    steps: [
+      "Wash and dry 250g okra completely; slice into rounds",
+      "Heat 2 tbsp oil and sauté okra on medium-high",
+      "Add 1/2 tsp turmeric and 1 tsp salt",
+      "Fry for 10 min without a lid to avoid sliminess",
+      "Toss with 1/2 tsp amchur powder for tanginess"
+    ]
   }
 };
