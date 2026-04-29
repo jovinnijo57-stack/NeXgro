@@ -397,6 +397,7 @@ function ProductsView() {
     name: "",
     description: "",
     price: "",
+    unit: "piece",
     categoryId: "fruits",
     stockQty: "",
     imageUrl: "",
@@ -411,6 +412,7 @@ function ProductsView() {
       name: "",
       description: "",
       price: "",
+      unit: "piece",
       categoryId: "fruits",
       stockQty: "",
       imageUrl: "",
@@ -427,6 +429,7 @@ function ProductsView() {
       name: p.name,
       description: p.description,
       price: String(p.price),
+      unit: p.unit || "piece",
       categoryId: p.categoryId,
       stockQty: String(p.stockQty),
       imageUrl: p.imageUrl || "",
@@ -612,6 +615,13 @@ function ProductsView() {
                 value: form.stockQty,
                 placeholder: "50",
                 type: "number",
+              },
+              {
+                id: "unit",
+                label: "Unit (kg, gram, piece, etc.)",
+                value: form.unit,
+                placeholder: "kg",
+                type: "text",
               },
             ].map(({ id, label, value, placeholder, type }) => (
               <div key={id}>
