@@ -26,15 +26,24 @@ const getLocalDateString = (d: Date) => {
   return [d.getFullYear(), String(d.getMonth() + 1).padStart(2, '0'), String(d.getDate()).padStart(2, '0')].join('-');
 };
 
+import { useSearch } from "@tanstack/react-router";
+
 export default function MealPlannerPage() {
+  const search = useSearch({ from: "/meal-planner" }) as any;
   const navigate = useNavigate();
   const qc = useQueryClient();
   const { data: recipes } = useRecipes();
   const { data: mealPlans } = useMealPlans();
   const addToCart = useAddToCart();
   const addMultipleToCart = useAddMultipleToCart();
-  const [selectedDate, setSelectedDate] = useState<string>(getLocalDateString(new Date()));
+  const [selectedDate, setSelectedDate] = useState<string>(search.date || getLocalDateString(new Date()));
   const [adding, setAdding] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (search.date) {
+      setSelectedDate(search.date);
+    }
+  }, [search.date]);
   const [aiAnalysis, setAiAnalysis] = useState<Record<string, any>>({});
   const [analyzing, setAnalyzing] = useState<string | null>(null);
 

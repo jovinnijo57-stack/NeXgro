@@ -95,7 +95,10 @@ export default function Recipes() {
     qc.setQueryData(["meal-plans"], newPlans);
     qc.invalidateQueries({ queryKey: ["meal-plans"] });
     toast.success(`"${recipe.title}" added to your Meal Plan for ${dateStr}! 📅`);
-    navigate({ to: "/meal-planner" });
+    navigate({ 
+      to: "/meal-planner",
+      search: { date: dateStr }
+    });
   };
 
   const firstSixRecipes = filteredRecipes.slice(0, 6);

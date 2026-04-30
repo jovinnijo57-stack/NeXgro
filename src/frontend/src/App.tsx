@@ -500,6 +500,11 @@ const referralsRoute = createRoute({
 const mealPlannerRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: "/meal-planner",
+  validateSearch: (search: Record<string, unknown>) => {
+    return {
+      date: (search.date as string) || undefined,
+    };
+  },
   component: () => (
     <AuthGuard>
       <Layout>
