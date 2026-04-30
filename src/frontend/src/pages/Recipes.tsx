@@ -92,43 +92,27 @@ export default function Recipes() {
 
   return (
     <div className="min-h-screen bg-background pb-24">
-      {/* New Premium Hero Section */}
-      <div className="bg-[#111] text-white py-12 mb-8 relative overflow-hidden">
-        <div className="max-w-7xl mx-auto px-6 flex flex-col md:flex-row items-center justify-between gap-8">
-          <div className="flex-1 space-y-4 text-center md:text-left z-10">
-             <button 
-              onClick={() => navigate({ to: "/home" })} 
-              className="inline-flex items-center gap-2 px-4 py-2 bg-white/10 hover:bg-white/20 rounded-full transition-all text-xs font-bold backdrop-blur-md border border-white/10 mb-4"
-            >
-              <ArrowLeft className="w-4 h-4" /> Back to Home
-            </button>
-            <div className="hidden md:block">
-              <h1 className="text-5xl md:text-7xl font-black tracking-tighter text-[#FFB800] italic">
-                Chef's Corner
-              </h1>
-              <p className="text-xl md:text-2xl font-medium text-white/80 italic">
-                "Cook smart, eat better"
-              </p>
-            </div>
-          </div>
-          <div className="flex-1 flex justify-center md:justify-end">
-            <div className="w-full max-w-[340px] md:max-w-[500px] aspect-[16/9] md:aspect-square rounded-[2rem] md:rounded-full border-[6px] md:border-[12px] border-[#FFB800] overflow-hidden shadow-[0_0_30px_rgba(255,184,0,0.2)]">
-              <img 
-                src="/assets/banner3.jpg" 
-                alt="Chef's Corner Banner" 
-                className="w-full h-full object-cover"
-              />
-            </div>
-          </div>
+      {/* Simple Banner Image */}
+      <div className="max-w-7xl mx-auto px-4 mb-8">
+        <div className="w-full rounded-[2.5rem] overflow-hidden shadow-2xl border-4 border-[#FFB800]">
+          <img 
+            src="/assets/banner3.jpg" 
+            alt="Chef's Corner Banner" 
+            className="w-full h-auto object-cover"
+          />
         </div>
-        {/* Abstract background elements */}
-        <div className="absolute -top-24 -left-24 w-64 h-64 bg-[#FFB800]/10 rounded-full blur-3xl" />
-        <div className="absolute -bottom-24 right-0 w-96 h-96 bg-[#FFB800]/5 rounded-full blur-3xl" />
       </div>
 
       <div className="max-w-7xl mx-auto px-4 space-y-12">
-        <div className="flex flex-col sm:flex-row items-center gap-4">
-          <div className="flex-1 relative group w-full">
+        <div className="flex items-center gap-3">
+          <button
+            onClick={() => navigate({ to: "/home" })}
+            className="shrink-0 w-14 h-14 bg-card border-2 border-border rounded-2xl flex items-center justify-center text-muted-foreground hover:text-primary hover:border-primary transition-all shadow-xl active:scale-95"
+            title="Back to Home"
+          >
+            <ArrowLeft className="w-6 h-6" />
+          </button>
+          <div className="flex-1 relative group">
             <Search className="absolute left-6 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground group-focus-within:text-[#FFB800] transition-colors" />
             <input
               type="text"
@@ -147,13 +131,6 @@ export default function Recipes() {
               {isListening ? <MicOff className="w-5 h-5" /> : <Mic className="w-5 h-5" />}
             </button>
           </div>
-          <button
-            onClick={() => navigate({ to: "/search" })}
-            className="shrink-0 bg-[#FFB800] text-black px-8 py-5 rounded-[2rem] font-black uppercase tracking-tighter hover:bg-[#FFB800]/90 transition-all shadow-xl active:scale-95 flex items-center gap-2"
-          >
-            <ShoppingCart className="w-5 h-5" />
-            Browse Products
-          </button>
         </div>
 
         {/* Recipe Grid - First 6 */}
