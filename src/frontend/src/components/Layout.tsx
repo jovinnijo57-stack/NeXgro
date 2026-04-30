@@ -644,12 +644,7 @@ export default function Layout({ children }: LayoutProps) {
               </span>
             </Link>
 
-            {/* Search bar — desktop (only on Search and Recipes) */}
-            {(loc.pathname === "/search" || loc.pathname === "/recipes") && (
-              <div className="hidden md:flex flex-1 max-w-lg mx-4">
-                <SearchBar />
-              </div>
-            )}
+            {/* Search bar removed from header for specific pages per user request */}
 
             {/* Desktop nav links */}
             <nav className="hidden lg:flex items-center gap-5 ml-2">
@@ -681,12 +676,7 @@ export default function Layout({ children }: LayoutProps) {
             </div>
           </div>
 
-          {/* Mobile search row (only on Search and Recipes) */}
-          {(loc.pathname === "/search" || loc.pathname === "/recipes") && (
-            <div className="md:hidden pb-2">
-              <SearchBar mobile />
-            </div>
-          )}
+          {/* Mobile search row removed for specific pages per user request */}
         </div>
       </header>
 

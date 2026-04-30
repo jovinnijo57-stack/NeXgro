@@ -117,33 +117,9 @@ export default function Search() {
       {/* Premium Search Header */}
       <div className="bg-card/80 backdrop-blur-xl border-b border-border sticky top-0 z-40 shadow-sm px-4 py-3">
         <div className="max-w-6xl mx-auto flex items-center gap-3">
-          <div className="relative flex-1 group">
-            <SearchIcon className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground group-focus-within:text-primary transition-colors" />
-            <input
-              ref={inputRef}
-              type="text"
-              value={query}
-              onChange={(e) => setQuery(e.target.value)}
-              placeholder="Search groceries, essentials..."
-              className="w-full bg-muted/50 border-2 border-transparent rounded-2xl pl-12 pr-12 py-3 text-sm font-bold focus:bg-background focus:border-primary/20 focus:ring-4 focus:ring-primary/10 outline-none transition-all"
-            />
-            {query && (
-              <button
-                onClick={clearQuery}
-                className="absolute right-12 top-1/2 -translate-y-1/2 p-1 rounded-full bg-muted hover:bg-muted/80 transition-colors"
-              >
-                <X className="w-3.5 h-3.5 text-muted-foreground" />
-              </button>
-            )}
-            <button
-              onClick={startListening}
-              className={cn(
-                "absolute right-2 top-1/2 -translate-y-1/2 p-2 rounded-xl transition-all",
-                isListening ? "bg-destructive text-white animate-pulse" : "hover:bg-primary/10 text-primary"
-              )}
-            >
-              {isListening ? <MicOff className="w-4 h-4" /> : <Mic className="w-4 h-4" />}
-            </button>
+          <div className="flex-1 flex flex-col py-1">
+            <h1 className="text-2xl font-black italic tracking-tighter uppercase text-foreground leading-none">Browse Collections</h1>
+            <p className="text-[10px] font-black text-muted-foreground uppercase tracking-widest mt-1">Discover fresh deals & essentials</p>
           </div>
           <button
             onClick={() => setShowFilters(true)}
