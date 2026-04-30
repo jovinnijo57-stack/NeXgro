@@ -66,11 +66,11 @@ function toBackendId(id: string): bigint {
 
 function adaptProduct(p: ProductPublic): Product {
   return {
-    id: p.id.toString(),
+    id: p.id.toString().startsWith("p") ? p.id.toString() : `p${p.id}`,
     name: p.name,
     description: p.description,
     price: Number(p.price) / 100,
-    categoryId: p.categoryId.toString(),
+    categoryId: p.categoryId.toString().startsWith("c") ? p.categoryId.toString() : p.categoryId.toString(), // Categories might use different prefixing or none
     imageUrl: p.imageBlob.getDirectURL(),
     stockQty: Number(p.stockQty),
     rating: Number(p.rating) / 10,
@@ -141,7 +141,7 @@ function adaptOrder(o: OrderPublic): Order {
 function adaptCartItem(c: CartItemPublic): CartItem {
   return {
     userId: c.userId.toString(),
-    productId: c.productId.toString(),
+    productId: c.productId.toString().startsWith("p") ? c.productId.toString() : `p${c.productId}`,
     quantity: Number(c.quantity),
     addedAt: c.addedAt,
   };
