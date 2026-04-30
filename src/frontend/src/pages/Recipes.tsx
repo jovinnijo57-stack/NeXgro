@@ -200,8 +200,8 @@ export default function Recipes() {
             <div className="p-8 overflow-y-auto">
               <div className="flex items-start justify-between mb-8">
                 <div className="flex items-center gap-4">
-                  <div className="w-16 h-16 bg-primary/10 rounded-3xl flex items-center justify-center">
-                    <Sparkles className="w-8 h-8 text-primary" />
+                  <div className="w-16 h-16 bg-[#007000]/10 rounded-3xl flex items-center justify-center">
+                    <Sparkles className="w-8 h-8 text-[#007000]" />
                   </div>
                   <div>
                     <h2 className="text-3xl font-black tracking-tighter text-foreground uppercase italic">AI Analysis</h2>
@@ -218,13 +218,13 @@ export default function Recipes() {
 
               <div className="space-y-8 pb-8">
                 <div>
-                  <h3 className="text-xs font-black uppercase tracking-[0.2em] text-primary mb-4 flex items-center gap-2">
+                  <h3 className="text-xs font-black uppercase tracking-[0.2em] text-[#007000] mb-4 flex items-center gap-2">
                     <ShoppingCart className="w-4 h-4" /> Required Products
                   </h3>
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                     {selectedRecipeForAnalysis.ingredients.map((ing, i) => (
                       <div key={i} className="flex items-center gap-3 bg-muted/30 p-4 rounded-2xl border border-border/50">
-                        <CheckCircle2 className="w-4 h-4 text-primary shrink-0" />
+                        <CheckCircle2 className="w-4 h-4 text-[#007000] shrink-0" />
                         <span className="text-sm font-bold">{ing.name} ({ing.qty} unit)</span>
                       </div>
                     ))}
@@ -232,13 +232,13 @@ export default function Recipes() {
                 </div>
 
                 <div>
-                  <h3 className="text-xs font-black uppercase tracking-[0.2em] text-primary mb-4 flex items-center gap-2">
+                  <h3 className="text-xs font-black uppercase tracking-[0.2em] text-[#007000] mb-4 flex items-center gap-2">
                     <ChefHat className="w-4 h-4" /> Preparation Steps
                   </h3>
                   <div className="space-y-4">
                     {selectedRecipeForAnalysis.instructions.map((step, i) => (
                       <div key={i} className="flex gap-4 group">
-                        <div className="shrink-0 w-8 h-8 bg-card border-2 border-border rounded-xl flex items-center justify-center text-xs font-black text-muted-foreground group-hover:border-primary group-hover:text-primary transition-all">
+                        <div className="shrink-0 w-8 h-8 bg-card border-2 border-border rounded-xl flex items-center justify-center text-xs font-black text-muted-foreground group-hover:border-[#007000] group-hover:text-[#007000] transition-all">
                           {i + 1}
                         </div>
                         <p className="text-sm font-medium leading-relaxed text-foreground pt-1.5">{step}</p>
