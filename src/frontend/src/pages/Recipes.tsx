@@ -117,7 +117,7 @@ export default function Recipes() {
               placeholder="Search groceries, essentials..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full bg-[#f8fbf8] border-2 border-[#d3e6d3] pl-16 pr-16 py-4.5 rounded-full text-sm font-semibold placeholder:text-[#8ba38b] shadow-[0_2px_10px_rgba(0,100,0,0.02)] focus:border-[#006400]/40 focus:bg-white outline-none transition-all group-focus-within:ring-4 group-focus-within:ring-[#006400]/5"
+              className="w-full bg-[#f8fbf8] border-2 border-[#d3e6d3] pl-16 pr-16 py-4 rounded-full text-sm font-semibold placeholder:text-[#8ba38b] shadow-[0_2px_10px_rgba(0,100,0,0.02)] focus:border-[#006400]/40 focus:bg-white outline-none transition-all group-focus-within:ring-4 group-focus-within:ring-[#006400]/5"
             />
             <button
               onClick={startListening}

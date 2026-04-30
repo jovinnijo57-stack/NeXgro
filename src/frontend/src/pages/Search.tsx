@@ -118,19 +118,19 @@ export default function Search() {
       <div className="bg-card/80 backdrop-blur-xl border-b border-border sticky top-0 z-40 shadow-sm px-4 py-3">
         <div className="max-w-6xl mx-auto flex items-center gap-3">
           <div className="relative flex-1 group">
-            <SearchIcon className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground group-focus-within:text-primary transition-colors" />
+            <SearchIcon className="absolute left-6 top-1/2 -translate-y-1/2 w-5 h-5 text-[#006400] group-focus-within:scale-110 transition-transform" />
             <input
               ref={inputRef}
               type="text"
               value={query}
               onChange={(e) => setQuery(e.target.value)}
               placeholder="Search groceries, essentials..."
-              className="w-full bg-muted/50 border-2 border-transparent rounded-2xl pl-12 pr-12 py-3 text-sm font-bold focus:bg-background focus:border-primary/20 focus:ring-4 focus:ring-primary/10 outline-none transition-all"
+              className="w-full bg-[#f8fbf8] border-2 border-[#d3e6d3] pl-16 pr-16 py-4 rounded-full text-sm font-semibold placeholder:text-[#8ba38b] shadow-[0_2px_10px_rgba(0,100,0,0.02)] focus:border-[#006400]/40 focus:bg-white outline-none transition-all group-focus-within:ring-4 group-focus-within:ring-[#006400]/5"
             />
             {query && (
               <button
                 onClick={clearQuery}
-                className="absolute right-12 top-1/2 -translate-y-1/2 p-1 rounded-full bg-muted hover:bg-muted/80 transition-colors"
+                className="absolute right-14 top-1/2 -translate-y-1/2 p-1 rounded-full bg-muted hover:bg-muted/80 transition-colors"
               >
                 <X className="w-3.5 h-3.5 text-muted-foreground" />
               </button>
@@ -138,11 +138,11 @@ export default function Search() {
             <button
               onClick={startListening}
               className={cn(
-                "absolute right-2 top-1/2 -translate-y-1/2 p-2 rounded-xl transition-all",
-                isListening ? "bg-destructive text-white animate-pulse" : "hover:bg-primary/10 text-primary"
+                "absolute right-5 top-1/2 -translate-y-1/2 p-2 rounded-full transition-all",
+                isListening ? "bg-destructive text-white animate-pulse" : "text-[#006400] hover:bg-[#006400]/5"
               )}
             >
-              {isListening ? <MicOff className="w-4 h-4" /> : <Mic className="w-4 h-4" />}
+              {isListening ? <MicOff className="w-5 h-5" /> : <Mic className="w-5 h-5" />}
             </button>
           </div>
           <button
