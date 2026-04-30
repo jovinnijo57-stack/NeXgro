@@ -8,6 +8,7 @@ import Login from "@/pages/Login";
 import Register from "@/pages/Register";
 import VerifyEmail from "@/pages/VerifyEmail";
 import VerifyPhone from "@/pages/VerifyPhone";
+import Recipes from "@/pages/Recipes";
 import { useActor, useInternetIdentity } from "@caffeineai/core-infrastructure";
 import {
   RouterProvider,
@@ -37,7 +38,7 @@ const LocationSetup = lazy(() => import("@/pages/LocationSetup"));
 const BundlesPage = lazy(() => import("@/pages/BundlesPage"));
 const BundleDetail = lazy(() => import("@/pages/BundleDetail"));
 const WalletPage = lazy(() => import("@/pages/WalletPage"));
-const RecipesPage = lazy(() => import("@/pages/Recipes"));
+const RecipesPage = Recipes;
 const SubscriptionsPage = lazy(() => import("@/pages/SubscriptionsPage"));
 const ComparisonPage = lazy(() => import("@/pages/ComparisonPage"));
 const SmartPantryPage = lazy(() => import("@/pages/SmartPantry"));

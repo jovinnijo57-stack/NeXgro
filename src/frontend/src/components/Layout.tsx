@@ -560,6 +560,12 @@ function MobileBottomNav() {
       ocid: "mobile_nav.orders",
     },
     {
+      to: "/recipes",
+      icon: Utensils,
+      label: "Chef",
+      ocid: "mobile_nav.recipes",
+    },
+    {
       to: "/profile",
       icon: User,
       label: t("nav.profile"),
