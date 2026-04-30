@@ -636,6 +636,45 @@ export function useAddToCart() {
   });
 }
 
+export function useAddMultipleToCart() {
+  const qc = useQueryClient();
+  const { actor } = useBackendActor();
+  return useMutation({
+    mutationFn: async (items: { productId: string; qty: number }[]) => {
+      if (!actor) {
+        const familyId = localStorage.getItem("nexgro_family_id");
+        const cartKey = familyId ? `nexgro_cart_family_${familyId}` : "nexgro_cart_v1";
+        const existing = JSON.parse(localStorage.getItem(cartKey) || "[]");
+        
+        items.forEach(item => {
+          const idx = existing.findIndex((i: any) => i.productId === item.productId);
+          if (idx > -1) {
+            existing[idx].quantity += item.qty;
+          } else {
+            existing.push({ 
+              userId: "mock", 
+              productId: item.productId, 
+              quantity: item.qty, 
+              addedAt: BigInt(Date.now()) 
+            });
+          }
+        });
+        
+        localStorage.setItem(cartKey, JSON.stringify(existing));
+        return items;
+      }
+      
+      for (const item of items) {
+        await actor.addToCart(toBackendId(item.productId), BigInt(item.qty));
+      }
+      return items;
+    },
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["cart"] });
+    },
+  });
+}
+
 export function useRemoveFromCart() {
   const qc = useQueryClient();
   const { actor } = useBackendActor();

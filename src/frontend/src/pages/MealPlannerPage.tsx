@@ -1,4 +1,4 @@
-import { useMealPlans, useRecipes, useAddToCart } from "@/hooks/useBackend";
+import { useMealPlans, useRecipes, useAddToCart, useAddMultipleToCart } from "@/hooks/useBackend";
 import { cn } from "@/lib/utils";
 import { Link, useNavigate } from "@tanstack/react-router";
 import {
@@ -32,6 +32,7 @@ export default function MealPlannerPage() {
   const { data: recipes } = useRecipes();
   const { data: mealPlans } = useMealPlans();
   const addToCart = useAddToCart();
+  const addMultipleToCart = useAddMultipleToCart();
   const [selectedDate, setSelectedDate] = useState<string>(getLocalDateString(new Date()));
   const [adding, setAdding] = useState<string | null>(null);
   const [aiAnalysis, setAiAnalysis] = useState<Record<string, any>>({});
@@ -40,17 +41,7 @@ export default function MealPlannerPage() {
   // Deriving week
   const today = new Date();
   const startOfWeek = new Date(today);
-  const day = today.getDay();
-  const diff = today.getDate() - day + (day === 0 ? -6 : 1); // adjust when day is sunday
-  startOfWeek.setDate(diff);
-
-  useEffect(() => {
-    const params = new URLSearchParams(window.location.search);
-    const dateParam = params.get("date");
-    if (dateParam) {
-      setSelectedDate(dateParam);
-    }
-  }, []);
+  startOfWeek.setDate(today.getDate() - (today.getDay() === 0 ? 6 : today.getDay() - 1)); // Correct Monday
 
   const handleDayClick = (dayIndex: number) => {
     const date = new Date(startOfWeek);
@@ -69,6 +60,7 @@ export default function MealPlannerPage() {
     }
     setAdding("all");
     try {
+      const allIngredients: { productId: string; qty: number }[] = [];
       for (const mp of filteredMealPlans) {
         const recipe = mp.recipeDetails || recipes?.find((r: any) => r.id === mp.recipeId);
         if (recipe && recipe.ingredients) {
@@ -76,15 +68,21 @@ export default function MealPlannerPage() {
             const pId = ing.id || (ing as any).productId;
             const pQty = ing.qty || (ing as any).quantity || 1;
             if (pId) {
-              await addToCart.mutateAsync({ productId: pId, qty: pQty });
+              allIngredients.push({ productId: pId, qty: pQty });
             }
           }
         }
       }
-      toast.success("All ingredients added to cart! 🛒");
-      navigate({ to: "/cart" });
+      
+      if (allIngredients.length > 0) {
+        await addMultipleToCart.mutateAsync(allIngredients);
+        toast.success("All ingredients added to cart! 🛒");
+        navigate({ to: "/cart" });
+      } else {
+        toast.error("No ingredients found for these recipes.");
+      }
     } catch {
-      toast.error("Failed to add some ingredients.");
+      toast.error("Failed to add ingredients.");
     } finally {
       setAdding(null);
     }
@@ -103,15 +101,17 @@ export default function MealPlannerPage() {
     setAdding(recipe.id);
     try {
       const ingredients = recipe.ingredients || [];
-      for (const ing of ingredients) {
-        const pId = ing.id || (ing as any).productId;
-        const pQty = ing.qty || (ing as any).quantity || 1;
-        if (pId) {
-          await addToCart.mutateAsync({ productId: pId, qty: pQty });
-        }
+      const itemsToAdd = ingredients.map((ing: any) => ({
+        productId: ing.id || ing.productId,
+        qty: ing.qty || ing.quantity || 1
+      })).filter((i: any) => i.productId);
+
+      if (itemsToAdd.length > 0) {
+        await addMultipleToCart.mutateAsync(itemsToAdd);
+        toast.success(`Ingredients for "${recipe.title || recipe.name}" added to cart! 🛒`);
+      } else {
+        toast.error("No ingredients found for this recipe.");
       }
-      toast.success(`Ingredients for "${recipe.title || recipe.name}" added to cart! 🛒`);
-      navigate({ to: "/cart" });
     } catch {
       toast.error("Failed to add ingredients.");
     } finally {

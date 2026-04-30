@@ -86,7 +86,7 @@ export default function Recipes() {
     localStorage.setItem("nexgro_meal_plans", JSON.stringify([...existing, newPlan]));
     qc.invalidateQueries({ queryKey: ["meal-plans"] });
     toast.success(`"${recipe.title}" added to your Meal Plan for ${dateStr}! 📅`);
-    navigate({ to: "/meal-planner", search: { date: dateStr } });
+    navigate({ to: "/meal-planner" });
   };
 
   const firstSixRecipes = filteredRecipes.slice(0, 6);
@@ -117,7 +117,7 @@ export default function Recipes() {
               placeholder="Search groceries, essentials..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full bg-[#f8fbf8] border-2 border-[#d3e6d3] pl-16 pr-16 py-4 rounded-full text-sm font-semibold placeholder:text-[#8ba38b] shadow-[0_2px_10px_rgba(0,100,0,0.02)] focus:border-[#006400]/40 focus:bg-white outline-none transition-all group-focus-within:ring-4 group-focus-within:ring-[#006400]/5"
+              className="w-full bg-[#f8fbf8] border-2 border-[#d3e6d3] pl-16 pr-16 py-4.5 rounded-full text-sm font-semibold placeholder:text-[#8ba38b] shadow-[0_2px_10px_rgba(0,100,0,0.02)] focus:border-[#006400]/40 focus:bg-white outline-none transition-all group-focus-within:ring-4 group-focus-within:ring-[#006400]/5"
             />
             <button
               onClick={startListening}
@@ -271,83 +271,81 @@ export default function Recipes() {
           animation-play-state: paused;
         }
       `}</style>
+    </div>
   );
 }
 
-function RecipeCard({ recipe, adding, handleAddToCart, handleAddToMealPlan, onAnalyse }: { 
+function RecipeCard({ 
+  recipe, 
+  adding, 
+  handleAddToCart, 
+  handleAddToMealPlan,
+  onAnalyse 
+}: { 
   recipe: Recipe; 
   adding: string | null; 
-  handleAddToCart: (recipe: Recipe) => void;
-  handleAddToMealPlan: (recipe: Recipe, selectedDate?: string) => void;
-  onAnalyse: (recipe: Recipe) => void;
+  handleAddToCart: (r: Recipe) => void;
+  handleAddToMealPlan: (r: Recipe, date?: string) => void;
+  onAnalyse: (r: Recipe) => void;
 }) {
-  const [planDate, setPlanDate] = useState<string>("");
+  const [plannedDate, setPlannedDate] = useState<string>("");
 
   return (
-    <div className="group bg-card rounded-[3rem] overflow-hidden border border-border/50 hover:border-primary/30 transition-all duration-500 hover:shadow-2xl hover:shadow-primary/5 flex flex-col h-full">
-      {/* Recipe Hero Image */}
-      <div className="relative h-64 overflow-hidden shrink-0">
-        <img 
-          src={recipe.image} 
-          alt={recipe.title} 
-          className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" 
-        />
-        <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
-        
-        {/* Difficulty Badge */}
-        <div className="absolute top-6 left-6">
-          <span className={cn(
-            "px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest backdrop-blur-md border border-white/20 shadow-lg",
-            recipe.difficulty === "Easy" ? "bg-emerald-500/80 text-white" :
-            recipe.difficulty === "Medium" ? "bg-amber-500/80 text-white" :
-            "bg-rose-500/80 text-white"
-          )}>
-            {recipe.difficulty}
-          </span>
-        </div>
-
-        {/* Floating Category Label */}
-        <div className="absolute bottom-6 left-6 right-6">
-          <h3 className="font-black text-xl text-white leading-tight tracking-tight drop-shadow-md">{recipe.title}</h3>
-          <div className="flex items-center gap-2 mt-2">
-            <div className="flex items-center gap-1 bg-white/20 backdrop-blur-md px-2 py-0.5 rounded-lg border border-white/10">
-              <Flame className="w-3 h-3 text-orange-400" />
-              <span className="text-[10px] font-black text-white">{recipe.calories}</span>
-            </div>
-            <div className="flex items-center gap-1 bg-white/20 backdrop-blur-md px-2 py-0.5 rounded-lg border border-white/10">
-              <Clock className="w-3 h-3 text-white/80" />
-              <span className="text-[10px] font-black text-white">{recipe.time}</span>
-            </div>
-          </div>
+    <div className="group bg-background rounded-[2.5rem] overflow-hidden border border-border/50 hover:border-[#007000]/30 hover:shadow-2xl hover:shadow-[#007000]/5 transition-all duration-500 flex flex-col h-full">
+      <div className="relative h-64 overflow-hidden">
+        <img src={recipe.image} alt={recipe.title} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" />
+        <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+        <div className="absolute top-4 left-4">
+          <Badge className="bg-white/90 backdrop-blur-md text-[#007000] border-none font-black text-[10px] px-3 py-1.5 rounded-full shadow-lg">
+            {recipe.category}
+          </Badge>
         </div>
       </div>
 
-      <div className="p-6 flex flex-col flex-1 gap-4">
+      <div className="p-6 space-y-4 flex-1 flex flex-col">
+        <div className="flex items-start justify-between gap-2">
+          <h3 className="font-black text-xl text-foreground leading-tight tracking-tight">{recipe.title}</h3>
+          <div className="flex items-center gap-1 bg-amber-50 px-2 py-1 rounded-lg">
+            <Flame className="w-3 h-3 text-orange-500" />
+            <span className="text-[10px] font-black text-orange-700">{recipe.calories}</span>
+          </div>
+        </div>
+
+        <div className="flex items-center gap-4 text-muted-foreground">
+          <div className="flex items-center gap-1.5">
+            <Clock className="w-4 h-4 text-[#007000]" />
+            <span className="text-xs font-bold">{recipe.time}</span>
+          </div>
+          <div className="flex items-center gap-1.5">
+            <Users className="w-4 h-4 text-[#007000]" />
+            <span className="text-xs font-bold">Serves {recipe.serves}</span>
+          </div>
+        </div>
+
         {/* Macro Preview */}
-        <div className="grid grid-cols-3 gap-2">
-          <div className="bg-muted/50 p-2 rounded-2xl text-center border border-border/50">
-            <p className="text-[8px] font-black uppercase text-muted-foreground mb-1">Protein</p>
+        <div className="grid grid-cols-3 gap-2 py-2">
+          <div className="bg-muted/50 p-2 rounded-xl text-center">
+            <p className="text-[8px] font-black uppercase text-muted-foreground">Protein</p>
             <p className="text-xs font-black text-foreground">{recipe.protein}</p>
           </div>
-          <div className="bg-muted/50 p-2 rounded-2xl text-center border border-border/50">
-            <p className="text-[8px] font-black uppercase text-muted-foreground mb-1">Fat</p>
+          <div className="bg-muted/50 p-2 rounded-xl text-center">
+            <p className="text-[8px] font-black uppercase text-muted-foreground">Fat</p>
             <p className="text-xs font-black text-foreground">{recipe.fat}</p>
           </div>
-          <div className="bg-muted/50 p-2 rounded-2xl text-center border border-border/50">
-            <p className="text-[8px] font-black uppercase text-muted-foreground mb-1">Carbs</p>
+          <div className="bg-muted/50 p-2 rounded-xl text-center">
+            <p className="text-[8px] font-black uppercase text-muted-foreground">Carbs</p>
             <p className="text-xs font-black text-foreground">{recipe.carbs}</p>
           </div>
         </div>
 
-        <div className="flex gap-2 mt-auto">
+        <div className="flex gap-2 pt-2 mt-auto">
           <button
-            onClick={() => handleAddToMealPlan(recipe, planDate)}
+            onClick={() => handleAddToMealPlan(recipe, plannedDate || undefined)}
             className="flex-1 bg-[#007000] text-white h-12 rounded-2xl text-[10px] font-black uppercase tracking-widest shadow-lg shadow-[#007000]/20 hover:opacity-90 active:scale-95 transition-all flex items-center justify-center gap-2"
           >
             <Calendar className="w-4 h-4" /> 
-            {planDate ? `Add to ${planDate.split('-').slice(1).join('/')}` : 'Add to Meal Planner'}
+            {plannedDate ? `Add for ${plannedDate.split('-').slice(1).join('/')}` : "Add to Meal Planner"}
           </button>
-          
           <button
             onClick={() => onAnalyse(recipe)}
             className="w-12 h-12 bg-primary/10 text-primary rounded-2xl flex items-center justify-center hover:bg-primary hover:text-white active:scale-95 transition-all border-2 border-primary/20"
@@ -355,7 +353,6 @@ function RecipeCard({ recipe, adding, handleAddToCart, handleAddToMealPlan, onAn
           >
             <Sparkles className="w-5 h-5" />
           </button>
-          
           <div className="relative">
             <button
               onClick={(e) => {
@@ -367,10 +364,12 @@ function RecipeCard({ recipe, adding, handleAddToCart, handleAddToMealPlan, onAn
                 }
               }}
               className={cn(
-                "w-12 h-12 border-2 rounded-2xl flex items-center justify-center transition-all",
-                planDate ? "bg-[#007000]/10 border-[#007000] text-[#007000]" : "bg-white border-border text-foreground hover:border-[#007000] hover:text-[#007000]"
+                "w-12 h-12 border-2 rounded-2xl flex items-center justify-center active:scale-95 transition-all",
+                plannedDate 
+                  ? "bg-[#007000]/10 border-[#007000] text-[#007000]" 
+                  : "bg-white border-border text-foreground hover:border-[#007000] hover:text-[#007000]"
               )}
-              title="Select a specific date"
+              title="Select a Specific Date"
             >
               <Calendar className="w-5 h-5" />
             </button>
@@ -378,7 +377,10 @@ function RecipeCard({ recipe, adding, handleAddToCart, handleAddToMealPlan, onAn
               type="date"
               className="absolute inset-0 opacity-0 -z-10"
               onChange={(e) => {
-                setPlanDate(e.target.value);
+                if (e.target.value) {
+                  setPlannedDate(e.target.value);
+                  toast.success(`Date set to ${e.target.value}. Click "Add" to confirm!`);
+                }
               }}
             />
           </div>
