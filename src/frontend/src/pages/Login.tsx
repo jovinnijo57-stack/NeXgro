@@ -19,6 +19,8 @@ import { cn } from "@/lib/utils";
 import { hashPassword, getRegisteredUsers, saveRegisteredUser, findEmailByPhone, getProfiles } from "@/lib/auth";
 import { sendOTP } from "@/services/emailService";
 import { toast } from "sonner";
+import { auth } from "@/lib/firebase";
+import { RecaptchaVerifier, signInWithPhoneNumber, PhoneAuthProvider, updatePassword } from "firebase/auth";
 
 const features = [
   {
@@ -58,6 +60,8 @@ export default function Login() {
   const [resetTimeLeft, setResetTimeLeft] = useState(60);
   const [isResetExpired, setIsResetExpired] = useState(false);
   const inputRefs = useRef<Array<HTMLInputElement | null>>(Array(6).fill(null));
+  const [confirmationResult, setConfirmationResult] = useState<any>(null);
+  const recaptchaVerifierRef = useRef<any>(null);
 
   useEffect(() => {
     if (forgotStep === "otp" && resetTimeLeft > 0) {
@@ -180,41 +184,88 @@ export default function Login() {
     
     setIsResetting(true);
     const otp = Math.floor(100000 + Math.random() * 900000).toString();
-    setResetOtp(otp);
     
     try {
       if (resetMethod === "email") {
+        setResetOtp(otp);
         await sendOTP(targetEmail, "User", otp);
         toast.success("Reset code sent to your email!");
+        setForgotStep("otp");
       } else {
-        // MOCK SMS: Recommended free production service is Firebase Authentication
-        // This is where you would call a real SMS API (Twilio, Firebase, Brevo)
-        console.log(`[FREE SMS MOCK] Sending OTP ${otp} to ${forgotPhone} (Email: ${targetEmail})`);
-        toast.success(`[DEMO] Reset code: ${otp}. In production, this would be an SMS to ${forgotPhone}.`);
+        // FIREBASE PHONE AUTH
+        if (!auth) {
+          toast.error("Firebase Auth is not configured. Check your environment variables.");
+          return;
+        }
+
+        // Initialize Recaptcha if not already done
+        if (!recaptchaVerifierRef.current) {
+          recaptchaVerifierRef.current = new RecaptchaVerifier(auth, 'recaptcha-container', {
+            'size': 'invisible',
+            'callback': (response: any) => {
+              console.log("reCAPTCHA solved");
+            }
+          });
+        }
+
+        const formattedPhone = forgotPhone.startsWith('+') ? forgotPhone : `+91${forgotPhone.replace(/\s/g, '')}`;
+        const confirmation = await signInWithPhoneNumber(auth, formattedPhone, recaptchaVerifierRef.current);
+        setConfirmationResult(confirmation);
+        toast.success("OTP sent to your phone via Firebase!");
+        setForgotStep("otp");
       }
-      setForgotStep("otp");
-    } catch (err) {
+    } catch (err: any) {
       console.error("Forgot submit error:", err);
-      toast.error("Failed to send reset code. Please try again.");
+      if (err.code === 'auth/invalid-phone-number') {
+        toast.error("The phone number is invalid. Please use international format (e.g., +919876543210).");
+      } else if (err.code === 'auth/too-many-requests') {
+        toast.error("Too many requests. Please try again later.");
+      } else {
+        toast.error("Failed to send reset code. Please try again.");
+      }
     } finally {
       setIsResetting(false);
     }
   }
 
-  function handleVerifyOtp(e: React.FormEvent) {
+  async function handleVerifyOtp(e: React.FormEvent) {
     e.preventDefault();
     if (isResetExpired) {
       setResetError("This code has expired. Please request a new one.");
       return;
     }
     const entered = digits.join("");
-    if (entered === resetOtp || entered === "123456") {
-      setForgotStep("newPassword");
-      setResetError("");
+    
+    if (resetMethod === "email") {
+      if (entered === resetOtp || entered === "123456") {
+        setForgotStep("newPassword");
+        setResetError("");
+      } else {
+        setResetError("Invalid code. Please try again.");
+        setDigits(Array(6).fill(""));
+        inputRefs.current[0]?.focus();
+      }
     } else {
-      setResetError("Invalid code. Please try again.");
-      setDigits(Array(6).fill(""));
-      inputRefs.current[0]?.focus();
+      // VERIFY FIREBASE OTP
+      if (!confirmationResult) {
+        toast.error("No verification session found. Please request a new code.");
+        return;
+      }
+      
+      setIsResetting(true);
+      try {
+        await confirmationResult.confirm(entered);
+        setForgotStep("newPassword");
+        setResetError("");
+        toast.success("Phone verified successfully!");
+      } catch (err: any) {
+        console.error("Firebase OTP verification error:", err);
+        setResetError("Invalid OTP. Please try again.");
+        setDigits(Array(6).fill(""));
+        inputRefs.current[0]?.focus();
+      } finally {
+        setIsResetting(false);
+      }
     }
   }
 
@@ -764,6 +815,8 @@ export default function Login() {
           </div>
         </div>
       )}
+      {/* Hidden reCAPTCHA container for Firebase */}
+      <div id="recaptcha-container"></div>
     </div>
   );
 }

@@ -18,18 +18,22 @@ const isFirebaseConfigured =
   !!import.meta.env.VITE_FIREBASE_APP_ID &&
   !!import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID;
 
+import { getAuth } from "firebase/auth";
+
 let messaging: any = null;
+let auth: any = null;
 
 if (isFirebaseConfigured) {
   try {
     const app = initializeApp(firebaseConfig);
     messaging = getMessaging(app);
+    auth = getAuth(app);
   } catch (err) {
     console.error("Firebase initialization failed:", err);
   }
 }
 
-export { messaging };
+export { messaging, auth };
 
 const VAPID_KEY = "BLqJ64j-97wuzqkl5mtZn3H3vwfpaeIDon4z8ER_w8A4WM0JZHgpl4hbmPNkVRJeF2OFEg2rLx6P9N-SZqrEjAc";
 
