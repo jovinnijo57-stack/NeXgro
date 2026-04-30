@@ -489,14 +489,17 @@ function CategoryGrid() {
 
 function FlashDealsSection() {
   const { data: backendDeals, isLoading } = useFlashDeals();
-  const { h, m, s } = useCountdown(Date.now() + 4 * 3600000 + 37 * 60000 + 14000);
+  
+  // Stabilize the countdown end time so it doesn't reset every render
+  const stableEndTime = useMemo(() => Date.now() + 4 * 3600000 + 37 * 60000 + 14000, []);
+  const { h, m, s } = useCountdown(stableEndTime);
 
   const products: Product[] =
-    backendDeals && backendDeals.length > 0
-      ? backendDeals
-          .filter((d) => d.product)
+    backendDeals && Array.isArray(backendDeals) && backendDeals.length > 0
+      ? (backendDeals
+          .filter((d) => d && d.product)
           .map((d) => d.product!)
-          .slice(0, 6)
+          .slice(0, 6) as Product[])
       : FLASH_DEAL_PRODUCTS;
 
   return (
@@ -931,7 +934,7 @@ function FeatureQuickAccess() {
       {features.map((f) => (
         <button
           key={f.id}
-          onClick={() => navigate({ to: f.path as any })}
+          onClick={() => navigate({ to: f.path as any, search: f.id === 'meal-planner' ? { date: undefined } : undefined })}
           className="flex flex-col items-center gap-2 group"
         >
           <div className={cn("w-14 h-14 rounded-2xl flex items-center justify-center text-white shadow-lg group-hover:scale-110 transition-transform", f.color)}>
@@ -948,7 +951,7 @@ export default function Home() {
   const [showFloatingVideo, setShowFloatingVideo] = useState(() => {
     return sessionStorage.getItem("nexgro_video_dismissed") !== "true";
   });
-  useBanners();
+  // useBanners is already called within HeroCarousel
   return (
     <div
       className="max-w-7xl mx-auto px-4 sm:px-6 py-6 space-y-8"

@@ -909,7 +909,7 @@ export default function OrderDetail() {
           <div className="flex gap-2 shrink-0">
             {order.status === "Pending" && (
               <Link
-                to="/admin-chat" // Assuming this is the support chat route
+                to="/admin/chat" // Assuming this is the support chat route
                 className="flex items-center gap-2 px-4 py-2 bg-muted text-foreground border border-border rounded-xl text-xs font-semibold hover:bg-muted/80 transition-all"
                 data-ocid="order_detail.support_cancel_button"
               >
