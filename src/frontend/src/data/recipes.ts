@@ -866,3 +866,23 @@ export const INITIAL_RECIPES: Recipe[] = [
 ];
 
 export const ALL_RECIPES = INITIAL_RECIPES;
+
+export const getRecipes = (): Recipe[] => {
+  if (typeof window === "undefined") return INITIAL_RECIPES;
+  const saved = localStorage.getItem("nexgro_custom_recipes");
+  if (saved) {
+    try {
+      const custom = JSON.parse(saved);
+      return [...INITIAL_RECIPES, ...custom];
+    } catch {
+      return INITIAL_RECIPES;
+    }
+  }
+  return INITIAL_RECIPES;
+};
+
+export const saveRecipes = (recipes: Recipe[]) => {
+  if (typeof window === "undefined") return;
+  const custom = recipes.filter(r => !INITIAL_RECIPES.some(ir => ir.id === r.id));
+  localStorage.setItem("nexgro_custom_recipes", JSON.stringify(custom));
+};
