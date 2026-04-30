@@ -4,7 +4,7 @@ import { useNavigate } from "@tanstack/react-router";
 import { SAMPLE_PRODUCTS } from "@/types";
 import { useAddToCart } from "@/hooks/useBackend";
 import { cn } from "@/lib/utils";
-import { GEMINI_API_KEY, GEMINI_MODEL, isGeminiConfigured, isGroqConfigured } from "@/config/ai";
+import { GEMINI_API_KEY, GEMINI_MODEL, GROQ_API_KEY, GROQ_MODEL, isGeminiConfigured, isGroqConfigured } from "@/config/ai";
 import { GoogleGenerativeAI } from "@google/generative-ai";
 
 const genAI = new GoogleGenerativeAI(GEMINI_API_KEY);
@@ -34,6 +34,16 @@ export default function AIShopper() {
   useEffect(() => {
     scrollRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
+
+  useEffect(() => {
+    console.log("AI Shopper initialized.");
+    if (!isGeminiConfigured()) {
+      console.warn("Gemini API key is missing or invalid. Failover to Groq may occur.");
+    }
+    if (!isGroqConfigured()) {
+      console.warn("Groq API key is missing or invalid.");
+    }
+  }, []);
 
   const callAI = async (userText: string) => {
     const productCatalog = SAMPLE_PRODUCTS.map(p => ({
@@ -86,10 +96,10 @@ User Question: ${userText}`;
           method: "POST",
           headers: {
             "Content-Type": "application/json",
-            "Authorization": `Bearer ${import.meta.env.VITE_GROQ_API_KEY}`
+            "Authorization": `Bearer ${GROQ_API_KEY}`
           },
           body: JSON.stringify({
-            model: import.meta.env.VITE_GROQ_MODEL || "llama3-70b-8192",
+            model: GROQ_MODEL,
             messages: [
               { role: "system", content: "You are the NeXgro AI Personal Shopper. Follow the system instructions exactly." },
               { role: "user", content: systemPrompt }
