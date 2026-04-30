@@ -190,36 +190,23 @@ export default function Recipes() {
       </div>
 
       {/* Recipe Analysis Modal */}
+      {/* Recipe Analysis Modal */}
       {selectedRecipeForAnalysis && (
         <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
           <div 
             className="absolute inset-0 bg-black/40 backdrop-blur-md transition-all duration-500"
             onClick={() => setSelectedRecipeForAnalysis(null)}
           />
-          <div className="relative bg-background/95 backdrop-blur-xl w-full max-w-2xl max-h-[90vh] overflow-hidden rounded-[3rem] shadow-2xl border border-white/20 flex flex-col animate-in fade-in zoom-in duration-300">
-            {/* Header with Gradient */}
-            <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-[#007000] to-transparent opacity-50" />
-            
-            <div className="p-8 overflow-y-auto">
-              <div className="flex items-start justify-between mb-10">
-                <div className="flex items-center gap-5">
-                  <div className="relative">
-                    <div className="absolute -inset-1 bg-[#007000] rounded-full blur opacity-25 animate-pulse" />
-                    <div className="relative w-16 h-16 bg-[#007000] rounded-[2rem] flex items-center justify-center shadow-lg">
-                      <Sparkles className="w-8 h-8 text-white animate-pulse" />
-                    </div>
-                  </div>
-                  <div>
-                    <h2 className="text-4xl font-black tracking-tighter text-foreground uppercase italic leading-none mb-1">AI Intelligence</h2>
-                    <div className="flex items-center gap-2">
-                      <div className="w-2 h-2 rounded-full bg-[#007000] animate-ping" />
-                      <p className="text-[#007000] font-black uppercase tracking-widest text-[10px]">{selectedRecipeForAnalysis.title}</p>
-                    </div>
-                  </div>
+          <div className="relative bg-background w-full max-w-2xl max-h-[90vh] overflow-hidden rounded-[3rem] shadow-2xl border border-border flex flex-col animate-in fade-in zoom-in duration-300">
+            <div className="p-10 overflow-y-auto">
+              <div className="flex items-start justify-between mb-8">
+                <div>
+                  <h2 className="text-sm font-black text-[#007000] uppercase tracking-[0.4em] mb-2">🍛 {selectedRecipeForAnalysis.category} Recipes</h2>
+                  <h3 className="text-4xl font-black text-foreground uppercase italic tracking-tighter">🥘 {selectedRecipeForAnalysis.title}</h3>
                 </div>
                 <button 
                   onClick={() => setSelectedRecipeForAnalysis(null)}
-                  className="w-12 h-12 bg-muted/50 hover:bg-muted rounded-2xl flex items-center justify-center transition-all shadow-sm active:scale-90"
+                  className="w-12 h-12 bg-muted/50 hover:bg-muted rounded-2xl flex items-center justify-center transition-all active:scale-90"
                 >
                   <X className="w-6 h-6" />
                 </button>
@@ -227,49 +214,23 @@ export default function Recipes() {
 
               <div className="space-y-10 pb-8">
                 <section>
-                  <div className="flex items-center gap-3 mb-6">
-                    <div className="w-8 h-8 bg-[#007000]/10 rounded-xl flex items-center justify-center">
-                      <ShoppingCart className="w-4 h-4 text-[#007000]" />
-                    </div>
-                    <h3 className="text-xs font-black uppercase tracking-[0.3em] text-muted-foreground">Required Inventory</h3>
-                  </div>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <h4 className="text-lg font-black text-foreground mb-4 uppercase italic">Products</h4>
+                  <div className="flex flex-wrap gap-2">
                     {selectedRecipeForAnalysis.ingredients.map((ing, i) => (
-                      <div 
-                        key={i} 
-                        className="flex items-center justify-between bg-muted/30 p-5 rounded-[1.5rem] border border-border/50 hover:border-[#007000]/30 transition-all group"
-                      >
-                        <div className="flex items-center gap-3">
-                          <div className="w-2 h-2 rounded-full bg-[#007000] opacity-50 group-hover:opacity-100 transition-opacity" />
-                          <span className="text-sm font-bold text-foreground/80">{ing.name}</span>
-                        </div>
-                        <span className="text-[10px] font-black uppercase tracking-widest text-[#007000] bg-[#007000]/10 px-2 py-1 rounded-lg">
-                          {ing.qty} Unit
-                        </span>
-                      </div>
+                      <span key={i} className="bg-[#f4fcf4] border border-[#e8f5e8] px-4 py-2 rounded-xl text-sm font-bold text-[#007000]">
+                        {ing.name}
+                      </span>
                     ))}
                   </div>
                 </section>
 
                 <section>
-                  <div className="flex items-center gap-3 mb-6">
-                    <div className="w-8 h-8 bg-[#007000]/10 rounded-xl flex items-center justify-center">
-                      <ChefHat className="w-4 h-4 text-[#007000]" />
-                    </div>
-                    <h3 className="text-xs font-black uppercase tracking-[0.3em] text-muted-foreground">Preparation Algorithm</h3>
-                  </div>
-                  <div className="space-y-6">
+                  <h4 className="text-lg font-black text-foreground mb-4 uppercase italic">Preparation</h4>
+                  <div className="space-y-4">
                     {selectedRecipeForAnalysis.instructions.map((step, i) => (
-                      <div key={i} className="flex gap-6 group relative">
-                        {i < selectedRecipeForAnalysis.instructions.length - 1 && (
-                          <div className="absolute left-4 top-10 bottom-[-1.5rem] w-px bg-border group-hover:bg-[#007000]/30 transition-colors" />
-                        )}
-                        <div className="shrink-0 w-9 h-9 bg-card border-2 border-border rounded-2xl flex items-center justify-center text-xs font-black text-[#007000] shadow-sm group-hover:border-[#007000] group-hover:bg-[#007000] group-hover:text-white transition-all duration-300">
-                          {i + 1}
-                        </div>
-                        <div className="pt-2">
-                          <p className="text-sm font-medium leading-relaxed text-foreground/80 group-hover:text-foreground transition-colors">{step}</p>
-                        </div>
+                      <div key={i} className="flex gap-4">
+                        <div className="shrink-0 w-2 h-2 rounded-full bg-[#007000] mt-2" />
+                        <p className="text-sm font-medium leading-relaxed text-foreground/80">{step}</p>
                       </div>
                     ))}
                   </div>
@@ -277,19 +238,15 @@ export default function Recipes() {
               </div>
             </div>
 
-            <div className="p-8 bg-muted/30 backdrop-blur-md border-t border-border mt-auto">
+            <div className="p-8 bg-muted/30 border-t border-border mt-auto">
               <button
                 onClick={() => {
                   handleAddToCart(selectedRecipeForAnalysis);
                   setSelectedRecipeForAnalysis(null);
                 }}
-                className="w-full bg-[#007000] text-white py-6 rounded-[2rem] font-black uppercase tracking-[0.2em] shadow-xl shadow-[#007000]/20 hover:opacity-90 active:scale-[0.98] transition-all flex items-center justify-center gap-3 group"
+                className="w-full bg-[#007000] text-white py-6 rounded-[2rem] font-black uppercase tracking-[0.2em] shadow-xl shadow-[#007000]/20 hover:opacity-90 active:scale-[0.98] transition-all flex items-center justify-center gap-3"
               >
-                <div className="relative">
-                  <div className="absolute -inset-2 bg-white/20 rounded-full blur opacity-0 group-hover:opacity-100 transition-opacity" />
-                  <Plus className="w-6 h-6 relative" />
-                </div>
-                Assemble to Cart
+                <Plus className="w-6 h-6" /> Add All to Cart
               </button>
             </div>
           </div>
@@ -359,7 +316,7 @@ function RecipeCard({ recipe, adding, handleAddToCart, handleAddToMealPlan, onAn
         <div className="flex flex-col gap-2 pt-2">
           <button
             onClick={() => onAnalyse(recipe)}
-            className="w-full bg-primary/10 text-primary py-3 rounded-2xl text-[10px] font-black uppercase tracking-widest hover:bg-primary hover:text-white transition-all flex items-center justify-center gap-2 border-2 border-primary/20"
+            className="w-full bg-gradient-to-r from-[#007000] to-[#00a000] text-white py-4 rounded-2xl text-[10px] font-black uppercase tracking-widest hover:shadow-lg hover:shadow-[#007000]/30 active:scale-95 transition-all flex items-center justify-center gap-2"
           >
             <Sparkles className="w-3.5 h-3.5" /> Analyse with AI
           </button>
