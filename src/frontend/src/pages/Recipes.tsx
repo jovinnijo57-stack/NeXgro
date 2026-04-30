@@ -99,26 +99,26 @@ export default function Recipes() {
         <div className="flex items-center gap-3">
           <button
             onClick={() => navigate({ to: "/home" })}
-            className="shrink-0 w-14 h-14 bg-card border-2 border-border rounded-2xl flex items-center justify-center text-muted-foreground hover:text-primary hover:border-primary transition-all shadow-xl active:scale-95"
+            className="shrink-0 w-14 h-14 bg-white border border-black/5 rounded-[1.25rem] flex items-center justify-center text-[#333] hover:bg-muted transition-all shadow-sm active:scale-95"
             title="Back to Home"
           >
             <ArrowLeft className="w-6 h-6" />
           </button>
           <div className="flex-1 relative group">
-            <Search className="absolute left-6 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground group-focus-within:text-primary transition-colors" />
+            <Search className="absolute left-6 top-1/2 -translate-y-1/2 w-5 h-5 text-[#007000] transition-colors" />
             <input
               type="text"
               placeholder="Search healthy recipes..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full bg-background border-2 border-border pl-14 pr-24 py-5 rounded-[2rem] text-sm font-bold shadow-xl focus:border-primary/20 outline-none transition-all group-focus-within:ring-4 group-focus-within:ring-primary/10"
+              className="w-full bg-[#f4fcf4] border-2 border-[#e8f5e8] pl-14 pr-24 py-5 rounded-[2.5rem] text-sm font-bold shadow-sm focus:border-[#007000]/20 outline-none transition-all group-focus-within:ring-4 group-focus-within:ring-[#007000]/10"
             />
             <div className="absolute right-3 top-1/2 -translate-y-1/2 flex items-center gap-1">
               <button
                 onClick={startListening}
                 className={cn(
                   "p-3 rounded-2xl transition-all",
-                  isListening ? "bg-destructive text-white animate-pulse" : "hover:bg-primary/10 text-primary"
+                  isListening ? "bg-destructive text-white animate-pulse" : "text-[#007000] hover:bg-[#007000]/10"
                 )}
               >
                 {isListening ? <MicOff className="w-5 h-5" /> : <Mic className="w-5 h-5" />}
