@@ -234,3 +234,14 @@ export const ALL_RECIPES: Recipe[] = [
     ]
   }
 ];
+
+export function getRecipes(): Recipe[] {
+  if (typeof window === 'undefined') return ALL_RECIPES;
+  const saved = localStorage.getItem("nexgro_recipes");
+  return saved ? JSON.parse(saved) : ALL_RECIPES;
+}
+
+export function saveRecipes(recipes: Recipe[]) {
+  if (typeof window === 'undefined') return;
+  localStorage.setItem("nexgro_recipes", JSON.stringify(recipes));
+}

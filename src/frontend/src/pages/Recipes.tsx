@@ -8,14 +8,14 @@ import { useAddToCart } from "@/hooks/useBackend";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import { useQueryClient } from "@tanstack/react-query";
-import { ALL_RECIPES, type Recipe } from "@/data/recipes";
+import { getRecipes, type Recipe } from "@/data/recipes";
 
 export default function Recipes() {
   const navigate = useNavigate();
   const qc = useQueryClient();
   const addToCart = useAddToCart();
   const [adding, setAdding] = useState<string | null>(null);
-  const [recipes] = useState(() => ALL_RECIPES); // Or call getRecipes() directly
+  const [recipes] = useState(() => getRecipes());
   const [selectedRecipe, setSelectedRecipe] = useState<Recipe | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
