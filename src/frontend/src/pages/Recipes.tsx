@@ -104,25 +104,28 @@ export default function Recipes() {
           >
             <ArrowLeft className="w-6 h-6" />
           </button>
-          <div className="flex-1 relative group">
-            <Search className="absolute left-6 top-1/2 -translate-y-1/2 w-5 h-5 text-[#007000] transition-colors" />
-            <input
-              type="text"
-              placeholder="Search healthy recipes..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full bg-[#f4fcf4] border-2 border-[#e8f5e8] pl-14 pr-24 py-5 rounded-[2.5rem] text-sm font-bold shadow-sm focus:border-[#007000]/20 outline-none transition-all group-focus-within:ring-4 group-focus-within:ring-[#007000]/10"
-            />
-            <div className="absolute right-3 top-1/2 -translate-y-1/2 flex items-center gap-1">
-              <button
-                onClick={startListening}
-                className={cn(
-                  "p-3 rounded-2xl transition-all",
-                  isListening ? "bg-destructive text-white animate-pulse" : "text-[#007000] hover:bg-[#007000]/10"
-                )}
-              >
-                {isListening ? <MicOff className="w-5 h-5" /> : <Mic className="w-5 h-5" />}
-              </button>
+          <div className="flex-1 bg-[#f2f8f2] p-1.5 rounded-[3rem] shadow-sm group transition-all focus-within:shadow-md">
+            <div className="relative bg-white border border-[#e2ede2] rounded-[2.5rem] flex items-center">
+              <Search className="absolute left-6 w-5 h-5 text-[#007000] transition-colors" />
+              <input
+                type="text"
+                placeholder="Search groceries, essentials..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="w-full bg-transparent pl-14 pr-16 py-4 text-sm font-bold text-foreground outline-none placeholder:text-muted-foreground/50 transition-all"
+              />
+              <div className="absolute right-3 flex items-center gap-1">
+                <button
+                  onClick={startListening}
+                  className={cn(
+                    "p-2.5 rounded-full transition-all",
+                    isListening ? "bg-destructive text-white animate-pulse" : "text-[#007000] hover:bg-[#007000]/10"
+                  )}
+                  title="Voice Search"
+                >
+                  {isListening ? <MicOff className="w-5 h-5" /> : <Mic className="w-5 h-5" />}
+                </button>
+              </div>
             </div>
           </div>
         </div>
