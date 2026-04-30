@@ -94,18 +94,8 @@ export default function Recipes() {
 
   return (
     <div className="min-h-screen bg-background pb-24">
-      {/* Simple Banner Image */}
-      <div className="max-w-7xl mx-auto px-4 mb-10">
-        <div className="w-full relative overflow-hidden rounded-[1.5rem] sm:rounded-[2.5rem] shadow-2xl border-b-8 border-[#FFB800]">
-          <img 
-            src="/assets/banner3.jpg" 
-            alt="Chef's Corner Banner" 
-            className="w-full h-auto block"
-          />
-        </div>
-      </div>
-
-      <div className="max-w-7xl mx-auto px-4 space-y-12">
+      <div className="max-w-7xl mx-auto px-4 py-8 space-y-10">
+        {/* Navigation & Search (Moved Above Banner) */}
         <div className="flex items-center gap-3">
           <button
             onClick={() => navigate({ to: "/home" })}
@@ -133,6 +123,15 @@ export default function Recipes() {
               {isListening ? <MicOff className="w-5 h-5" /> : <Mic className="w-5 h-5" />}
             </button>
           </div>
+        </div>
+
+        {/* Banner Image */}
+        <div className="w-full relative overflow-hidden rounded-[1.5rem] sm:rounded-[2.5rem] shadow-2xl">
+          <img 
+            src="/assets/banner3.jpg" 
+            alt="Chef's Corner Banner" 
+            className="w-full h-auto block"
+          />
         </div>
 
         {/* Recipe Grid - First 6 */}
