@@ -253,7 +253,7 @@ export default function Recipes() {
         </div>
       )}
 
-      <style>{`
+      <style dangerouslySetInnerHTML={{ __html: `
         @keyframes marquee {
           0% { transform: translateX(0); }
           100% { transform: translateX(-50%); }
@@ -264,7 +264,7 @@ export default function Recipes() {
         .pause-marquee:hover {
           animation-play-state: paused;
         }
-      `}</style>
+      ` }} />
     </div>
   );
 }
