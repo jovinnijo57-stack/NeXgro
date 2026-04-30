@@ -94,14 +94,16 @@ export default function Recipes() {
 
   return (
     <div className="min-h-screen bg-background pb-24">
-      {/* Simple Banner Image */}
+      {/* Clean Rectangular Banner */}
       <div className="max-w-7xl mx-auto px-4 mb-8">
-        <div className="w-full rounded-[2.5rem] overflow-hidden shadow-2xl border-4 border-[#FFB800]">
+        <div className="w-full relative rounded-[2rem] overflow-hidden shadow-2xl border-4 border-[#FFB800]">
           <img 
             src="/assets/banner3.jpg" 
             alt="Chef's Corner Banner" 
-            className="w-full h-auto object-cover"
+            className="w-full h-auto object-cover min-h-[160px]"
           />
+          {/* Mobile Overlay for better text visibility if any */}
+          <div className="absolute inset-0 bg-gradient-to-r from-black/20 to-transparent pointer-events-none md:hidden" />
         </div>
       </div>
 
@@ -179,6 +181,14 @@ export default function Recipes() {
           0% { transform: translateX(0); }
           100% { transform: translateX(-50%); }
         }
+        .animate-marquee {
+          animation: marquee 40s linear infinite;
+        }
+        .pause-marquee:hover {
+          animation-play-state: paused;
+        }
+      `}</style>
+
       {/* Recipe Analysis Modal */}
       {selectedRecipeForAnalysis && (
         <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
@@ -252,19 +262,6 @@ export default function Recipes() {
           </div>
         </div>
       )}
-
-      <style>{`
-        @keyframes marquee {
-          0% { transform: translateX(0); }
-          100% { transform: translateX(-50%); }
-        }
-        .animate-marquee {
-          animation: marquee 40s linear infinite;
-        }
-        .pause-marquee:hover {
-          animation-play-state: paused;
-        }
-      `}</style>
     </div>
   );
 }
