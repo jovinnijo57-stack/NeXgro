@@ -644,8 +644,6 @@ export default function Layout({ children }: LayoutProps) {
               </span>
             </Link>
 
-            {/* Search bar removed from header for specific pages per user request */}
-
             {/* Desktop nav links */}
             <nav className="hidden lg:flex items-center gap-5 ml-2">
               <NavLink to="/home">{t("nav.home")}</NavLink>
@@ -676,7 +674,6 @@ export default function Layout({ children }: LayoutProps) {
             </div>
           </div>
 
-          {/* Mobile search row removed for specific pages per user request */}
         </div>
       </header>
 

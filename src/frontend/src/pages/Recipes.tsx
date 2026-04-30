@@ -1,27 +1,61 @@
 import { useState, useMemo } from "react";
 import { 
-  ArrowLeft, Clock, Users, Flame, ShoppingCart, 
-  Plus, Calendar, Info, BookOpen, ChefHat, Utensils, Sparkles, X
+  ArrowLeft, Search, Clock, Users, Flame, ShoppingCart, 
+  Plus, Calendar, Mic, MicOff, Info, BookOpen, ChefHat, Utensils,
+  Sparkles, X, CheckCircle2
 } from "lucide-react";
 import { useNavigate } from "@tanstack/react-router";
 import { useAddToCart } from "@/hooks/useBackend";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import { useQueryClient } from "@tanstack/react-query";
-import { getRecipes, type Recipe } from "@/data/recipes";
+import { ALL_RECIPES, type Recipe } from "@/data/recipes";
 
 export default function Recipes() {
   const navigate = useNavigate();
   const qc = useQueryClient();
   const addToCart = useAddToCart();
+  const [searchQuery, setSearchQuery] = useState("");
   const [adding, setAdding] = useState<string | null>(null);
-  const [recipes] = useState(() => getRecipes());
-  const [selectedRecipe, setSelectedRecipe] = useState<Recipe | null>(null);
-  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isListening, setIsListening] = useState(false);
+  const [recipes] = useState(() => ALL_RECIPES); // Or call getRecipes() directly
+  const [selectedRecipeForAnalysis, setSelectedRecipeForAnalysis] = useState<Recipe | null>(null);
+
+  const startListening = () => {
+    const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
+    if (!SpeechRecognition) {
+      toast.error("Voice search not supported in this browser");
+      return;
+    }
+    const recognition = new SpeechRecognition();
+    recognition.lang = "en-US";
+    recognition.continuous = false;
+    recognition.interimResults = false;
+
+    recognition.onstart = () => {
+      setIsListening(true);
+      toast.info("Listening...", { id: "voice-search" });
+    };
+    recognition.onresult = (event: any) => {
+      const transcript = event.results[0][0].transcript;
+      setSearchQuery(transcript);
+      toast.success(`Searching for: ${transcript}`, { id: "voice-search" });
+      setIsListening(false);
+    };
+    recognition.onerror = (event: any) => {
+      toast.error("Voice search error: " + event.error, { id: "voice-search" });
+      setIsListening(false);
+    };
+    recognition.onend = () => setIsListening(false);
+    recognition.start();
+  };
 
   const filteredRecipes = useMemo(() => {
-    return recipes;
-  }, [recipes]);
+    return recipes.filter(r => 
+      r.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      r.category.toLowerCase().includes(searchQuery.toLowerCase())
+    );
+  }, [searchQuery, recipes]);
 
   const handleAddToCart = async (recipe: Recipe) => {
     setAdding(recipe.id + "-cart");
@@ -60,69 +94,164 @@ export default function Recipes() {
 
   return (
     <div className="min-h-screen bg-background pb-24">
-      {/* Simple Rectangular Banner Image */}
+      {/* Simple Banner Image */}
       <div className="max-w-7xl mx-auto px-4 mb-8">
-        <div className="w-full overflow-hidden shadow-lg rounded-xl">
+        <div className="w-full rounded-[2.5rem] overflow-hidden shadow-2xl border-4 border-[#FFB800]">
           <img 
             src="/assets/banner3.jpg" 
             alt="Chef's Corner Banner" 
-            className="w-full h-auto block"
+            className="w-full h-auto object-cover"
           />
         </div>
       </div>
 
       <div className="max-w-7xl mx-auto px-4 space-y-12">
-        <div className="flex items-center justify-between">
+        <div className="flex items-center gap-3">
           <button
             onClick={() => navigate({ to: "/home" })}
-            className="w-14 h-14 bg-card border-2 border-border rounded-2xl flex items-center justify-center text-muted-foreground hover:text-primary hover:border-primary transition-all shadow-xl active:scale-95"
+            className="shrink-0 w-14 h-14 bg-card border-2 border-border rounded-2xl flex items-center justify-center text-muted-foreground hover:text-primary hover:border-primary transition-all shadow-xl active:scale-95"
             title="Back to Home"
           >
             <ArrowLeft className="w-6 h-6" />
           </button>
-          
-          <div className="flex flex-col items-end">
-            <span className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground">Culinary Hub</span>
-            <div className="h-1 w-12 bg-[#FFB800] rounded-full mt-1" />
+          <div className="flex-1 relative group">
+            <Search className="absolute left-6 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground group-focus-within:text-[#FFB800] transition-colors" />
+            <input
+              type="text"
+              placeholder="Search healthy recipes..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="w-full bg-card border-2 border-border pl-14 pr-14 py-5 rounded-[2rem] text-sm font-bold shadow-xl focus:border-[#FFB800]/20 outline-none transition-all group-focus-within:ring-4 group-focus-within:ring-[#FFB800]/10"
+            />
+            <button
+              onClick={startListening}
+              className={cn(
+                "absolute right-3 top-1/2 -translate-y-1/2 p-3 rounded-2xl transition-all",
+                isListening ? "bg-destructive text-white animate-pulse" : "hover:bg-primary/10 text-primary"
+              )}
+            >
+              {isListening ? <MicOff className="w-5 h-5" /> : <Mic className="w-5 h-5" />}
+            </button>
           </div>
         </div>
 
         {/* Recipe Grid - First 6 */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
           {firstSixRecipes.map((recipe) => (
-            <RecipeCard 
-              key={recipe.id} 
-              recipe={recipe} 
-              adding={adding} 
-              handleAddToCart={handleAddToCart} 
-              handleAddToMealPlan={handleAddToMealPlan} 
-              onAnalyze={(r) => { setSelectedRecipe(r); setIsModalOpen(true); }}
-            />
+            <RecipeCard key={recipe.id} recipe={recipe} adding={adding} handleAddToCart={handleAddToCart} handleAddToMealPlan={handleAddToMealPlan} />
           ))}
         </div>
+
+        {/* Moving Photos Section (Infinite Scroll Gallery) */}
+        {filteredRecipes.length > 3 && (
+          <div className="py-8 space-y-6">
+            <div className="flex items-center justify-between">
+              <h2 className="text-xl font-black uppercase tracking-widest text-muted-foreground">Trending Now</h2>
+              <div className="h-px flex-1 mx-6 bg-border" />
+            </div>
+            <div className="relative overflow-hidden group">
+              <div className="flex gap-4 animate-marquee hover:pause-marquee py-2">
+                {[...ALL_RECIPES, ...ALL_RECIPES].map((r, i) => (
+                  <div key={`${r.id}-${i}`} className="w-64 h-44 rounded-3xl overflow-hidden shrink-0 shadow-lg border border-border group/img relative">
+                    <img src={r.image} alt={r.title} className="w-full h-full object-cover transition-transform duration-700 group-hover/img:scale-110" />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover/img:opacity-100 transition-opacity flex items-end p-4">
+                      <p className="text-white text-xs font-black uppercase tracking-widest">{r.title}</p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        )}
 
         {/* Remaining Recipes */}
         {remainingRecipes.length > 0 && (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 pt-8">
             {remainingRecipes.map((recipe) => (
-              <RecipeCard 
-                key={recipe.id} 
-                recipe={recipe} 
-                adding={adding} 
-                handleAddToCart={handleAddToCart} 
-                handleAddToMealPlan={handleAddToMealPlan} 
-                onAnalyze={(r) => { setSelectedRecipe(r); setIsModalOpen(true); }}
-              />
+              <RecipeCard key={recipe.id} recipe={recipe} adding={adding} handleAddToCart={handleAddToCart} handleAddToMealPlan={handleAddToMealPlan} />
             ))}
           </div>
         )}
       </div>
 
-      <AIAnalysisModal 
-        recipe={selectedRecipe} 
-        open={isModalOpen} 
-        onClose={() => setIsModalOpen(false)} 
-      />
+      <style>{`
+        @keyframes marquee {
+          0% { transform: translateX(0); }
+          100% { transform: translateX(-50%); }
+        }
+      {/* Recipe Analysis Modal */}
+      {selectedRecipeForAnalysis && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
+          <div 
+            className="absolute inset-0 bg-black/60 backdrop-blur-sm"
+            onClick={() => setSelectedRecipeForAnalysis(null)}
+          />
+          <div className="relative bg-background w-full max-w-2xl max-h-[90vh] overflow-hidden rounded-[3rem] shadow-2xl border border-border flex flex-col">
+            <div className="p-8 overflow-y-auto">
+              <div className="flex items-start justify-between mb-8">
+                <div className="flex items-center gap-4">
+                  <div className="w-16 h-16 bg-primary/10 rounded-3xl flex items-center justify-center">
+                    <Sparkles className="w-8 h-8 text-primary" />
+                  </div>
+                  <div>
+                    <h2 className="text-3xl font-black tracking-tighter text-foreground uppercase italic">AI Analysis</h2>
+                    <p className="text-muted-foreground font-bold">{selectedRecipeForAnalysis.title}</p>
+                  </div>
+                </div>
+                <button 
+                  onClick={() => setSelectedRecipeForAnalysis(null)}
+                  className="p-3 hover:bg-muted rounded-full transition-all"
+                >
+                  <X className="w-6 h-6" />
+                </button>
+              </div>
+
+              <div className="space-y-8 pb-8">
+                <div>
+                  <h3 className="text-xs font-black uppercase tracking-[0.2em] text-primary mb-4 flex items-center gap-2">
+                    <ShoppingCart className="w-4 h-4" /> Required Products
+                  </h3>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    {selectedRecipeForAnalysis.ingredients.map((ing, i) => (
+                      <div key={i} className="flex items-center gap-3 bg-muted/30 p-4 rounded-2xl border border-border/50">
+                        <CheckCircle2 className="w-4 h-4 text-primary shrink-0" />
+                        <span className="text-sm font-bold">{ing.name} ({ing.qty} unit)</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                <div>
+                  <h3 className="text-xs font-black uppercase tracking-[0.2em] text-primary mb-4 flex items-center gap-2">
+                    <ChefHat className="w-4 h-4" /> Preparation Steps
+                  </h3>
+                  <div className="space-y-4">
+                    {selectedRecipeForAnalysis.instructions.map((step, i) => (
+                      <div key={i} className="flex gap-4 group">
+                        <div className="shrink-0 w-8 h-8 bg-card border-2 border-border rounded-xl flex items-center justify-center text-xs font-black text-muted-foreground group-hover:border-primary group-hover:text-primary transition-all">
+                          {i + 1}
+                        </div>
+                        <p className="text-sm font-medium leading-relaxed text-foreground pt-1.5">{step}</p>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div className="p-6 bg-muted/30 border-t border-border mt-auto">
+              <button
+                onClick={() => {
+                  handleAddToCart(selectedRecipeForAnalysis);
+                  setSelectedRecipeForAnalysis(null);
+                }}
+                className="w-full bg-[#007000] text-white py-5 rounded-[1.5rem] font-black uppercase tracking-widest shadow-xl hover:opacity-90 active:scale-[0.98] transition-all flex items-center justify-center gap-2"
+              >
+                <Plus className="w-5 h-5" /> Add All to Cart
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       <style>{`
         @keyframes marquee {
@@ -130,37 +259,25 @@ export default function Recipes() {
           100% { transform: translateX(-50%); }
         }
         .animate-marquee {
-          display: flex;
-          animation: marquee 30s linear infinite;
+          animation: marquee 40s linear infinite;
         }
-        .custom-scrollbar::-webkit-scrollbar {
-          width: 6px;
-        }
-        .custom-scrollbar::-webkit-scrollbar-track {
-          background: transparent;
-        }
-        .custom-scrollbar::-webkit-scrollbar-thumb {
-          background: #eee;
-          border-radius: 10px;
-        }
-        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
-          background: #ddd;
+        .pause-marquee:hover {
+          animation-play-state: paused;
         }
       `}</style>
     </div>
   );
 }
 
-function RecipeCard({ recipe, adding, handleAddToCart, handleAddToMealPlan, onAnalyze }: { 
+function RecipeCard({ recipe, adding, handleAddToCart, handleAddToMealPlan }: { 
   recipe: Recipe; 
   adding: string | null; 
   handleAddToCart: (r: Recipe) => void;
   handleAddToMealPlan: (r: Recipe) => void;
-  onAnalyze: (r: Recipe) => void;
 }) {
   return (
-    <div className="group bg-card rounded-[2rem] border-2 border-border overflow-hidden hover:border-primary/20 hover:shadow-2xl transition-all duration-500">
-      <div className="relative aspect-[4/3] overflow-hidden">
+    <div className="bg-card border border-border rounded-[2.5rem] overflow-hidden shadow-sm hover:shadow-xl transition-all group">
+      <div className="aspect-[4/3] relative overflow-hidden">
         <img 
           src={recipe.image} 
           alt={recipe.title} 
@@ -207,83 +324,36 @@ function RecipeCard({ recipe, adding, handleAddToCart, handleAddToMealPlan, onAn
           </div>
         </div>
 
-        <div className="flex gap-2 pt-2">
+        <div className="flex flex-col gap-2 pt-2">
           <button
-            onClick={() => handleAddToCart(recipe)}
-            disabled={adding === recipe.id + "-cart"}
-            className="flex-1 bg-[#007000] text-white h-12 rounded-2xl text-[10px] font-black uppercase tracking-widest shadow-lg shadow-[#007000]/20 hover:opacity-90 active:scale-95 transition-all flex items-center justify-center gap-2"
+            onClick={() => setSelectedRecipeForAnalysis(recipe)}
+            className="w-full bg-primary/10 text-primary py-3 rounded-2xl text-[10px] font-black uppercase tracking-widest hover:bg-primary hover:text-white transition-all flex items-center justify-center gap-2 border-2 border-primary/20"
           >
-            {adding === recipe.id + "-cart" ? (
-              <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-            ) : (
-              <>
-                <ShoppingCart className="w-4 h-4" /> Add Ingredients
-              </>
-            )}
+            <Sparkles className="w-3.5 h-3.5" /> Analyse with AI
           </button>
-          <button
-            onClick={() => onAnalyze(recipe)}
-            className="w-12 h-12 bg-amber-100 border-2 border-amber-200 text-amber-700 rounded-2xl flex items-center justify-center hover:bg-amber-200 active:scale-95 transition-all"
-            title="Analyze with AI"
-          >
-            <Sparkles className="w-5 h-5" />
-          </button>
-          <button
-            onClick={() => handleAddToMealPlan(recipe)}
-            className="w-12 h-12 bg-white border-2 border-border text-foreground rounded-2xl flex items-center justify-center hover:border-[#007000] hover:text-[#007000] active:scale-95 transition-all"
-            title="Add to Meal Plan"
-          >
-            <Calendar className="w-5 h-5" />
-          </button>
-        </div>
-      </div>
-    </div>
-  );
-}
-
-function AIAnalysisModal({ recipe, open, onClose }: { recipe: Recipe | null; open: boolean; onClose: () => void }) {
-  if (!recipe || !open) return null;
-
-  return (
-    <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-in fade-in duration-300">
-      <div className="bg-card w-full max-w-xl rounded-[2.5rem] shadow-2xl border border-border overflow-hidden animate-in zoom-in-95 duration-300">
-        <div className="relative h-48">
-          <img src={recipe.image} className="w-full h-full object-cover" alt="" />
-          <div className="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent flex items-end p-8">
-            <div>
-              <span className="bg-[#FFB800] text-black text-[10px] font-black uppercase px-3 py-1 rounded-full mb-2 inline-block">AI Preparation Guide</span>
-              <h2 className="text-white text-3xl font-black italic tracking-tighter uppercase">{recipe.title}</h2>
-            </div>
+          
+          <div className="flex gap-2">
+            <button
+              onClick={() => handleAddToCart(recipe)}
+              disabled={adding === recipe.id + "-cart"}
+              className="flex-1 bg-[#007000] text-white h-12 rounded-2xl text-[10px] font-black uppercase tracking-widest shadow-lg shadow-[#007000]/20 hover:opacity-90 active:scale-95 transition-all flex items-center justify-center gap-2"
+            >
+              {adding === recipe.id + "-cart" ? (
+                <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+              ) : (
+                <>
+                  <ShoppingCart className="w-4 h-4" /> Add Ingredients
+                </>
+              )}
+            </button>
+            <button
+              onClick={() => handleAddToMealPlan(recipe)}
+              className="w-12 h-12 bg-white border-2 border-border text-foreground rounded-2xl flex items-center justify-center hover:border-[#007000] hover:text-[#007000] active:scale-95 transition-all"
+              title="Add to Meal Plan"
+            >
+              <Calendar className="w-5 h-5" />
+            </button>
           </div>
-          <button onClick={onClose} className="absolute top-6 right-6 w-10 h-10 bg-black/40 text-white rounded-full flex items-center justify-center hover:bg-black/60 backdrop-blur-md transition-colors">
-            <X className="w-5 h-5" />
-          </button>
-        </div>
-        
-        <div className="p-8 max-h-[60vh] overflow-y-auto custom-scrollbar">
-          <div className="space-y-6">
-            <div>
-              <h3 className="text-primary font-black uppercase text-xs tracking-widest mb-4 flex items-center gap-2">
-                <ChefHat className="w-4 h-4" /> Preparation Steps
-              </h3>
-              <div className="space-y-4">
-                {(recipe.preparation || recipe.instructions).map((step, i) => (
-                  <div key={i} className="flex gap-4 group">
-                    <span className="shrink-0 w-8 h-8 rounded-full bg-muted flex items-center justify-center text-xs font-black text-muted-foreground group-hover:bg-[#FFB800] group-hover:text-black transition-colors">
-                      {i + 1}
-                    </span>
-                    <p className="text-sm font-medium text-foreground/80 leading-relaxed pt-1.5">{step}</p>
-                  </div>
-                ))}
-              </div>
-            </div>
-          </div>
-        </div>
-        
-        <div className="p-8 border-t border-border bg-muted/30">
-          <button onClick={onClose} className="w-full py-4 bg-foreground text-background rounded-2xl font-black uppercase tracking-widest hover:opacity-90 transition-opacity">
-            Close Analysis
-          </button>
         </div>
       </div>
     </div>
