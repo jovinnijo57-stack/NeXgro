@@ -360,7 +360,7 @@ function RecipeCard({ recipe, adding, handleAddToCart, handleAddToMealPlan, onAn
               className="w-12 h-12 bg-white border-2 border-border text-foreground rounded-2xl flex items-center justify-center hover:border-[#007000] hover:text-[#007000] active:scale-95 transition-all"
               title="Plan for a Specific Date"
             >
-              <Plus className="w-5 h-5" />
+              <Calendar className="w-5 h-5" />
             </button>
             <input 
               type="date"
