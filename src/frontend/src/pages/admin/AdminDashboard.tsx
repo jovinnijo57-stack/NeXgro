@@ -183,6 +183,98 @@ const SAMPLE_COUPONS_DATA: any[] = [];
 
 // ─── Sub-components ───────────────────────────────────────────────────────────
 
+function ImageUploadField({ 
+  label, 
+  value, 
+  onChange, 
+  id, 
+  placeholder = "Select or drag an image" 
+}: { 
+  label: string; 
+  value?: string; 
+  onChange: (url: string) => void; 
+  id: string;
+  placeholder?: string;
+}) {
+  const [isDragging, setIsDragging] = useState(false);
+
+  const handleFile = async (file: File) => {
+    toast.promise(uploadToCloudinary(file), {
+      loading: "Uploading to Cloudinary...",
+      success: (url) => {
+        if (url) {
+          onChange(url);
+          return "Image uploaded successfully! ✨";
+        }
+        throw new Error("Upload failed");
+      },
+      error: "Cloudinary upload failed. Check your config.",
+    });
+  };
+
+  return (
+    <div className="space-y-1">
+      <label className="text-xs font-medium text-muted-foreground mb-1 block">{label}</label>
+      <div 
+        className={cn(
+          "border-2 border-dashed rounded-2xl p-4 transition-all flex flex-col items-center justify-center gap-3 bg-muted/5 min-h-[160px]",
+          isDragging ? "border-primary bg-primary/5 scale-[1.01]" : "border-border hover:border-primary/30",
+          value ? "border-solid bg-transparent" : ""
+        )}
+        onDragOver={(e) => { e.preventDefault(); setIsDragging(true); }}
+        onDragLeave={() => setIsDragging(false)}
+        onDrop={(e) => {
+          e.preventDefault();
+          setIsDragging(false);
+          const file = e.dataTransfer.files?.[0];
+          if (file && file.type.startsWith("image/")) {
+            handleFile(file);
+          }
+        }}
+      >
+        {value ? (
+          <div className="relative group w-full aspect-video rounded-xl overflow-hidden shadow-sm border border-border">
+            <img src={value} className="w-full h-full object-cover" alt="Preview" />
+            <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
+              <label htmlFor={id} className="p-2 bg-white text-black rounded-full cursor-pointer hover:scale-110 transition-transform shadow-lg">
+                <Plus className="w-4 h-4" />
+              </label>
+              <button 
+                type="button"
+                onClick={() => onChange("")}
+                className="p-2 bg-destructive text-white rounded-full hover:scale-110 transition-transform shadow-lg"
+              >
+                <Trash2 className="w-4 h-4" />
+              </button>
+            </div>
+          </div>
+        ) : (
+          <label htmlFor={id} className="w-full py-6 flex flex-col items-center justify-center gap-2 cursor-pointer">
+            <div className="w-12 h-12 rounded-2xl bg-primary/10 flex items-center justify-center text-primary">
+              <Plus className="w-6 h-6" />
+            </div>
+            <div className="text-center">
+              <p className="text-xs font-bold text-foreground">{placeholder}</p>
+              <p className="text-[10px] text-muted-foreground mt-1">PNG, JPG up to 10MB</p>
+            </div>
+          </label>
+        )}
+        <input
+          type="file"
+          id={id}
+          className="hidden"
+          accept="image/*"
+          onChange={(e) => {
+            const file = e.target.files?.[0];
+            if (file) handleFile(file);
+          }}
+        />
+      </div>
+    </div>
+  );
+}
+
+
 function StatCard({
   label,
   value,
@@ -706,59 +798,13 @@ function ProductsView() {
                 </label>
               ))}
             </div>
-            <div>
-              <label
-                className="text-xs font-medium text-muted-foreground mb-1 block"
-              >
-                Product Image
-              </label>
-              <div className="flex gap-3 items-center">
-                <div className="w-16 h-16 rounded-xl border border-border bg-muted/20 flex items-center justify-center overflow-hidden shrink-0">
-                  {form.imageUrl ? (
-                    <img src={form.imageUrl} className="w-full h-full object-cover" alt="Preview" />
-                  ) : (
-                    <Image className="w-6 h-6 text-muted-foreground/30" />
-                  )}
-                </div>
-                <div className="flex-1 space-y-2">
-                  <input
-                    type="file"
-                    accept="image/*"
-                    onChange={async (e) => {
-                      const file = e.target.files?.[0];
-                      if (file) {
-                        toast.promise(uploadToCloudinary(file), {
-                          loading: "Uploading to Cloudinary...",
-                          success: (url) => {
-                            if (url) {
-                              setForm(f => ({ ...f, imageUrl: url }));
-                              return "Image uploaded successfully! ✨";
-                            }
-                            throw new Error("Upload failed");
-                          },
-                          error: "Cloudinary upload failed. Check your config.",
-                        });
-                      }
-                    }}
-                    className="hidden"
-                    id="prod-image-file"
-                  />
-                  <label
-                    htmlFor="prod-image-file"
-                    className="inline-block px-3 py-1.5 bg-muted hover:bg-muted/80 rounded-lg text-xs font-medium cursor-pointer transition-colors border border-border"
-                  >
-                    Choose File
-                  </label>
-                  <input
-                    type="text"
-                    value={form.imageUrl}
-                    placeholder="Or enter URL"
-                    onChange={(e) => setForm(f => ({ ...f, imageUrl: e.target.value }))}
-                    className="w-full px-3 py-1.5 text-[11px] border border-input rounded-lg bg-background focus:outline-none"
-                  />
-                </div>
-              </div>
-            </div>
+            <ImageUploadField
+              label="Product Image"
+              id="prod-image-file"
+              value={form.imageUrl}
+              onChange={(url) => setForm(f => ({ ...f, imageUrl: url }))}
+              placeholder="Drag product photo here or click to browse"
+            />
             <div className="flex gap-2 pt-1">
               <button
                 type="button"
@@ -1247,55 +1293,13 @@ function RecipesView() {
               </div>
             </div>
 
-            <div>
-              <label className="text-xs font-medium text-muted-foreground mb-1 block">Recipe Image</label>
-              <div className="flex gap-3 items-center">
-                <div className="w-16 h-16 rounded-xl border border-border bg-muted/20 flex items-center justify-center overflow-hidden shrink-0">
-                  {form.image ? (
-                    <img src={form.image} className="w-full h-full object-cover" alt="Preview" />
-                  ) : (
-                    <Image className="w-6 h-6 text-muted-foreground/30" />
-                  )}
-                </div>
-                <div className="flex-1 space-y-2">
-                  <input
-                    type="file"
-                    accept="image/*"
-                    onChange={async (e) => {
-                      const file = e.target.files?.[0];
-                      if (file) {
-                        toast.promise(uploadToCloudinary(file), {
-                          loading: "Uploading to Cloudinary...",
-                          success: (url) => {
-                            if (url) {
-                              setForm(f => ({ ...f, image: url }));
-                              return "Image uploaded successfully! ✨";
-                            }
-                            throw new Error("Upload failed");
-                          },
-                          error: "Cloudinary upload failed. Check your config.",
-                        });
-                      }
-                    }}
-                    className="hidden"
-                    id="recipe-image-file"
-                  />
-                  <label
-                    htmlFor="recipe-image-file"
-                    className="inline-block px-3 py-1.5 bg-muted hover:bg-muted/80 rounded-lg text-xs font-medium cursor-pointer transition-colors border border-border"
-                  >
-                    Choose File
-                  </label>
-                  <input
-                    type="text"
-                    value={form.image}
-                    placeholder="Or enter URL"
-                    onChange={(e) => setForm(f => ({ ...f, image: e.target.value }))}
-                    className="w-full px-3 py-1.5 text-[11px] border border-input rounded-lg bg-background focus:outline-none"
-                  />
-                </div>
-              </div>
-            </div>
+            <ImageUploadField
+              label="Recipe Image"
+              id="recipe-image-file"
+              value={form.image}
+              onChange={(url) => setForm(f => ({ ...f, image: url }))}
+              placeholder="Drag recipe photo here or click to browse"
+            />
 
             <div className="space-y-3">
               <label className="text-xs font-bold text-foreground uppercase tracking-wider block">Ingredients</label>
