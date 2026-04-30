@@ -83,7 +83,9 @@ export default function LocationSetup() {
       if (result.tag === "InRange" || result.tag === "withinRadius") {
         localStorage.setItem("nexgro_user_location", JSON.stringify({ lat, lng, address: state.displayAddress }));
         setState({ status: "in_range", distanceKm: (result as any).distanceKm || 0 });
-        setTimeout(() => { navigate({ to: "/home" } as any); }, 1500);
+        setTimeout(() => { 
+          window.location.href = "/home";
+        }, 1500);
       } else {
         setState({
           status: "out_of_range",
@@ -94,7 +96,9 @@ export default function LocationSetup() {
       // Final fallback — just go to home
       localStorage.setItem("nexgro_user_location", JSON.stringify({ lat, lng, address: state.displayAddress }));
       setState({ status: "in_range", distanceKm: 0 });
-      setTimeout(() => { navigate({ to: "/home" } as any); }, 1500);
+      setTimeout(() => { 
+        window.location.href = "/home";
+      }, 1500);
     }
   }
 
