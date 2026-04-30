@@ -51,33 +51,37 @@ export default function AIShopper() {
       name: p.name,
       price: p.price,
       description: p.description,
+      categoryId: p.categoryId,
       origin: "Local Organic Farm, Kerala"
     }));
 
-    const systemPrompt = `You are the NeXgro AI Personal Shopper, an expert in nutrition and fresh groceries.
-Your mission: Provide ACCURATE, helpful, and science-based answers to user questions about health, food, and shopping.
+    const systemPrompt = `You are the NeXgro Intelligence Engine, a high-performance AI personal shopper similar to Google Gemini. 
+Your goal is to provide sophisticated, helpful, and scientifically accurate advice about groceries, nutrition, and healthy living.
 
-Rules:
-1. If a user asks about a specific nutritional value or health tip, give a precise, factual answer.
-2. If relevant, suggest 1-3 products from the NeXgro catalog below.
-3. Always mention that our produce comes from "Local Organic Farms in Kerala" when talking about freshness.
-4. Format recommendations as [RECOMMEND: id1, id2] at the end of your response.
+STRATEGIC GUIDELINES:
+1. NUTRITIONAL INTELLIGENCE: Provide detailed nutritional insights for any food or health topic mentioned. Use a professional, expert tone.
+2. PRODUCT CONNECTIVITY: You MUST identify products from the catalog below that match the user's needs. 
+3. KERALA HERITAGE: Always emphasize that NeXgro's produce is sourced directly from "Local Organic Farms in Kerala" for maximum nutrient density.
+4. RESPONSE ARCHITECTURE: Use a structured, clean format. End your response with recommended product IDs in this exact format: [RECOMMEND: id1, id2].
 
-Catalog: ${JSON.stringify(productCatalog.slice(0, 30))}
+CATALOG DATA: ${JSON.stringify(productCatalog.slice(0, 40))}
 
-User Question: ${userText}`;
+User Inquiry: ${userText}`;
 
-    // Helper to process AI response text
     const processAIResponse = (aiText: string) => {
-      const cleanAI = aiText.replace(/```json/g, "").replace(/```/g, "").trim();
-      const match = cleanAI.match(/\[RECOMMEND: (.*?)\]/);
+      const match = aiText.match(/\[RECOMMEND: (.*?)\]/);
       const recommendedIds = match ? match[1].split(",").map(id => id.trim()) : [];
-      const cleanText = cleanAI.replace(/\[RECOMMEND: .*?\]/, "").trim();
-      const recommendations = SAMPLE_PRODUCTS.filter(p => recommendedIds.includes(p.id));
+      const cleanText = aiText.replace(/\[RECOMMEND: .*?\]/, "").trim();
+      
+      // Filter products and ensure we find them correctly
+      const recommendations = SAMPLE_PRODUCTS.filter(p => 
+        recommendedIds.some(rid => rid.toLowerCase() === p.id.toLowerCase() || rid === p.id)
+      );
+      
       return { text: cleanText, recommendations };
     };
 
-    // 1. Try Gemini
+    // 1. Primary: Gemini (Multimodal & Intelligent)
     if (isGeminiConfigured()) {
       try {
         const model = genAI.getGenerativeModel({ model: GEMINI_MODEL });
@@ -85,11 +89,11 @@ User Question: ${userText}`;
         const response = await result.response;
         return processAIResponse(response.text());
       } catch (error) {
-        console.error("Gemini failed, falling back to Groq:", error);
+        console.error("Gemini core unreachable, attempting secondary neural link:", error);
       }
     }
 
-    // 2. Try Groq (Failover)
+    // 2. Secondary: Groq (Low-latency)
     if (isGroqConfigured()) {
       try {
         const response = await fetch("https://api.groq.com/openai/v1/chat/completions", {
@@ -101,10 +105,10 @@ User Question: ${userText}`;
           body: JSON.stringify({
             model: GROQ_MODEL,
             messages: [
-              { role: "system", content: "You are the NeXgro AI Personal Shopper. Follow the system instructions exactly." },
+              { role: "system", content: "You are the NeXgro Intelligence Engine. Provide elite-level shopping advice." },
               { role: "user", content: systemPrompt }
             ],
-            temperature: 0.7
+            temperature: 0.6
           })
         });
         const data = await response.json();
@@ -112,36 +116,20 @@ User Question: ${userText}`;
           return processAIResponse(data.choices[0].message.content);
         }
       } catch (error) {
-        console.error("Groq failed:", error);
+        console.error("Secondary neural link failed:", error);
       }
     }
 
-    // 3. Final Local Fallback
+    // 3. Cognitive Fallback
     const lower = userText.toLowerCase();
-    if (lower.includes("healthy") || lower.includes("nutrition")) {
-      return {
-        text: "Healthy eating starts with fresh, organic produce! We recommend high-protein items like organic eggs and fresh greens from our local Kerala farms. Nutritional values for most items are available in the product details.",
-        recommendations: SAMPLE_PRODUCTS.filter(p => ["p10", "p1", "p3"].includes(p.id))
-      };
-    }
-    if (lower.includes("recipe") || lower.includes("breakfast") || lower.includes("lunch")) {
-      const isBreakfast = lower.includes("breakfast");
-      return {
-        text: isBreakfast 
-          ? "For a traditional healthy breakfast, how about IDLI or DOSA? They are fermented, easy to digest, and very popular in Kerala! You can find all the ingredients like Rice and Urad dal in our Pantry section."
-          : "Looking for a meal idea? Our Sambar and Chicken Curry recipes are favorites! You can find fresh spices and vegetables right here on NeXgro to get started.",
-        recommendations: SAMPLE_PRODUCTS.filter(p => isBreakfast ? ["p4", "p9", "p1"].includes(p.id) : ["p13", "p14", "p1"].includes(p.id))
-      };
-    }
-    if (lower.includes("origin") || lower.includes("where")) {
-      return {
-        text: "All our fresh fruits and vegetables are sourced directly from Local Organic Farms in Kerala, ensuring the highest quality and minimal travel time to your doorstep.",
-        recommendations: SAMPLE_PRODUCTS.filter(p => p.categoryId === "fruits").slice(0, 2)
-      };
-    }
+    const mockRecs = SAMPLE_PRODUCTS.filter(p => 
+      lower.includes(p.name.toLowerCase()) || 
+      lower.includes(p.categoryId.toLowerCase())
+    ).slice(0, 3);
+
     return {
-      text: "I'm ready to help! While my advanced AI cores are currently resting, I can still tell you that we source all our produce from Local Organic Farms in Kerala. Try asking about healthy options or recipes!",
-      recommendations: SAMPLE_PRODUCTS.slice(0, 2)
+      text: "I've analyzed your request against our current farm inventory. Our Kerala-grown produce is rich in micronutrients and harvested at peak ripeness. Here are the most relevant items for your healthy lifestyle based on my intelligence core.",
+      recommendations: mockRecs.length > 0 ? mockRecs : SAMPLE_PRODUCTS.slice(0, 3)
     };
   };
 
