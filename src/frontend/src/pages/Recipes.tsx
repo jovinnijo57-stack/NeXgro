@@ -10,9 +10,13 @@ import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import { useQueryClient } from "@tanstack/react-query";
 import { Badge } from "@/components/ui/badge";
+import { useSearch } from "@tanstack/react-router";
 import { ALL_RECIPES, type Recipe } from "@/data/recipes";
+import { useMealPlans } from "@/hooks/useBackend";
 
 export default function Recipes() {
+  const search = useSearch({ from: "/recipes" }) as any;
+  const initialDate = search.date || "";
   const navigate = useNavigate();
   const qc = useQueryClient();
   const addToCart = useAddToCart();
@@ -93,9 +97,35 @@ export default function Recipes() {
   const firstSixRecipes = filteredRecipes.slice(0, 6);
   const remainingRecipes = filteredRecipes.slice(6);
 
+  const { data: mealPlans } = useMealPlans();
+  const plannedForToday = useMemo(() => {
+    if (!initialDate) return [];
+    return mealPlans?.filter(mp => mp.plannedDate === initialDate) || [];
+  }, [mealPlans, initialDate]);
+
   return (
     <div className="min-h-screen bg-background pb-24 pt-8">
       <div className="max-w-7xl mx-auto px-4 space-y-8">
+        {/* Header with Date context */}
+        {initialDate && (
+          <div className="bg-[#007000]/5 border-2 border-[#007000]/10 p-4 rounded-3xl flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 bg-[#007000] text-white rounded-xl flex items-center justify-center">
+                <Calendar className="w-5 h-5" />
+              </div>
+              <div>
+                <p className="text-[10px] font-black uppercase tracking-widest text-[#007000]/60">Planning for</p>
+                <p className="text-sm font-black text-[#007000]">{new Date(initialDate).toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' })}</p>
+              </div>
+            </div>
+            {plannedForToday.length > 0 && (
+              <div className="text-right">
+                <p className="text-[10px] font-black uppercase tracking-widest text-[#007000]/60">{plannedForToday.length} Recipes</p>
+                <p className="text-xs font-bold text-[#007000]">already planned</p>
+              </div>
+            )}
+          </div>
+        )}
         {/* Navigation & Search Bar at Top */}
         <div className="flex items-center gap-3 mb-8">
           <button 
@@ -148,6 +178,7 @@ export default function Recipes() {
               handleAddToCart={handleAddToCart} 
               handleAddToMealPlan={handleAddToMealPlan}
               onAnalyse={setSelectedRecipeForAnalysis}
+              defaultDate={initialDate}
             />
           ))}
         </div>
@@ -185,6 +216,7 @@ export default function Recipes() {
                 handleAddToCart={handleAddToCart} 
                 handleAddToMealPlan={handleAddToMealPlan}
                 onAnalyse={setSelectedRecipeForAnalysis}
+                defaultDate={initialDate}
               />
             ))}
           </div>
@@ -284,8 +316,13 @@ function RecipeCard({
   handleAddToCart: (r: Recipe) => void;
   handleAddToMealPlan: (r: Recipe, date?: string) => void;
   onAnalyse: (r: Recipe) => void;
+  defaultDate?: string;
 }) {
-  const [plannedDate, setPlannedDate] = useState<string>("");
+  const [plannedDate, setPlannedDate] = useState<string>(defaultDate || "");
+
+  useEffect(() => {
+    if (defaultDate) setPlannedDate(defaultDate);
+  }, [defaultDate]);
 
   return (
     <div className="group bg-background rounded-[2.5rem] overflow-hidden border border-border/50 hover:border-[#007000]/30 hover:shadow-2xl hover:shadow-[#007000]/5 transition-all duration-500 flex flex-col h-full">

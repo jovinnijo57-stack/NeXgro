@@ -240,11 +240,12 @@ export default function MealPlannerPage() {
             <UtensilsCrossed className="w-6 h-6 text-[#007000]" />
             {displayDayName}'s Menu
           </h3>
-          <Link
+          <Link 
             to="/recipes"
-            className="bg-[#007000]/10 text-[#007000] px-4 py-2 rounded-xl text-xs font-black uppercase tracking-widest hover:bg-[#007000] hover:text-white transition-all flex items-center gap-2"
+            search={{ date: selectedDate }}
+            className="w-12 h-12 bg-[#007000] text-white rounded-2xl flex items-center justify-center hover:opacity-90 transition-all shadow-lg shadow-[#007000]/20"
           >
-            <Plus className="w-4 h-4" /> Add
+            <Plus className="w-6 h-6" />
           </Link>
         </div>
 
