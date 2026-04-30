@@ -138,7 +138,14 @@ export default function Recipes() {
         {/* Recipe Grid - First 6 */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
           {firstSixRecipes.map((recipe) => (
-            <RecipeCard key={recipe.id} recipe={recipe} adding={adding} handleAddToCart={handleAddToCart} handleAddToMealPlan={handleAddToMealPlan} />
+            <RecipeCard 
+              key={recipe.id} 
+              recipe={recipe} 
+              adding={adding} 
+              handleAddToCart={handleAddToCart} 
+              handleAddToMealPlan={handleAddToMealPlan}
+              onAnalyse={setSelectedRecipeForAnalysis}
+            />
           ))}
         </div>
 
@@ -168,7 +175,14 @@ export default function Recipes() {
         {remainingRecipes.length > 0 && (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 pt-8">
             {remainingRecipes.map((recipe) => (
-              <RecipeCard key={recipe.id} recipe={recipe} adding={adding} handleAddToCart={handleAddToCart} handleAddToMealPlan={handleAddToMealPlan} />
+              <RecipeCard 
+                key={recipe.id} 
+                recipe={recipe} 
+                adding={adding} 
+                handleAddToCart={handleAddToCart} 
+                handleAddToMealPlan={handleAddToMealPlan}
+                onAnalyse={setSelectedRecipeForAnalysis}
+              />
             ))}
           </div>
         )}
@@ -271,11 +285,12 @@ export default function Recipes() {
   );
 }
 
-function RecipeCard({ recipe, adding, handleAddToCart, handleAddToMealPlan }: { 
+function RecipeCard({ recipe, adding, handleAddToCart, handleAddToMealPlan, onAnalyse }: { 
   recipe: Recipe; 
   adding: string | null; 
   handleAddToCart: (r: Recipe) => void;
-  handleAddToMealPlan: (r: Recipe) => void;
+  handleAddToMealPlan: (r: Recipe, date?: string) => void;
+  onAnalyse: (r: Recipe) => void;
 }) {
   return (
     <div className="bg-card border border-border rounded-[2.5rem] overflow-hidden shadow-sm hover:shadow-xl transition-all group">
@@ -334,7 +349,7 @@ function RecipeCard({ recipe, adding, handleAddToCart, handleAddToMealPlan }: {
             <Calendar className="w-4 h-4" /> Add to Meal Planner
           </button>
           <button
-            onClick={() => setSelectedRecipeForAnalysis(recipe)}
+            onClick={() => onAnalyse(recipe)}
             className="w-12 h-12 bg-primary/10 text-primary rounded-2xl flex items-center justify-center hover:bg-primary hover:text-white active:scale-95 transition-all border-2 border-primary/20"
             title="Analyse with AI"
           >
