@@ -102,15 +102,17 @@ export default function Recipes() {
             >
               <ArrowLeft className="w-4 h-4" /> Back to Home
             </button>
-            <h1 className="text-5xl md:text-7xl font-black tracking-tighter text-[#FFB800] italic">
-              Chef's Corner
-            </h1>
-            <p className="text-xl md:text-2xl font-medium text-white/80 italic">
-              "Cook smart, eat better"
-            </p>
+            <div className="hidden md:block">
+              <h1 className="text-5xl md:text-7xl font-black tracking-tighter text-[#FFB800] italic">
+                Chef's Corner
+              </h1>
+              <p className="text-xl md:text-2xl font-medium text-white/80 italic">
+                "Cook smart, eat better"
+              </p>
+            </div>
           </div>
-          <div className="flex-1 relative md:translate-x-12">
-            <div className="w-[300px] h-[300px] md:w-[450px] md:h-[450px] rounded-full border-[12px] border-[#FFB800] overflow-hidden shadow-[0_0_50px_rgba(255,184,0,0.3)]">
+          <div className="flex-1 flex justify-center md:justify-end">
+            <div className="w-full max-w-[340px] md:max-w-[500px] aspect-[16/9] md:aspect-square rounded-[2rem] md:rounded-full border-[6px] md:border-[12px] border-[#FFB800] overflow-hidden shadow-[0_0_30px_rgba(255,184,0,0.2)]">
               <img 
                 src="/assets/banner3.jpg" 
                 alt="Chef's Corner Banner" 
