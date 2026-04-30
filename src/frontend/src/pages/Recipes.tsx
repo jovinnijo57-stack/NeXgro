@@ -174,11 +174,6 @@ export default function Recipes() {
         )}
       </div>
 
-      <style>{`
-        @keyframes marquee {
-          0% { transform: translateX(0); }
-          100% { transform: translateX(-50%); }
-        }
       {/* Recipe Analysis Modal */}
       {selectedRecipeForAnalysis && (
         <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
