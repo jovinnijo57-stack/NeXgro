@@ -194,6 +194,13 @@ export default function Login() {
       } else {
         // FIREBASE PHONE AUTH
         if (!auth) {
+          console.warn("Firebase Auth not initialized. Using Demo Mode (Localhost only).");
+          if (window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1") {
+            toast.info("Demo Mode: Use code 123456 to verify.");
+            setConfirmationResult({ confirm: async (code: string) => { if (code !== "123456") throw new Error("Invalid code"); } });
+            setForgotStep("otp");
+            return;
+          }
           toast.error("Firebase Auth is not configured. Check your environment variables.");
           return;
         }
@@ -209,6 +216,7 @@ export default function Login() {
         }
 
         const formattedPhone = forgotPhone.startsWith('+') ? forgotPhone : `+91${forgotPhone.replace(/\s/g, '')}`;
+        console.log("Sending Reset OTP to:", formattedPhone);
         const confirmation = await signInWithPhoneNumber(auth, formattedPhone, recaptchaVerifierRef.current);
         setConfirmationResult(confirmation);
         toast.success("OTP sent to your phone via Firebase!");
@@ -216,13 +224,8 @@ export default function Login() {
       }
     } catch (err: any) {
       console.error("Forgot submit error:", err);
-      if (err.code === 'auth/invalid-phone-number') {
-        toast.error("The phone number is invalid. Please use international format (e.g., +919876543210).");
-      } else if (err.code === 'auth/too-many-requests') {
-        toast.error("Too many requests. Please try again later.");
-      } else {
-        toast.error("Failed to send reset code. Please try again.");
-      }
+      const msg = err.message || "Failed to send reset code.";
+      toast.error(`Firebase Error: ${msg}`);
     } finally {
       setIsResetting(false);
     }
