@@ -88,26 +88,10 @@ export default function VerifyEmail() {
       setIsVerifying(false);
       setVerified(true);
       
-      const email = sessionStorage.getItem("pending_email");
-      const pwd = sessionStorage.getItem("pending_password");
-      const profileStr = sessionStorage.getItem("pending_profile");
-      if (email && pwd && profileStr) {
-        const profile = JSON.parse(profileStr);
-        saveRegisteredUser(email, pwd, profile);
-        
-        // Send Welcome Email (async)
-        sendWelcomeEmail(email, `${profile.firstName} ${profile.lastName}`).catch(err => 
-          console.error("Welcome email failed", err)
-        );
-
-        sessionStorage.removeItem("pending_password");
-        sessionStorage.removeItem("pending_profile");
-      }
-      
-      // Success, redirect to login
+      // Email verified! Now move to Phone Verification
       setTimeout(() => {
-        navigate({ to: "/login" });
-      }, 1800);
+        navigate({ to: "/verify-phone" });
+      }, 1500);
     } else {
       setIsVerifying(false);
       setError("Invalid verification code. Please check your email.");
@@ -199,10 +183,10 @@ export default function VerifyEmail() {
             </div>
             <div className="text-center">
               <h2 className="text-2xl font-bold text-foreground mb-1">
-                Registration is successful!
+                Email Verified!
               </h2>
               <p className="text-sm text-muted-foreground">
-                Your account has been created. Redirecting to login…
+                Next step: Phone Verification…
               </p>
             </div>
           </div>

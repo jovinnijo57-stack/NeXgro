@@ -138,6 +138,7 @@ export default function Register() {
       // Store OTP and email for verification
       sessionStorage.setItem("pending_otp", otp);
       sessionStorage.setItem("pending_email", form.email);
+      sessionStorage.setItem("pending_phone", form.phone);
       sessionStorage.setItem("pending_profile", JSON.stringify(form));
       
       const hashedPassword = await hashPassword(form.password);

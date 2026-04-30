@@ -7,6 +7,7 @@ import IntroVideo from "@/pages/IntroVideo";
 import Login from "@/pages/Login";
 import Register from "@/pages/Register";
 import VerifyEmail from "@/pages/VerifyEmail";
+import VerifyPhone from "@/pages/VerifyPhone";
 import { useActor, useInternetIdentity } from "@caffeineai/core-infrastructure";
 import {
   RouterProvider,
@@ -173,6 +174,12 @@ const verifyEmailRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: "/verify-email",
   component: VerifyEmail,
+});
+
+const verifyPhoneRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: "/verify-phone",
+  component: VerifyPhone,
 });
 
 const locationSetupRoute = createRoute({
@@ -770,6 +777,7 @@ const routeTree = rootRoute.addChildren([
   adminBannersRoute,
   adminRecipesRoute,
   adminSubscriptionsRoute,
+  verifyPhoneRoute,
 ]);
 
 const router = createRouter({ routeTree });
