@@ -98,26 +98,26 @@ export default function Recipes() {
         {/* Navigation & Search Bar at Top */}
         <div className="flex items-center gap-3">
           <button
-            onClick={() => navigate({ to: "/home" })}
-            className="shrink-0 w-14 h-14 bg-card border-2 border-border rounded-2xl flex items-center justify-center text-muted-foreground hover:text-primary hover:border-primary transition-all shadow-xl active:scale-95"
-            title="Back to Home"
+            onClick={() => navigate({ to: "/meal-planner" })}
+            className="shrink-0 w-14 h-14 bg-card border-2 border-primary/20 rounded-2xl flex items-center justify-center text-primary hover:bg-primary/5 transition-all shadow-xl active:scale-95"
+            title="Back to Meal Planner"
           >
             <ArrowLeft className="w-6 h-6" />
           </button>
           <div className="flex-1 relative group">
-            <Search className="absolute left-6 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground group-focus-within:text-[#FFB800] transition-colors" />
+            <Search className="absolute left-6 top-1/2 -translate-y-1/2 w-5 h-5 text-[#007000] group-focus-within:scale-110 transition-transform" />
             <input
               type="text"
-              placeholder="Search healthy recipes..."
+              placeholder="Search groceries, essentials..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full bg-card border-2 border-border pl-14 pr-14 py-5 rounded-[2rem] text-sm font-bold shadow-xl focus:border-[#FFB800]/20 outline-none transition-all group-focus-within:ring-4 group-focus-within:ring-[#FFB800]/10"
+              className="w-full bg-white border-2 border-[#007000]/20 pl-14 pr-14 py-5 rounded-[2rem] text-sm font-bold shadow-[0_0_20px_rgba(0,112,0,0.05)] focus:border-[#007000]/40 outline-none transition-all group-focus-within:ring-4 group-focus-within:ring-[#007000]/5"
             />
             <button
               onClick={startListening}
               className={cn(
                 "absolute right-3 top-1/2 -translate-y-1/2 p-3 rounded-2xl transition-all",
-                isListening ? "bg-destructive text-white animate-pulse" : "hover:bg-primary/10 text-primary"
+                isListening ? "bg-destructive text-white animate-pulse" : "hover:bg-primary/5 text-[#007000]"
               )}
             >
               {isListening ? <MicOff className="w-5 h-5" /> : <Mic className="w-5 h-5" />}
