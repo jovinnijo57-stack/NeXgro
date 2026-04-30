@@ -112,8 +112,8 @@ export default function Recipes() {
           <div className="flex-1 relative md:translate-x-12">
             <div className="w-[300px] h-[300px] md:w-[450px] md:h-[450px] rounded-full border-[12px] border-[#FFB800] overflow-hidden shadow-[0_0_50px_rgba(255,184,0,0.3)]">
               <img 
-                src="https://images.unsplash.com/photo-1513104890138-7c749659a591?auto=format&fit=crop&q=80&w=800" 
-                alt="Featured Recipe" 
+                src="/assets/banner3.jpg" 
+                alt="Chef's Corner Banner" 
                 className="w-full h-full object-cover"
               />
             </div>
@@ -125,24 +125,32 @@ export default function Recipes() {
       </div>
 
       <div className="max-w-7xl mx-auto px-4 space-y-12">
-        {/* Search */}
-        <div className="max-w-3xl mx-auto relative group">
-          <Search className="absolute left-6 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground group-focus-within:text-[#FFB800] transition-colors" />
-          <input
-            type="text"
-            placeholder="Search healthy recipes..."
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full bg-card border-2 border-border pl-14 pr-14 py-5 rounded-[2rem] text-sm font-bold shadow-xl focus:border-[#FFB800]/20 outline-none transition-all group-focus-within:ring-4 group-focus-within:ring-[#FFB800]/10"
-          />
+        <div className="flex flex-col sm:flex-row items-center gap-4">
+          <div className="flex-1 relative group w-full">
+            <Search className="absolute left-6 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground group-focus-within:text-[#FFB800] transition-colors" />
+            <input
+              type="text"
+              placeholder="Search healthy recipes..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="w-full bg-card border-2 border-border pl-14 pr-14 py-5 rounded-[2rem] text-sm font-bold shadow-xl focus:border-[#FFB800]/20 outline-none transition-all group-focus-within:ring-4 group-focus-within:ring-[#FFB800]/10"
+            />
+            <button
+              onClick={startListening}
+              className={cn(
+                "absolute right-3 top-1/2 -translate-y-1/2 p-3 rounded-2xl transition-all",
+                isListening ? "bg-destructive text-white animate-pulse" : "hover:bg-primary/10 text-primary"
+              )}
+            >
+              {isListening ? <MicOff className="w-5 h-5" /> : <Mic className="w-5 h-5" />}
+            </button>
+          </div>
           <button
-            onClick={startListening}
-            className={cn(
-              "absolute right-3 top-1/2 -translate-y-1/2 p-3 rounded-2xl transition-all",
-              isListening ? "bg-destructive text-white animate-pulse" : "hover:bg-primary/10 text-primary"
-            )}
+            onClick={() => navigate({ to: "/search" })}
+            className="shrink-0 bg-[#FFB800] text-black px-8 py-5 rounded-[2rem] font-black uppercase tracking-tighter hover:bg-[#FFB800]/90 transition-all shadow-xl active:scale-95 flex items-center gap-2"
           >
-            {isListening ? <MicOff className="w-5 h-5" /> : <Mic className="w-5 h-5" />}
+            <ShoppingCart className="w-5 h-5" />
+            Browse Products
           </button>
         </div>
 

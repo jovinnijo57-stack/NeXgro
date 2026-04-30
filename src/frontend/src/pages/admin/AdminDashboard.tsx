@@ -1199,7 +1199,7 @@ function RecipesView() {
                   <td className="px-4 py-3 text-xs">
                     <div className="flex gap-2">
                       <span className="bg-orange-100 text-orange-700 px-1.5 py-0.5 rounded">{r.calories}</span>
-                      <span className="bg-blue-100 text-blue-700 px-1.5 py-0.5 rounded">P: {r.protein}</span>
+                      <span className="bg-blue-100 text-blue-700 px-1.5 py-0.5 rounded">Protein: {r.protein}</span>
                     </div>
                   </td>
                   <td className="px-4 py-3">

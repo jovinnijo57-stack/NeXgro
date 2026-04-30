@@ -59,6 +59,28 @@ function enrichCartItem(item: CartItem): CartItem {
   return product ? { ...item, product } : item;
 }
 
+/**
+ * Hook to handle family join from URL params
+ */
+function useFamilyJoin() {
+  const qc = useQueryClient();
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const familyId = params.get("familyId");
+    if (familyId) {
+      const current = localStorage.getItem("nexgro_family_id");
+      if (current !== familyId) {
+        localStorage.setItem("nexgro_family_id", familyId);
+        qc.invalidateQueries({ queryKey: ["cart"] });
+        toast.success(`Joined family cart: ${familyId}`);
+        // Clean URL
+        const newUrl = window.location.pathname;
+        window.history.replaceState({}, "", newUrl);
+      }
+    }
+  }, [qc]);
+}
+
 // ─── Substitute modal ─────────────────────────────────────────────────────────
 
 function SubstituteModal({
@@ -370,6 +392,7 @@ function CartItemRow({
 // ─── Main cart page ───────────────────────────────────────────────────────────
 
 export default function Cart() {
+  useFamilyJoin();
   const { data: rawCart, isLoading } = useCart();
   const { data: coupons } = useAdminCoupons();
   const { data: loyaltyBalance } = useLoyaltyBalance();

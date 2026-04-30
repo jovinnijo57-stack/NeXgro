@@ -52,6 +52,16 @@ function useBackendActor() {
   return useActor(createActor);
 }
 
+function toBackendId(id: string): bigint {
+  // Strip non-digit prefixes like 'p' from IDs for backend compatibility
+  const num = id.replace(/^[a-zA-Z]+/, "");
+  try {
+    return BigInt(num);
+  } catch (e) {
+    return 0n;
+  }
+}
+
 // ─── Adapters ────────────────────────────────────────────────────────────────
 
 function adaptProduct(p: ProductPublic): Product {
@@ -319,9 +329,9 @@ export const STATIC_BXGY_RULES: BuyXGetYRule[] = [
   {
     id: "bxgy3",
     productId: "p4",
-    buyQty: 3,
+    buyQty: 2,
     getQty: 1,
-    name: "Buy 3 Get 1 Free on Whole Milk",
+    name: "Buy 2 Get 1 Free on Whole Milk",
   },
   {
     id: "bxgy4",
@@ -361,7 +371,7 @@ export function useProductById(id: string) {
     queryKey: ["product", id],
     queryFn: async () => {
       if (!actor) return null;
-      const result = await actor.getProductById(BigInt(id));
+      const result = await actor.getProductById(toBackendId(id));
       return result ? adaptProduct(result) : null;
     },
     enabled: !!actor && !isFetching && !!id,
@@ -486,7 +496,7 @@ export function useProductReviews(productId: string) {
       if (!actor) return localReviews;
       
       try {
-        const result = await actor.getProductReviews(BigInt(productId));
+        const result = await actor.getProductReviews(toBackendId(productId));
         const backendReviews = result.map(adaptReview);
         // Merge local and backend (avoid duplicates)
         const all = [...localReviews];
@@ -590,7 +600,7 @@ export function useAddToCart() {
       qty,
     }: { productId: string; qty: number }) => {
       if (!actor) return { productId, qty }; // Mock success
-      await actor.addToCart(BigInt(productId), BigInt(qty));
+      await actor.addToCart(toBackendId(productId), BigInt(qty));
     },
     onSuccess: (mockData) => {
       if (!actor && mockData) {
@@ -632,7 +642,7 @@ export function useRemoveFromCart() {
   return useMutation({
     mutationFn: async (productId: string) => {
       if (!actor) return productId;
-      await actor.removeFromCart(BigInt(productId));
+      await actor.removeFromCart(toBackendId(productId));
     },
     onSuccess: (mockProductId) => {
       if (!actor && mockProductId) {
@@ -659,7 +669,7 @@ export function useUpdateCartQty() {
       qty,
     }: { productId: string; qty: number }) => {
       if (!actor) return { productId, qty };
-      await actor.updateCartQty(BigInt(productId), BigInt(qty));
+      await actor.updateCartQty(toBackendId(productId), BigInt(qty));
     },
     onSuccess: (mockData) => {
       if (!actor && mockData) {
@@ -726,7 +736,7 @@ export function useAddToWishlist() {
         }
         return;
       }
-      await actor.addToWishlist(BigInt(productId));
+      await actor.addToWishlist(toBackendId(productId));
     },
     onSuccess: () => qc.invalidateQueries({ queryKey: ["wishlist"] }),
   });
@@ -743,7 +753,7 @@ export function useRemoveFromWishlist() {
         localStorage.setItem("nexgro_wishlist", JSON.stringify(updated));
         return;
       }
-      await actor.removeFromWishlist(BigInt(productId));
+      await actor.removeFromWishlist(toBackendId(productId));
     },
     onSuccess: () => qc.invalidateQueries({ queryKey: ["wishlist"] }),
   });
@@ -780,7 +790,7 @@ export function useOrderById(id: string) {
         const localOrders = JSON.parse(localStorage.getItem(ordersKey) || "[]");
         return localOrders.find((o: any) => o.id === id) || null;
       }
-      const result = await actor.getOrderById(BigInt(id));
+      const result = await actor.getOrderById(toBackendId(id));
       return result ? adaptOrder(result) : null;
     },
     enabled: true,
@@ -844,7 +854,7 @@ export function usePlaceOrder() {
         return { success: true, orderId };
       }
       const result = await actor.placeOrder(
-        BigInt(params.addressId),
+        toBackendId(params.addressId),
         params.couponCode ?? null,
         BigInt(params.loyaltyPointsToRedeem ?? 0),
         params.deliverySlot ?? null,
@@ -1011,7 +1021,7 @@ export function useUpdateAddress() {
       if (actor) {
         try {
           await actor.updateAddress(
-            BigInt(data.id),
+            toBackendId(data.id),
             data.street,
             data.city,
             data.state,
@@ -1039,7 +1049,7 @@ export function useDeleteAddress() {
     mutationFn: async (addressId: string) => {
       if (actor) {
         try {
-          await actor.deleteAddress(BigInt(addressId));
+          await actor.deleteAddress(toBackendId(addressId));
         } catch (err) {
           console.error("Backend deleteAddress failed", err);
         }
@@ -1060,7 +1070,7 @@ export function useSetDefaultAddress() {
     mutationFn: async (addressId: string) => {
       if (actor) {
         try {
-          await actor.setDefaultAddress(BigInt(addressId));
+          await actor.setDefaultAddress(toBackendId(addressId));
         } catch (err) {
           console.error("Backend setDefaultAddress failed", err);
         }
@@ -1137,7 +1147,7 @@ export function useSubmitReview() {
 
       if (actor) {
         try {
-          await actor.submitReview(BigInt(productId), BigInt(rating), title, text);
+          await actor.submitReview(toBackendId(productId), BigInt(rating), title, text);
         } catch (e) {
           console.error("Backend review submission failed", e);
         }
@@ -1314,7 +1324,7 @@ export function useDeleteFlashDeal() {
   return useMutation({
     mutationFn: async (id: string) => {
       if (!actor) throw new Error("Actor not initialized");
-      await actor.deleteFlashDeal(BigInt(id));
+      await actor.deleteFlashDeal(toBackendId(id));
     },
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["admin-flash-deals"] });
@@ -1414,7 +1424,7 @@ export function useCreateProduct() {
             data.name || "New Product",
             data.description || "",
             BigInt(Math.round((data.price || 0) * 100)),
-            BigInt(data.categoryId || "fruits"),
+            toBackendId(data.categoryId || "0"),
             data.imageUrl || "",
             BigInt(data.stockQty || 0),
             !!data.isFeatured,
@@ -1453,14 +1463,14 @@ export function useUpdateProduct() {
       if (actor) {
         try {
           // Fetch existing product to fill in missing fields for updateProduct call
-          const existingResult = await actor.getProductById(BigInt(data.id));
+          const existingResult = await actor.getProductById(toBackendId(data.id));
           if (existingResult) {
             await actor.updateProduct(
-              BigInt(data.id),
+              toBackendId(data.id),
               data.name ?? existingResult.name,
               data.description ?? existingResult.description,
               data.price !== undefined ? BigInt(Math.round(data.price * 100)) : existingResult.price,
-              data.categoryId ? BigInt(data.categoryId) : existingResult.categoryId,
+              data.categoryId ? toBackendId(data.categoryId) : existingResult.categoryId,
               data.imageUrl ?? existingResult.imageBlob,
               data.stockQty !== undefined ? BigInt(data.stockQty) : existingResult.stockQty,
               data.isActive ?? existingResult.isActive,
@@ -1498,7 +1508,7 @@ export function useDeleteProduct() {
         localStorage.setItem("nexgro_products", JSON.stringify(updated));
         return id;
       }
-      await actor.deleteProduct(BigInt(id));
+      await actor.deleteProduct(toBackendId(id));
     },
     onSuccess: () => qc.invalidateQueries({ queryKey: ["products"] }),
   });
@@ -1572,7 +1582,7 @@ export function useApproveReview() {
   return useMutation({
     mutationFn: async (id: string) => {
       if (!actor) return id;
-      await actor.approveReview(BigInt(id));
+      await actor.approveReview(toBackendId(id));
     },
     onSuccess: (id) => {
       if (!actor) {
@@ -1589,7 +1599,7 @@ export function useRejectReview() {
   return useMutation({
     mutationFn: async (id: string) => {
       if (!actor) return id;
-      await actor.rejectReview(BigInt(id));
+      await actor.rejectReview(toBackendId(id));
     },
     onSuccess: (id) => {
       if (!actor) {
@@ -2596,7 +2606,7 @@ export function useBundleById(id: string) {
       try {
         const fn = (actor as unknown as Record<string, unknown>)
           .getBundleById as ((id: bigint) => Promise<unknown>) | undefined;
-        const result = await fn?.(BigInt(id));
+        const result = await fn?.(toBackendId(id));
         return (result as Bundle) ?? null;
       } catch {
         return null;
@@ -2620,7 +2630,7 @@ export function useSubscribeStockNotification() {
           .subscribeToStockNotification as
           | ((id: bigint) => Promise<void>)
           | undefined;
-        await fn?.(BigInt(productId));
+        await fn?.(toBackendId(productId));
       } catch {
         // silently succeed for demo — method may not yet be in backend
       }
@@ -3157,7 +3167,7 @@ export function useGetProductsByIds(ids: string[]) {
     queryFn: async () => {
       if (!actor || ids.length === 0) return [];
       const results = await Promise.all(
-        ids.map((id) => actor.getProductById(BigInt(id))),
+        ids.map((id) => actor.getProductById(toBackendId(id))),
       );
       return results
         .filter(
