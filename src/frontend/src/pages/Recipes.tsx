@@ -93,19 +93,9 @@ export default function Recipes() {
   const remainingRecipes = filteredRecipes.slice(6);
 
   return (
-    <div className="min-h-screen bg-background pb-24">
-      {/* Optimized Rectangular Banner */}
-      <div className="max-w-7xl mx-auto px-4 mb-8">
-        <div className="w-full rounded-[1.5rem] md:rounded-[2rem] overflow-hidden shadow-xl border-2 border-[#FFB800] bg-[#111]">
-          <img 
-            src="/assets/banner3.jpg" 
-            alt="Chef's Corner Banner" 
-            className="w-full h-auto block"
-          />
-        </div>
-      </div>
-
-      <div className="max-w-7xl mx-auto px-4 space-y-12">
+    <div className="min-h-screen bg-background pb-24 pt-8">
+      <div className="max-w-7xl mx-auto px-4 space-y-8">
+        {/* Navigation & Search Bar at Top */}
         <div className="flex items-center gap-3">
           <button
             onClick={() => navigate({ to: "/home" })}
@@ -133,6 +123,15 @@ export default function Recipes() {
               {isListening ? <MicOff className="w-5 h-5" /> : <Mic className="w-5 h-5" />}
             </button>
           </div>
+        </div>
+
+        {/* Banner Image Below Search */}
+        <div className="w-full rounded-[1.5rem] md:rounded-[2rem] overflow-hidden shadow-xl border border-border bg-[#111]">
+          <img 
+            src="/assets/banner3.jpg" 
+            alt="Chef's Corner Banner" 
+            className="w-full h-auto block"
+          />
         </div>
 
         {/* Recipe Grid - First 6 */}
