@@ -203,10 +203,6 @@ export default function Recipes() {
               />
               <div className="absolute inset-0 bg-gradient-to-t from-background via-background/20 to-transparent" />
               <div className="absolute bottom-6 left-8 right-8">
-                <div className="flex items-center gap-2 mb-2">
-                  <Sparkles className="w-4 h-4 text-primary animate-pulse" />
-                  <span className="text-[10px] font-black uppercase tracking-[0.3em] text-primary">AI Culinary Analysis</span>
-                </div>
                 <h2 className="text-4xl font-black tracking-tighter text-foreground uppercase italic leading-none">
                   {selectedRecipeForAnalysis.title}
                 </h2>
@@ -253,17 +249,6 @@ export default function Recipes() {
               </div>
             </div>
             
-            <div className="p-6 bg-muted/30 border-t border-border mt-auto">
-              <button
-                onClick={() => {
-                  handleAddToCart(selectedRecipeForAnalysis);
-                  setSelectedRecipeForAnalysis(null);
-                }}
-                className="w-full bg-[#007000] text-white py-5 rounded-[1.5rem] font-black uppercase tracking-widest shadow-xl hover:opacity-90 active:scale-[0.98] transition-all flex items-center justify-center gap-2"
-              >
-                <Plus className="w-5 h-5" /> Add All to Cart
-              </button>
-            </div>
           </div>
         </div>
       )}
@@ -354,8 +339,16 @@ function RecipeCard({ recipe, adding, handleAddToCart, handleAddToMealPlan, onAn
           >
             <Sparkles className="w-5 h-5" />
           </button>
-          <div className="relative group/cal">
+          <div className="relative">
             <button
+              onClick={(e) => {
+                const input = (e.currentTarget.nextElementSibling as HTMLInputElement);
+                if (input && 'showPicker' in input) {
+                  input.showPicker();
+                } else if (input) {
+                  input.click();
+                }
+              }}
               className="w-12 h-12 bg-white border-2 border-border text-foreground rounded-2xl flex items-center justify-center hover:border-[#007000] hover:text-[#007000] active:scale-95 transition-all"
               title="Plan for a Specific Date"
             >
@@ -363,7 +356,7 @@ function RecipeCard({ recipe, adding, handleAddToCart, handleAddToMealPlan, onAn
             </button>
             <input 
               type="date"
-              className="absolute inset-0 opacity-0 cursor-pointer"
+              className="absolute inset-0 opacity-0 pointer-events-none"
               onChange={(e) => {
                 if (e.target.value) handleAddToMealPlan(recipe, e.target.value);
               }}
