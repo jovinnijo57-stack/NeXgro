@@ -87,10 +87,13 @@ export default function Register() {
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     
-    // Check if any field is empty
-    const allFieldsFilled = Object.values(form).every(val => val.trim() !== "");
-    if (!allFieldsFilled) {
-      toast.error("Please fill every detail to register");
+    // Check if required fields are filled (referral is optional)
+    const requiredFields = { ...form };
+    delete (requiredFields as any).referral;
+    const allRequiredFilled = Object.values(requiredFields).every(val => val.trim() !== "");
+    
+    if (!allRequiredFilled) {
+      toast.error("Please fill every required detail to register");
       setErrors(validate());
       return;
     }
