@@ -40,7 +40,17 @@ export default function MealPlannerPage() {
   // Deriving week
   const today = new Date();
   const startOfWeek = new Date(today);
-  startOfWeek.setDate(today.getDate() - (today.getDay() === 0 ? 6 : today.getDay() - 1)); // Correct Monday
+  const day = today.getDay();
+  const diff = today.getDate() - day + (day === 0 ? -6 : 1); // adjust when day is sunday
+  startOfWeek.setDate(diff);
+
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const dateParam = params.get("date");
+    if (dateParam) {
+      setSelectedDate(dateParam);
+    }
+  }, []);
 
   const handleDayClick = (dayIndex: number) => {
     const date = new Date(startOfWeek);
@@ -101,6 +111,7 @@ export default function MealPlannerPage() {
         }
       }
       toast.success(`Ingredients for "${recipe.title || recipe.name}" added to cart! 🛒`);
+      navigate({ to: "/cart" });
     } catch {
       toast.error("Failed to add ingredients.");
     } finally {
