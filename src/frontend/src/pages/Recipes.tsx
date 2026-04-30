@@ -71,9 +71,9 @@ export default function Recipes() {
     }
   };
 
-  const handleAddToMealPlan = (recipe: Recipe) => {
+  const handleAddToMealPlan = (recipe: Recipe, selectedDate?: string) => {
     const today = new Date();
-    const dateStr = [today.getFullYear(), String(today.getMonth() + 1).padStart(2, '0'), String(today.getDate()).padStart(2, '0')].join('-');
+    const dateStr = selectedDate || [today.getFullYear(), String(today.getMonth() + 1).padStart(2, '0'), String(today.getDate()).padStart(2, '0')].join('-');
     
     const newPlan = {
       id: Date.now().toString(),
@@ -85,7 +85,7 @@ export default function Recipes() {
     const existing = JSON.parse(localStorage.getItem("nexgro_meal_plans") || "[]");
     localStorage.setItem("nexgro_meal_plans", JSON.stringify([...existing, newPlan]));
     qc.invalidateQueries({ queryKey: ["meal-plans"] });
-    toast.success(`"${recipe.title}" added to your Meal Plan for today! 📅`);
+    toast.success(`"${recipe.title}" added to your Meal Plan for ${dateStr}! 📅`);
     navigate({ to: "/meal-planner" });
   };
 
@@ -328,17 +328,10 @@ function RecipeCard({ recipe, adding, handleAddToCart, handleAddToMealPlan }: {
 
         <div className="flex gap-2 pt-2">
           <button
-            onClick={() => handleAddToCart(recipe)}
-            disabled={adding === recipe.id + "-cart"}
+            onClick={() => handleAddToMealPlan(recipe)}
             className="flex-1 bg-[#007000] text-white h-12 rounded-2xl text-[10px] font-black uppercase tracking-widest shadow-lg shadow-[#007000]/20 hover:opacity-90 active:scale-95 transition-all flex items-center justify-center gap-2"
           >
-            {adding === recipe.id + "-cart" ? (
-              <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-            ) : (
-              <>
-                <ShoppingCart className="w-4 h-4" /> Add Ingredients
-              </>
-            )}
+            <Calendar className="w-4 h-4" /> Add to Meal Planner
           </button>
           <button
             onClick={() => setSelectedRecipeForAnalysis(recipe)}
@@ -347,13 +340,21 @@ function RecipeCard({ recipe, adding, handleAddToCart, handleAddToMealPlan }: {
           >
             <Sparkles className="w-5 h-5" />
           </button>
-          <button
-            onClick={() => handleAddToMealPlan(recipe)}
-            className="w-12 h-12 bg-white border-2 border-border text-foreground rounded-2xl flex items-center justify-center hover:border-[#007000] hover:text-[#007000] active:scale-95 transition-all"
-            title="Add to Meal Plan"
-          >
-            <Calendar className="w-5 h-5" />
-          </button>
+          <div className="relative group/cal">
+            <button
+              className="w-12 h-12 bg-white border-2 border-border text-foreground rounded-2xl flex items-center justify-center hover:border-[#007000] hover:text-[#007000] active:scale-95 transition-all"
+              title="Plan for a Specific Date"
+            >
+              <Plus className="w-5 h-5" />
+            </button>
+            <input 
+              type="date"
+              className="absolute inset-0 opacity-0 cursor-pointer"
+              onChange={(e) => {
+                if (e.target.value) handleAddToMealPlan(recipe, e.target.value);
+              }}
+            />
+          </div>
         </div>
       </div>
     </div>
