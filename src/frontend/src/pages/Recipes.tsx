@@ -181,25 +181,32 @@ export default function Recipes() {
             onClick={() => setSelectedRecipeForAnalysis(null)}
           />
           <div className="relative bg-background w-full max-w-2xl max-h-[90vh] overflow-hidden rounded-[3rem] shadow-2xl border border-border flex flex-col">
-            <div className="p-8 overflow-y-auto">
-              <div className="flex items-start justify-between mb-8">
-                <div className="flex items-center gap-4">
-                  <div className="w-16 h-16 bg-primary/10 rounded-3xl flex items-center justify-center">
-                    <Sparkles className="w-8 h-8 text-primary" />
-                  </div>
-                  <div>
-                    <h2 className="text-3xl font-black tracking-tighter text-foreground uppercase italic">AI Analysis</h2>
-                    <p className="text-muted-foreground font-bold">{selectedRecipeForAnalysis.title}</p>
-                  </div>
+            {/* Modal Hero Header */}
+            <div className="relative h-64 shrink-0">
+              <img 
+                src={selectedRecipeForAnalysis.image} 
+                alt={selectedRecipeForAnalysis.title}
+                className="w-full h-full object-cover"
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-background via-background/20 to-transparent" />
+              <div className="absolute bottom-6 left-8 right-8">
+                <div className="flex items-center gap-2 mb-2">
+                  <Sparkles className="w-4 h-4 text-primary animate-pulse" />
+                  <span className="text-[10px] font-black uppercase tracking-[0.3em] text-primary">AI Culinary Analysis</span>
                 </div>
-                <button 
-                  onClick={() => setSelectedRecipeForAnalysis(null)}
-                  className="p-3 hover:bg-muted rounded-full transition-all"
-                >
-                  <X className="w-6 h-6" />
-                </button>
+                <h2 className="text-4xl font-black tracking-tighter text-foreground uppercase italic leading-none">
+                  {selectedRecipeForAnalysis.title}
+                </h2>
               </div>
+              <button 
+                onClick={() => setSelectedRecipeForAnalysis(null)}
+                className="absolute top-6 right-6 p-3 bg-black/20 hover:bg-black/40 text-white backdrop-blur-md rounded-full transition-all z-10"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
 
+            <div className="p-8 overflow-y-auto flex-1">
               <div className="space-y-8 pb-8">
                 <div>
                   <h3 className="text-xs font-black uppercase tracking-[0.2em] text-primary mb-4 flex items-center gap-2">
@@ -232,6 +239,7 @@ export default function Recipes() {
                 </div>
               </div>
             </div>
+            
             <div className="p-6 bg-muted/30 border-t border-border mt-auto">
               <button
                 onClick={() => {
@@ -318,36 +326,34 @@ function RecipeCard({ recipe, adding, handleAddToCart, handleAddToMealPlan }: {
           </div>
         </div>
 
-        <div className="flex flex-col gap-2 pt-2">
+        <div className="flex gap-2 pt-2">
+          <button
+            onClick={() => handleAddToCart(recipe)}
+            disabled={adding === recipe.id + "-cart"}
+            className="flex-1 bg-[#007000] text-white h-12 rounded-2xl text-[10px] font-black uppercase tracking-widest shadow-lg shadow-[#007000]/20 hover:opacity-90 active:scale-95 transition-all flex items-center justify-center gap-2"
+          >
+            {adding === recipe.id + "-cart" ? (
+              <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+            ) : (
+              <>
+                <ShoppingCart className="w-4 h-4" /> Add Ingredients
+              </>
+            )}
+          </button>
           <button
             onClick={() => setSelectedRecipeForAnalysis(recipe)}
-            className="w-full bg-primary/10 text-primary py-3 rounded-2xl text-[10px] font-black uppercase tracking-widest hover:bg-primary hover:text-white transition-all flex items-center justify-center gap-2 border-2 border-primary/20"
+            className="w-12 h-12 bg-primary/10 text-primary rounded-2xl flex items-center justify-center hover:bg-primary hover:text-white active:scale-95 transition-all border-2 border-primary/20"
+            title="Analyse with AI"
           >
-            <Sparkles className="w-3.5 h-3.5" /> Analyse with AI
+            <Sparkles className="w-5 h-5" />
           </button>
-          
-          <div className="flex gap-2">
-            <button
-              onClick={() => handleAddToCart(recipe)}
-              disabled={adding === recipe.id + "-cart"}
-              className="flex-1 bg-[#007000] text-white h-12 rounded-2xl text-[10px] font-black uppercase tracking-widest shadow-lg shadow-[#007000]/20 hover:opacity-90 active:scale-95 transition-all flex items-center justify-center gap-2"
-            >
-              {adding === recipe.id + "-cart" ? (
-                <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-              ) : (
-                <>
-                  <ShoppingCart className="w-4 h-4" /> Add Ingredients
-                </>
-              )}
-            </button>
-            <button
-              onClick={() => handleAddToMealPlan(recipe)}
-              className="w-12 h-12 bg-white border-2 border-border text-foreground rounded-2xl flex items-center justify-center hover:border-[#007000] hover:text-[#007000] active:scale-95 transition-all"
-              title="Add to Meal Plan"
-            >
-              <Calendar className="w-5 h-5" />
-            </button>
-          </div>
+          <button
+            onClick={() => handleAddToMealPlan(recipe)}
+            className="w-12 h-12 bg-white border-2 border-border text-foreground rounded-2xl flex items-center justify-center hover:border-[#007000] hover:text-[#007000] active:scale-95 transition-all"
+            title="Add to Meal Plan"
+          >
+            <Calendar className="w-5 h-5" />
+          </button>
         </div>
       </div>
     </div>
