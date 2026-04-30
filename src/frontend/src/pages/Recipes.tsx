@@ -193,70 +193,103 @@ export default function Recipes() {
       {selectedRecipeForAnalysis && (
         <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
           <div 
-            className="absolute inset-0 bg-black/60 backdrop-blur-sm"
+            className="absolute inset-0 bg-black/40 backdrop-blur-md transition-all duration-500"
             onClick={() => setSelectedRecipeForAnalysis(null)}
           />
-          <div className="relative bg-background w-full max-w-2xl max-h-[90vh] overflow-hidden rounded-[3rem] shadow-2xl border border-border flex flex-col">
+          <div className="relative bg-background/95 backdrop-blur-xl w-full max-w-2xl max-h-[90vh] overflow-hidden rounded-[3rem] shadow-2xl border border-white/20 flex flex-col animate-in fade-in zoom-in duration-300">
+            {/* Header with Gradient */}
+            <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-[#007000] to-transparent opacity-50" />
+            
             <div className="p-8 overflow-y-auto">
-              <div className="flex items-start justify-between mb-8">
-                <div className="flex items-center gap-4">
-                  <div className="w-16 h-16 bg-[#007000]/10 rounded-3xl flex items-center justify-center">
-                    <Sparkles className="w-8 h-8 text-[#007000]" />
+              <div className="flex items-start justify-between mb-10">
+                <div className="flex items-center gap-5">
+                  <div className="relative">
+                    <div className="absolute -inset-1 bg-[#007000] rounded-full blur opacity-25 animate-pulse" />
+                    <div className="relative w-16 h-16 bg-[#007000] rounded-[2rem] flex items-center justify-center shadow-lg">
+                      <Sparkles className="w-8 h-8 text-white animate-pulse" />
+                    </div>
                   </div>
                   <div>
-                    <h2 className="text-3xl font-black tracking-tighter text-foreground uppercase italic">AI Analysis</h2>
-                    <p className="text-muted-foreground font-bold">{selectedRecipeForAnalysis.title}</p>
+                    <h2 className="text-4xl font-black tracking-tighter text-foreground uppercase italic leading-none mb-1">AI Intelligence</h2>
+                    <div className="flex items-center gap-2">
+                      <div className="w-2 h-2 rounded-full bg-[#007000] animate-ping" />
+                      <p className="text-[#007000] font-black uppercase tracking-widest text-[10px]">{selectedRecipeForAnalysis.title}</p>
+                    </div>
                   </div>
                 </div>
                 <button 
                   onClick={() => setSelectedRecipeForAnalysis(null)}
-                  className="p-3 hover:bg-muted rounded-full transition-all"
+                  className="w-12 h-12 bg-muted/50 hover:bg-muted rounded-2xl flex items-center justify-center transition-all shadow-sm active:scale-90"
                 >
                   <X className="w-6 h-6" />
                 </button>
               </div>
 
-              <div className="space-y-8 pb-8">
-                <div>
-                  <h3 className="text-xs font-black uppercase tracking-[0.2em] text-[#007000] mb-4 flex items-center gap-2">
-                    <ShoppingCart className="w-4 h-4" /> Required Products
-                  </h3>
+              <div className="space-y-10 pb-8">
+                <section>
+                  <div className="flex items-center gap-3 mb-6">
+                    <div className="w-8 h-8 bg-[#007000]/10 rounded-xl flex items-center justify-center">
+                      <ShoppingCart className="w-4 h-4 text-[#007000]" />
+                    </div>
+                    <h3 className="text-xs font-black uppercase tracking-[0.3em] text-muted-foreground">Required Inventory</h3>
+                  </div>
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                     {selectedRecipeForAnalysis.ingredients.map((ing, i) => (
-                      <div key={i} className="flex items-center gap-3 bg-muted/30 p-4 rounded-2xl border border-border/50">
-                        <CheckCircle2 className="w-4 h-4 text-[#007000] shrink-0" />
-                        <span className="text-sm font-bold">{ing.name} ({ing.qty} unit)</span>
+                      <div 
+                        key={i} 
+                        className="flex items-center justify-between bg-muted/30 p-5 rounded-[1.5rem] border border-border/50 hover:border-[#007000]/30 transition-all group"
+                      >
+                        <div className="flex items-center gap-3">
+                          <div className="w-2 h-2 rounded-full bg-[#007000] opacity-50 group-hover:opacity-100 transition-opacity" />
+                          <span className="text-sm font-bold text-foreground/80">{ing.name}</span>
+                        </div>
+                        <span className="text-[10px] font-black uppercase tracking-widest text-[#007000] bg-[#007000]/10 px-2 py-1 rounded-lg">
+                          {ing.qty} Unit
+                        </span>
                       </div>
                     ))}
                   </div>
-                </div>
+                </section>
 
-                <div>
-                  <h3 className="text-xs font-black uppercase tracking-[0.2em] text-[#007000] mb-4 flex items-center gap-2">
-                    <ChefHat className="w-4 h-4" /> Preparation Steps
-                  </h3>
-                  <div className="space-y-4">
+                <section>
+                  <div className="flex items-center gap-3 mb-6">
+                    <div className="w-8 h-8 bg-[#007000]/10 rounded-xl flex items-center justify-center">
+                      <ChefHat className="w-4 h-4 text-[#007000]" />
+                    </div>
+                    <h3 className="text-xs font-black uppercase tracking-[0.3em] text-muted-foreground">Preparation Algorithm</h3>
+                  </div>
+                  <div className="space-y-6">
                     {selectedRecipeForAnalysis.instructions.map((step, i) => (
-                      <div key={i} className="flex gap-4 group">
-                        <div className="shrink-0 w-8 h-8 bg-card border-2 border-border rounded-xl flex items-center justify-center text-xs font-black text-muted-foreground group-hover:border-[#007000] group-hover:text-[#007000] transition-all">
+                      <div key={i} className="flex gap-6 group relative">
+                        {i < selectedRecipeForAnalysis.instructions.length - 1 && (
+                          <div className="absolute left-4 top-10 bottom-[-1.5rem] w-px bg-border group-hover:bg-[#007000]/30 transition-colors" />
+                        )}
+                        <div className="shrink-0 w-9 h-9 bg-card border-2 border-border rounded-2xl flex items-center justify-center text-xs font-black text-[#007000] shadow-sm group-hover:border-[#007000] group-hover:bg-[#007000] group-hover:text-white transition-all duration-300">
                           {i + 1}
                         </div>
-                        <p className="text-sm font-medium leading-relaxed text-foreground pt-1.5">{step}</p>
+                        <div className="pt-2">
+                          <p className="text-sm font-medium leading-relaxed text-foreground/80 group-hover:text-foreground transition-colors">{step}</p>
+                        </div>
                       </div>
                     ))}
                   </div>
-                </div>
+                </section>
               </div>
             </div>
-            <div className="p-6 bg-muted/30 border-t border-border mt-auto">
+
+            <div className="p-8 bg-muted/30 backdrop-blur-md border-t border-border mt-auto">
               <button
                 onClick={() => {
                   handleAddToCart(selectedRecipeForAnalysis);
                   setSelectedRecipeForAnalysis(null);
                 }}
-                className="w-full bg-[#007000] text-white py-5 rounded-[1.5rem] font-black uppercase tracking-widest shadow-xl hover:opacity-90 active:scale-[0.98] transition-all flex items-center justify-center gap-2"
+                className="w-full bg-[#007000] text-white py-6 rounded-[2rem] font-black uppercase tracking-[0.2em] shadow-xl shadow-[#007000]/20 hover:opacity-90 active:scale-[0.98] transition-all flex items-center justify-center gap-3 group"
               >
-                <Plus className="w-5 h-5" /> Add All to Cart
+                <div className="relative">
+                  <div className="absolute -inset-2 bg-white/20 rounded-full blur opacity-0 group-hover:opacity-100 transition-opacity" />
+                  <Plus className="w-6 h-6 relative" />
+                </div>
+                Assemble to Cart
               </button>
             </div>
           </div>
