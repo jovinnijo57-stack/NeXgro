@@ -3419,6 +3419,8 @@ export function useMealPlans() {
       } catch {}
       return [];
     },
+    staleTime: 0,
+    refetchOnMount: true,
     initialData: [],
   });
 }

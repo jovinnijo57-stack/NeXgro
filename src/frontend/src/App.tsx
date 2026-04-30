@@ -414,6 +414,11 @@ const walletRoute = createRoute({
 const recipesRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: "/recipes",
+  validateSearch: (search: Record<string, unknown>) => {
+    return {
+      date: (search.date as string) || undefined,
+    };
+  },
   component: () => (
     <AuthGuard>
       <Layout>

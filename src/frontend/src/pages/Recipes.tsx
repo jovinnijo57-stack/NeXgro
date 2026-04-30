@@ -88,7 +88,11 @@ export default function Recipes() {
     };
 
     const existing = JSON.parse(localStorage.getItem("nexgro_meal_plans") || "[]");
-    localStorage.setItem("nexgro_meal_plans", JSON.stringify([...existing, newPlan]));
+    const newPlans = [...existing, newPlan];
+    localStorage.setItem("nexgro_meal_plans", JSON.stringify(newPlans));
+    
+    // Immediate query update for instant feedback
+    qc.setQueryData(["meal-plans"], newPlans);
     qc.invalidateQueries({ queryKey: ["meal-plans"] });
     toast.success(`"${recipe.title}" added to your Meal Plan for ${dateStr}! 📅`);
     navigate({ to: "/meal-planner" });
