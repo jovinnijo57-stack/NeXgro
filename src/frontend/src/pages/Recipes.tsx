@@ -253,18 +253,6 @@ export default function Recipes() {
         </div>
       )}
 
-      <style dangerouslySetInnerHTML={{ __html: `
-        @keyframes marquee {
-          0% { transform: translateX(0); }
-          100% { transform: translateX(-50%); }
-        }
-        .animate-marquee {
-          animation: marquee 40s linear infinite;
-        }
-        .pause-marquee:hover {
-          animation-play-state: paused;
-        }
-      ` }} />
     </div>
   );
 }
