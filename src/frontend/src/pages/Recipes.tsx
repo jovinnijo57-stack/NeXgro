@@ -19,7 +19,6 @@ export default function Recipes() {
   const [selectedRecipe, setSelectedRecipe] = useState<Recipe | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
-
   const filteredRecipes = useMemo(() => {
     return recipes;
   }, [recipes]);
@@ -61,13 +60,13 @@ export default function Recipes() {
 
   return (
     <div className="min-h-screen bg-background pb-24">
-      {/* Simple Banner Image */}
+      {/* Simple Rectangular Banner Image */}
       <div className="max-w-7xl mx-auto px-4 mb-8">
-        <div className="w-full rounded-[2.5rem] overflow-hidden shadow-2xl border-4 border-[#FFB800]">
+        <div className="w-full overflow-hidden shadow-lg rounded-xl">
           <img 
             src="/assets/banner3.jpg" 
             alt="Chef's Corner Banner" 
-            className="w-full h-auto object-cover"
+            className="w-full h-auto block"
           />
         </div>
       </div>
@@ -102,28 +101,6 @@ export default function Recipes() {
           ))}
         </div>
 
-        {/* Moving Photos Section (Infinite Scroll Gallery) */}
-        {filteredRecipes.length > 3 && (
-          <div className="py-8 space-y-6">
-            <div className="flex items-center justify-between">
-              <h2 className="text-xl font-black uppercase tracking-widest text-muted-foreground">Trending Now</h2>
-              <div className="h-px flex-1 mx-6 bg-border" />
-            </div>
-            <div className="relative overflow-hidden group">
-              <div className="flex gap-4 animate-marquee hover:pause-marquee py-2">
-                {[...ALL_RECIPES, ...ALL_RECIPES].map((r, i) => (
-                  <div key={`${r.id}-${i}`} className="w-64 h-44 rounded-3xl overflow-hidden shrink-0 shadow-lg border border-border group/img relative">
-                    <img src={r.image} alt={r.title} className="w-full h-full object-cover transition-transform duration-700 group-hover/img:scale-110" />
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover/img:opacity-100 transition-opacity flex items-end p-4">
-                      <p className="text-white text-xs font-black uppercase tracking-widest">{r.title}</p>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-          </div>
-        )}
-
         {/* Remaining Recipes */}
         {remainingRecipes.length > 0 && (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 pt-8">
@@ -153,25 +130,37 @@ export default function Recipes() {
           100% { transform: translateX(-50%); }
         }
         .animate-marquee {
-          animation: marquee 40s linear infinite;
+          display: flex;
+          animation: marquee 30s linear infinite;
         }
-        .pause-marquee:hover {
-          animation-play-state: paused;
+        .custom-scrollbar::-webkit-scrollbar {
+          width: 6px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+          background: transparent;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+          background: #eee;
+          border-radius: 10px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+          background: #ddd;
         }
       `}</style>
     </div>
   );
 }
 
-function RecipeCard({ recipe, adding, handleAddToCart, handleAddToMealPlan }: { 
+function RecipeCard({ recipe, adding, handleAddToCart, handleAddToMealPlan, onAnalyze }: { 
   recipe: Recipe; 
   adding: string | null; 
   handleAddToCart: (r: Recipe) => void;
   handleAddToMealPlan: (r: Recipe) => void;
+  onAnalyze: (r: Recipe) => void;
 }) {
   return (
-    <div className="bg-card border border-border rounded-[2.5rem] overflow-hidden shadow-sm hover:shadow-xl transition-all group">
-      <div className="aspect-[4/3] relative overflow-hidden">
+    <div className="group bg-card rounded-[2rem] border-2 border-border overflow-hidden hover:border-primary/20 hover:shadow-2xl transition-all duration-500">
+      <div className="relative aspect-[4/3] overflow-hidden">
         <img 
           src={recipe.image} 
           alt={recipe.title} 
