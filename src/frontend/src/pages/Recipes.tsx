@@ -111,19 +111,19 @@ export default function Recipes() {
             <ArrowLeft className="w-6 h-6" />
           </button>
           <div className="flex-1 relative group">
-            <Search className="absolute left-6 top-1/2 -translate-y-1/2 w-5 h-5 text-[#007000] group-focus-within:scale-110 transition-transform" />
+            <Search className="absolute left-6 top-1/2 -translate-y-1/2 w-5 h-5 text-[#006400] group-focus-within:scale-110 transition-transform" />
             <input
               type="text"
               placeholder="Search groceries, essentials..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full bg-[#f4faf4] border-2 border-[#007000]/10 pl-14 pr-14 py-5 rounded-full text-sm font-bold shadow-[0_4px_20px_rgba(0,112,0,0.03)] focus:border-[#007000]/30 focus:bg-white outline-none transition-all group-focus-within:ring-4 group-focus-within:ring-[#007000]/5"
+              className="w-full bg-[#f8fbf8] border-2 border-[#d3e6d3] pl-16 pr-16 py-4.5 rounded-full text-sm font-semibold placeholder:text-[#8ba38b] shadow-[0_2px_10px_rgba(0,100,0,0.02)] focus:border-[#006400]/40 focus:bg-white outline-none transition-all group-focus-within:ring-4 group-focus-within:ring-[#006400]/5"
             />
             <button
               onClick={startListening}
               className={cn(
-                "absolute right-4 top-1/2 -translate-y-1/2 p-2.5 rounded-full transition-all",
-                isListening ? "bg-destructive text-white animate-pulse" : "text-[#007000] hover:bg-[#007000]/5"
+                "absolute right-5 top-1/2 -translate-y-1/2 p-2 rounded-full transition-all",
+                isListening ? "bg-destructive text-white animate-pulse" : "text-[#006400] hover:bg-[#006400]/5"
               )}
             >
               {isListening ? <MicOff className="w-5 h-5" /> : <Mic className="w-5 h-5" />}
