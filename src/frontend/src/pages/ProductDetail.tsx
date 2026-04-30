@@ -231,8 +231,8 @@ export default function ProductDetail() {
   }, [allProducts, product.categoryId, product.id]);
 
   const reviews: Review[] = useMemo(() => {
-    // apiReviews will contain both backend and local reviews from our hook
-    const base = (apiReviews && apiReviews.length > 0) ? apiReviews : SAMPLE_REVIEWS;
+    const base =
+      apiReviews && apiReviews.length > 0 ? apiReviews : SAMPLE_REVIEWS;
     if (reviewFilter > 0) return base.filter((r) => r.rating === reviewFilter);
     return base;
   }, [apiReviews, reviewFilter]);

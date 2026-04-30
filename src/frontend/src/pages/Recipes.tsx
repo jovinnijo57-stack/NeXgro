@@ -94,62 +94,51 @@ export default function Recipes() {
 
   return (
     <div className="min-h-screen bg-background pb-24">
-      <div className="max-w-7xl mx-auto px-4 py-8 space-y-10">
-        {/* Navigation & Search (Moved Above Banner) */}
-        <div className="flex items-center gap-3">
-          <button
-            onClick={() => navigate({ to: "/home" })}
-            className="shrink-0 w-14 h-14 bg-white border border-black/5 rounded-[1.25rem] flex items-center justify-center text-[#333] hover:bg-muted transition-all shadow-sm active:scale-95"
-            title="Back to Home"
-          >
-            <ArrowLeft className="w-6 h-6" />
-          </button>
-          <div className="flex-1 bg-[#f2f8f2] p-1.5 rounded-[3rem] shadow-sm group transition-all focus-within:shadow-md">
-            <div className="relative bg-white border border-[#e2ede2] rounded-[2.5rem] flex items-center">
-              <Search className="absolute left-6 w-5 h-5 text-[#007000] transition-colors" />
-              <input
-                type="text"
-                placeholder="Search groceries, essentials..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full bg-transparent pl-14 pr-16 py-4 text-sm font-bold text-foreground outline-none placeholder:text-muted-foreground/50 transition-all"
-              />
-              <div className="absolute right-3 flex items-center gap-1">
-                <button
-                  onClick={startListening}
-                  className={cn(
-                    "p-2.5 rounded-full transition-all",
-                    isListening ? "bg-destructive text-white animate-pulse" : "text-[#007000] hover:bg-[#007000]/10"
-                  )}
-                  title="Voice Search"
-                >
-                  {isListening ? <MicOff className="w-5 h-5" /> : <Mic className="w-5 h-5" />}
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* Banner Image */}
-        <div className="w-full relative overflow-hidden rounded-[1.5rem] sm:rounded-[2.5rem] shadow-2xl">
+      {/* Optimized Rectangular Banner */}
+      <div className="max-w-7xl mx-auto px-4 mb-8">
+        <div className="w-full rounded-[1.5rem] md:rounded-[2rem] overflow-hidden shadow-xl border-2 border-[#FFB800] bg-[#111]">
           <img 
             src="/assets/banner3.jpg" 
             alt="Chef's Corner Banner" 
             className="w-full h-auto block"
           />
         </div>
+      </div>
+
+      <div className="max-w-7xl mx-auto px-4 space-y-12">
+        <div className="flex items-center gap-3">
+          <button
+            onClick={() => navigate({ to: "/home" })}
+            className="shrink-0 w-14 h-14 bg-card border-2 border-border rounded-2xl flex items-center justify-center text-muted-foreground hover:text-primary hover:border-primary transition-all shadow-xl active:scale-95"
+            title="Back to Home"
+          >
+            <ArrowLeft className="w-6 h-6" />
+          </button>
+          <div className="flex-1 relative group">
+            <Search className="absolute left-6 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground group-focus-within:text-[#FFB800] transition-colors" />
+            <input
+              type="text"
+              placeholder="Search healthy recipes..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="w-full bg-card border-2 border-border pl-14 pr-14 py-5 rounded-[2rem] text-sm font-bold shadow-xl focus:border-[#FFB800]/20 outline-none transition-all group-focus-within:ring-4 group-focus-within:ring-[#FFB800]/10"
+            />
+            <button
+              onClick={startListening}
+              className={cn(
+                "absolute right-3 top-1/2 -translate-y-1/2 p-3 rounded-2xl transition-all",
+                isListening ? "bg-destructive text-white animate-pulse" : "hover:bg-primary/10 text-primary"
+              )}
+            >
+              {isListening ? <MicOff className="w-5 h-5" /> : <Mic className="w-5 h-5" />}
+            </button>
+          </div>
+        </div>
 
         {/* Recipe Grid - First 6 */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
           {firstSixRecipes.map((recipe) => (
-            <RecipeCard 
-              key={recipe.id} 
-              recipe={recipe} 
-              adding={adding} 
-              handleAddToCart={handleAddToCart} 
-              handleAddToMealPlan={handleAddToMealPlan} 
-              onAnalyse={setSelectedRecipeForAnalysis}
-            />
+            <RecipeCard key={recipe.id} recipe={recipe} adding={adding} handleAddToCart={handleAddToCart} handleAddToMealPlan={handleAddToMealPlan} />
           ))}
         </div>
 
@@ -179,156 +168,112 @@ export default function Recipes() {
         {remainingRecipes.length > 0 && (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 pt-8">
             {remainingRecipes.map((recipe) => (
-              <RecipeCard 
-                key={recipe.id} 
-                recipe={recipe} 
-                adding={adding} 
-                handleAddToCart={handleAddToCart} 
-                handleAddToMealPlan={handleAddToMealPlan} 
-                onAnalyse={setSelectedRecipeForAnalysis}
-              />
+              <RecipeCard key={recipe.id} recipe={recipe} adding={adding} handleAddToCart={handleAddToCart} handleAddToMealPlan={handleAddToMealPlan} />
             ))}
           </div>
         )}
       </div>
 
+      <style>{`
+        @keyframes marquee {
+          0% { transform: translateX(0); }
+          100% { transform: translateX(-50%); }
+        }
       {/* Recipe Analysis Modal */}
-      {/* Recipe Analysis Modal - Professional Premium Model */}
       {selectedRecipeForAnalysis && (
         <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
           <div 
-            className="absolute inset-0 bg-black/60 backdrop-blur-xl transition-all duration-700"
+            className="absolute inset-0 bg-black/60 backdrop-blur-sm"
             onClick={() => setSelectedRecipeForAnalysis(null)}
           />
-          <div className="relative bg-background w-full max-w-4xl max-h-[90vh] overflow-hidden rounded-[2.5rem] shadow-[0_0_50px_rgba(0,0,0,0.3)] border border-white/10 flex flex-col md:flex-row animate-in fade-in zoom-in duration-500">
-            {/* Left Side: Recipe Visual & Action */}
-            <div className="w-full md:w-2/5 relative overflow-hidden bg-muted group">
-              <img 
-                src={selectedRecipeForAnalysis.image} 
-                alt={selectedRecipeForAnalysis.title} 
-                className="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-105"
-              />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent p-8 flex flex-col justify-end">
-                <div className="space-y-4">
-                  <div className="flex gap-2">
-                    <span className="bg-[#007000] text-white text-[10px] font-black px-3 py-1 rounded-full uppercase tracking-widest shadow-lg">
-                      {selectedRecipeForAnalysis.category}
-                    </span>
-                    <span className="bg-white/20 backdrop-blur-md text-white text-[10px] font-black px-3 py-1 rounded-full uppercase tracking-widest border border-white/20">
-                      {selectedRecipeForAnalysis.time}
-                    </span>
-                  </div>
-                  <h2 className="text-4xl font-black text-white uppercase italic tracking-tighter leading-none">
-                    {selectedRecipeForAnalysis.title}
-                  </h2>
-                  <div className="flex items-center gap-6 text-white/70 text-xs font-bold pt-2 border-t border-white/10">
-                    <div className="flex flex-col">
-                      <span className="text-[8px] uppercase tracking-widest opacity-60">Protein</span>
-                      <span>{selectedRecipeForAnalysis.protein}</span>
-                    </div>
-                    <div className="flex flex-col">
-                      <span className="text-[8px] uppercase tracking-widest opacity-60">Fat</span>
-                      <span>{selectedRecipeForAnalysis.fat}</span>
-                    </div>
-                    <div className="flex flex-col">
-                      <span className="text-[8px] uppercase tracking-widest opacity-60">Carbs</span>
-                      <span>{selectedRecipeForAnalysis.carbs}</span>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            {/* Right Side: AI Intelligence Content */}
-            <div className="flex-1 flex flex-col bg-card overflow-hidden">
-              <div className="p-8 border-b border-border flex items-center justify-between bg-muted/5">
+          <div className="relative bg-background w-full max-w-2xl max-h-[90vh] overflow-hidden rounded-[3rem] shadow-2xl border border-border flex flex-col">
+            <div className="p-8 overflow-y-auto">
+              <div className="flex items-start justify-between mb-8">
                 <div className="flex items-center gap-4">
-                  <div className="relative">
-                    <div className="absolute -inset-1 bg-[#007000] rounded-full blur opacity-20 animate-pulse" />
-                    <div className="relative w-12 h-12 bg-[#007000] rounded-2xl flex items-center justify-center">
-                      <Sparkles className="w-6 h-6 text-white animate-pulse" />
-                    </div>
+                  <div className="w-16 h-16 bg-primary/10 rounded-3xl flex items-center justify-center">
+                    <Sparkles className="w-8 h-8 text-primary" />
                   </div>
                   <div>
-                    <p className="text-[10px] font-black text-[#007000] uppercase tracking-[0.3em] leading-none mb-1">NeXgro Intelligence</p>
-                    <h3 className="text-xl font-black text-foreground uppercase italic tracking-tight">AI Culinary Analysis</h3>
+                    <h2 className="text-3xl font-black tracking-tighter text-foreground uppercase italic">AI Analysis</h2>
+                    <p className="text-muted-foreground font-bold">{selectedRecipeForAnalysis.title}</p>
                   </div>
                 </div>
                 <button 
                   onClick={() => setSelectedRecipeForAnalysis(null)}
-                  className="w-10 h-10 bg-muted/50 hover:bg-muted rounded-xl flex items-center justify-center transition-all active:scale-90"
+                  className="p-3 hover:bg-muted rounded-full transition-all"
                 >
-                  <X className="w-5 h-5" />
+                  <X className="w-6 h-6" />
                 </button>
               </div>
 
-              <div className="flex-1 overflow-y-auto p-8 space-y-10 custom-scrollbar">
-                <section className="animate-in slide-in-from-bottom-4 duration-700 delay-100">
-                  <div className="flex items-center gap-3 mb-6">
-                    <ShoppingCart className="w-4 h-4 text-[#007000]" />
-                    <h4 className="text-xs font-black text-muted-foreground uppercase tracking-[0.2em]">Required Ingredients</h4>
-                  </div>
-                  <div className="flex flex-wrap gap-2">
+              <div className="space-y-8 pb-8">
+                <div>
+                  <h3 className="text-xs font-black uppercase tracking-[0.2em] text-primary mb-4 flex items-center gap-2">
+                    <ShoppingCart className="w-4 h-4" /> Required Products
+                  </h3>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                     {selectedRecipeForAnalysis.ingredients.map((ing, i) => (
-                      <div key={i} className="bg-muted/50 border border-border px-4 py-2.5 rounded-2xl text-sm font-bold text-foreground/80 flex items-center gap-2 hover:border-[#007000]/30 transition-colors">
-                        <div className="w-1.5 h-1.5 rounded-full bg-[#007000]/50" />
-                        {ing.name} <span className="text-[10px] opacity-40">x{ing.qty}</span>
+                      <div key={i} className="flex items-center gap-3 bg-muted/30 p-4 rounded-2xl border border-border/50">
+                        <CheckCircle2 className="w-4 h-4 text-primary shrink-0" />
+                        <span className="text-sm font-bold">{ing.name} ({ing.qty} unit)</span>
                       </div>
                     ))}
                   </div>
-                </section>
+                </div>
 
-                <section className="animate-in slide-in-from-bottom-4 duration-700 delay-300">
-                  <div className="flex items-center gap-3 mb-6">
-                    <ChefHat className="w-4 h-4 text-[#007000]" />
-                    <h4 className="text-xs font-black text-muted-foreground uppercase tracking-[0.2em]">AI Generated Instructions</h4>
-                  </div>
-                  <div className="space-y-6">
+                <div>
+                  <h3 className="text-xs font-black uppercase tracking-[0.2em] text-primary mb-4 flex items-center gap-2">
+                    <ChefHat className="w-4 h-4" /> Preparation Steps
+                  </h3>
+                  <div className="space-y-4">
                     {selectedRecipeForAnalysis.instructions.map((step, i) => (
-                      <div key={i} className="flex gap-5 group relative">
-                        {i < selectedRecipeForAnalysis.instructions.length - 1 && (
-                          <div className="absolute left-[1.125rem] top-10 bottom-[-1.5rem] w-[2px] bg-border/50 group-hover:bg-[#007000]/20 transition-colors" />
-                        )}
-                        <div className="shrink-0 w-9 h-9 bg-background border-2 border-border rounded-xl flex items-center justify-center text-xs font-black text-[#007000] shadow-sm group-hover:border-[#007000] group-hover:bg-[#007000] group-hover:text-white transition-all duration-300">
+                      <div key={i} className="flex gap-4 group">
+                        <div className="shrink-0 w-8 h-8 bg-card border-2 border-border rounded-xl flex items-center justify-center text-xs font-black text-muted-foreground group-hover:border-primary group-hover:text-primary transition-all">
                           {i + 1}
                         </div>
-                        <div className="pt-2">
-                          <p className="text-sm font-medium leading-relaxed text-foreground/70 group-hover:text-foreground transition-colors animate-in fade-in slide-in-from-left-4 duration-1000" style={{ animationDelay: `${i * 200 + 500}ms` }}>
-                            {step}
-                          </p>
-                        </div>
+                        <p className="text-sm font-medium leading-relaxed text-foreground pt-1.5">{step}</p>
                       </div>
                     ))}
                   </div>
-                </section>
+                </div>
               </div>
-
-              <div className="p-8 bg-muted/5 border-t border-border mt-auto">
-                <button
-                  onClick={() => {
-                    handleAddToCart(selectedRecipeForAnalysis);
-                    setSelectedRecipeForAnalysis(null);
-                  }}
-                  className="w-full bg-[#007000] text-white py-6 rounded-3xl font-black uppercase tracking-[0.2em] shadow-xl shadow-[#007000]/20 hover:opacity-90 active:scale-[0.98] transition-all flex items-center justify-center gap-3"
-                >
-                  <Plus className="w-6 h-6" /> Populate Cart with Ingredients
-                </button>
-              </div>
+            </div>
+            <div className="p-6 bg-muted/30 border-t border-border mt-auto">
+              <button
+                onClick={() => {
+                  handleAddToCart(selectedRecipeForAnalysis);
+                  setSelectedRecipeForAnalysis(null);
+                }}
+                className="w-full bg-[#007000] text-white py-5 rounded-[1.5rem] font-black uppercase tracking-widest shadow-xl hover:opacity-90 active:scale-[0.98] transition-all flex items-center justify-center gap-2"
+              >
+                <Plus className="w-5 h-5" /> Add All to Cart
+              </button>
             </div>
           </div>
         </div>
       )}
 
+      <style>{`
+        @keyframes marquee {
+          0% { transform: translateX(0); }
+          100% { transform: translateX(-50%); }
+        }
+        .animate-marquee {
+          animation: marquee 40s linear infinite;
+        }
+        .pause-marquee:hover {
+          animation-play-state: paused;
+        }
+      `}</style>
     </div>
   );
 }
 
-function RecipeCard({ recipe, adding, handleAddToCart, handleAddToMealPlan, onAnalyse }: { 
+function RecipeCard({ recipe, adding, handleAddToCart, handleAddToMealPlan }: { 
   recipe: Recipe; 
   adding: string | null; 
   handleAddToCart: (r: Recipe) => void;
   handleAddToMealPlan: (r: Recipe) => void;
-  onAnalyse: (r: Recipe) => void;
 }) {
   return (
     <div className="bg-card border border-border rounded-[2.5rem] overflow-hidden shadow-sm hover:shadow-xl transition-all group">
@@ -381,8 +326,8 @@ function RecipeCard({ recipe, adding, handleAddToCart, handleAddToMealPlan, onAn
 
         <div className="flex flex-col gap-2 pt-2">
           <button
-            onClick={() => onAnalyse(recipe)}
-            className="w-full bg-gradient-to-r from-[#007000] to-[#00a000] text-white py-4 rounded-2xl text-[10px] font-black uppercase tracking-widest hover:shadow-lg hover:shadow-[#007000]/30 active:scale-95 transition-all flex items-center justify-center gap-2"
+            onClick={() => setSelectedRecipeForAnalysis(recipe)}
+            className="w-full bg-primary/10 text-primary py-3 rounded-2xl text-[10px] font-black uppercase tracking-widest hover:bg-primary hover:text-white transition-all flex items-center justify-center gap-2 border-2 border-primary/20"
           >
             <Sparkles className="w-3.5 h-3.5" /> Analyse with AI
           </button>

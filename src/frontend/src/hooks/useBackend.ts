@@ -490,7 +490,7 @@ export function useProductReviews(productId: string) {
   return useQuery<Review[]>({
     queryKey: ["product-reviews", productId],
     queryFn: async () => {
-      // 1. Always get local reviews first
+      // 1. Check local storage first (for newly added reviews)
       const localReviews: Review[] = JSON.parse(localStorage.getItem(`nexgro_reviews_${productId}`) || "[]");
       
       if (!actor) return localReviews;
@@ -498,19 +498,13 @@ export function useProductReviews(productId: string) {
       try {
         const result = await actor.getProductReviews(toBackendId(productId));
         const backendReviews = result.map(adaptReview);
-        
-        // Merge local and backend (avoid duplicates by ID)
+        // Merge local and backend (avoid duplicates)
         const all = [...localReviews];
         backendReviews.forEach(br => {
-          if (!all.find(ar => ar.id === br.id)) {
-            all.push(br);
-          }
+          if (!all.find(ar => ar.id === br.id)) all.push(br);
         });
-        
-        // Sort by creation date descending
-        return all.sort((a, b) => Number(b.createdAt - a.createdAt));
-      } catch (err) {
-        console.error("Failed to fetch backend reviews, using local only", err);
+        return all;
+      } catch {
         return localReviews;
       }
     },
@@ -1151,19 +1145,16 @@ export function useSubmitReview() {
         createdAt: BigInt(Date.now() * 1_000_000),
       };
 
-      // 1. Save to local storage IMMEDIATELY for instant UI feedback
-      const current: Review[] = JSON.parse(localStorage.getItem(`nexgro_reviews_${productId}`) || "[]");
-      localStorage.setItem(`nexgro_reviews_${productId}`, JSON.stringify([newReview, ...current]));
-
-      // 2. Try backend submission
       if (actor) {
         try {
           await actor.submitReview(toBackendId(productId), BigInt(rating), title, text);
         } catch (e) {
-          console.error("Backend review submission failed, but stored locally.", e);
+          console.error("Backend review submission failed", e);
         }
       }
 
+      const current: Review[] = JSON.parse(localStorage.getItem(`nexgro_reviews_${productId}`) || "[]");
+      localStorage.setItem(`nexgro_reviews_${productId}`, JSON.stringify([...current, newReview]));
       return newReview;
     },
     onSuccess: (mockData, vars) => {
