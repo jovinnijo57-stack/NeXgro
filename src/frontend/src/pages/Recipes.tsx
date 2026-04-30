@@ -9,6 +9,7 @@ import { useAddToCart } from "@/hooks/useBackend";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import { useQueryClient } from "@tanstack/react-query";
+import { Badge } from "@/components/ui/badge";
 import { ALL_RECIPES, type Recipe } from "@/data/recipes";
 
 export default function Recipes() {
