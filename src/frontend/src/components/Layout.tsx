@@ -562,7 +562,7 @@ function MobileBottomNav() {
     {
       to: "/recipes",
       icon: Utensils,
-      label: "Chef",
+      label: "Chef Corner",
       ocid: "mobile_nav.recipes",
     },
     {

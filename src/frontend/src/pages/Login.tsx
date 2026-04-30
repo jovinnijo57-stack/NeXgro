@@ -131,7 +131,7 @@ export default function Login() {
     
     const storedUser = users[lowerEmail];
     if (!storedUser) {
-      toast.error("Invalid credentials. Please check your email and password.");
+      toast.error("Invalid credentials");
       setIsShaking(true);
       setTimeout(() => setIsShaking(false), 500);
       return;
@@ -146,7 +146,7 @@ export default function Login() {
       toast.success("Welcome back!");
       window.location.href = "/location-setup"; 
     } else {
-      toast.error("Invalid credentials. Please check your email and password.");
+      toast.error("Invalid credentials");
       setIsShaking(true);
       setTimeout(() => setIsShaking(false), 500);
     }

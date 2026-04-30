@@ -410,7 +410,15 @@ export default function MealPlannerPage() {
             <p className="text-muted-foreground font-bold tracking-tight">
               Your menu for this day is empty.
             </p>
-            <Link to="/recipes" search={{ date: selectedDate }} className="bg-[#007000] text-white px-6 py-3 rounded-2xl text-[11px] font-black uppercase tracking-widest mt-6 inline-block shadow-lg shadow-[#007000]/20 transition-all active:scale-95">Browse Recipes</Link>
+            <button 
+              onClick={() => {
+                navigate({ to: "/recipes", search: { date: selectedDate } });
+                window.location.href = `/recipes?date=${selectedDate}`;
+              }}
+              className="bg-[#007000] text-white px-6 py-3 rounded-2xl text-[11px] font-black uppercase tracking-widest mt-6 inline-block shadow-lg shadow-[#007000]/20 transition-all active:scale-95"
+            >
+              Browse Recipes
+            </button>
           </div>
         )}
       </div>

@@ -47,8 +47,13 @@ export default function VerifyPhone() {
     }
 
     if (!auth) {
-      console.warn("Firebase Auth not initialized. Using Demo Mode (Localhost only).");
-      if (window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1") {
+      const isDemoHost = 
+        window.location.hostname === "localhost" || 
+        window.location.hostname === "127.0.0.1" || 
+        window.location.hostname === "nexgro-app.onrender.com";
+
+      console.warn("Firebase Auth not initialized. Using Demo Mode.");
+      if (isDemoHost) {
         toast.info("Demo Mode: Use code 123456 to verify.");
         setConfirmationResult({ confirm: async (code: string) => { if (code !== "123456") throw new Error("Invalid code"); } });
         return;
@@ -74,6 +79,17 @@ export default function VerifyPhone() {
       setIsExpired(false);
     } catch (err: any) {
       console.error("Phone OTP send error:", err);
+      const isDemoHost = 
+        window.location.hostname === "localhost" || 
+        window.location.hostname === "127.0.0.1" || 
+        window.location.hostname === "nexgro-app.onrender.com";
+
+      if (isDemoHost) {
+        toast.info("Firebase SMS failed. Falling back to Demo Mode: Use 123456");
+        setConfirmationResult({ confirm: async (code: string) => { if (code !== "123456") throw new Error("Invalid code"); } });
+        return;
+      }
+
       const msg = err.message || "Failed to send SMS.";
       toast.error(`Firebase Error: ${msg}`);
       setError(`SMS Error: ${msg}. Check Firebase Console.`);

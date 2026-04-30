@@ -49,7 +49,16 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 export { useInternetIdentity } from "@caffeineai/core-infrastructure";
 
 function useBackendActor() {
-  return useActor(createActor);
+  const actorResult = useActor(createActor);
+  
+  // If the canister ID is 'undefined' string (Render default) or empty, force null actor
+  // to trigger local fallbacks and prevent crashes.
+  const canisterId = (import.meta as any).env.CANISTER_ID_BACKEND;
+  if (!canisterId || canisterId === "undefined" || canisterId === "") {
+    return { actor: null, isFetching: false };
+  }
+
+  return actorResult;
 }
 
 function toBackendId(id: string): bigint {
