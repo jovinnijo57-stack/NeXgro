@@ -226,62 +226,107 @@ export default function Recipes() {
       {selectedRecipeForAnalysis && (
         <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
           <div 
-            className="absolute inset-0 bg-black/60 backdrop-blur-sm"
+            className="absolute inset-0 bg-black/80 backdrop-blur-md"
             onClick={() => setSelectedRecipeForAnalysis(null)}
           />
-          <div className="relative bg-background w-full max-w-2xl max-h-[90vh] overflow-hidden rounded-[3rem] shadow-2xl border border-border flex flex-col">
+          <div className="relative bg-background w-full max-w-2xl max-h-[90vh] overflow-hidden rounded-[3.5rem] shadow-[0_0_50px_rgba(0,0,0,0.5)] border border-white/10 flex flex-col animate-in fade-in zoom-in duration-300">
             {/* Modal Hero Header */}
-            <div className="relative h-64 shrink-0">
+            <div className="relative h-72 shrink-0">
               <img 
                 src={selectedRecipeForAnalysis.image} 
                 alt={selectedRecipeForAnalysis.title}
                 className="w-full h-full object-cover"
               />
-              <div className="absolute inset-0 bg-gradient-to-t from-background via-background/20 to-transparent" />
-              <div className="absolute bottom-6 left-8 right-8">
-                <h2 className="text-4xl font-black tracking-tighter text-foreground uppercase italic leading-none">
+              <div className="absolute inset-0 bg-gradient-to-t from-background via-background/10 to-transparent" />
+              
+              {/* Floating Category Tag */}
+              <div className="absolute top-8 left-8">
+                <div className="bg-primary px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest text-white shadow-xl">
+                  {selectedRecipeForAnalysis.category}
+                </div>
+              </div>
+
+              <div className="absolute bottom-10 left-10 right-10">
+                <h2 className="text-5xl font-black tracking-tighter text-foreground uppercase italic leading-none drop-shadow-sm">
                   {selectedRecipeForAnalysis.title}
                 </h2>
               </div>
               <button 
                 onClick={() => setSelectedRecipeForAnalysis(null)}
-                className="absolute top-6 right-6 p-3 bg-black/20 hover:bg-black/40 text-white backdrop-blur-md rounded-full transition-all z-10"
+                className="absolute top-8 right-8 p-3 bg-black/40 hover:bg-black/60 text-white backdrop-blur-md rounded-2xl transition-all z-10 border border-white/20"
               >
                 <X className="w-5 h-5" />
               </button>
             </div>
 
-            <div className="p-8 overflow-y-auto flex-1">
-              <div className="space-y-8 pb-8">
-                <div>
-                  <h3 className="text-xs font-black uppercase tracking-[0.2em] text-primary mb-4 flex items-center gap-2">
-                    <ShoppingCart className="w-4 h-4" /> Required Products
-                  </h3>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                    {selectedRecipeForAnalysis.ingredients.map((ing, i) => (
-                      <div key={i} className="flex items-center gap-3 bg-muted/30 p-4 rounded-2xl border border-border/50">
-                        <CheckCircle2 className="w-4 h-4 text-primary shrink-0" />
-                        <span className="text-sm font-bold">{ing.name} ({ing.qty} unit)</span>
-                      </div>
-                    ))}
+            <div className="p-10 overflow-y-auto flex-1 custom-scrollbar">
+              <div className="max-w-xl mx-auto space-y-12 pb-12">
+                {/* Stats Row */}
+                <div className="flex items-center justify-between py-6 border-y border-border/50">
+                  <div className="text-center">
+                    <p className="text-[10px] font-black text-muted-foreground uppercase tracking-widest mb-1">Time</p>
+                    <p className="text-lg font-black text-foreground">{selectedRecipeForAnalysis.time}</p>
+                  </div>
+                  <div className="w-px h-8 bg-border/50" />
+                  <div className="text-center">
+                    <p className="text-[10px] font-black text-muted-foreground uppercase tracking-widest mb-1">Serves</p>
+                    <p className="text-lg font-black text-foreground">{selectedRecipeForAnalysis.serves}</p>
+                  </div>
+                  <div className="w-px h-8 bg-border/50" />
+                  <div className="text-center">
+                    <p className="text-[10px] font-black text-muted-foreground uppercase tracking-widest mb-1">Calories</p>
+                    <p className="text-lg font-black text-foreground">{selectedRecipeForAnalysis.calories}</p>
                   </div>
                 </div>
 
-                <div>
-                  <h3 className="text-xs font-black uppercase tracking-[0.2em] text-primary mb-4 flex items-center gap-2">
-                    <ChefHat className="w-4 h-4" /> Preparation Steps
-                  </h3>
-                  <div className="space-y-4">
-                    {selectedRecipeForAnalysis.instructions.map((step, i) => (
-                      <div key={i} className="flex gap-4 group">
-                        <div className="shrink-0 w-8 h-8 bg-card border-2 border-border rounded-xl flex items-center justify-center text-xs font-black text-muted-foreground group-hover:border-primary group-hover:text-primary transition-all">
-                          {i + 1}
-                        </div>
-                        <p className="text-sm font-medium leading-relaxed text-foreground pt-1.5">{step}</p>
+                <section>
+                  <div className="flex items-center gap-3 mb-6">
+                    <div className="w-8 h-8 bg-primary/10 text-primary rounded-xl flex items-center justify-center">
+                      <ShoppingCart className="w-4 h-4" />
+                    </div>
+                    <h3 className="text-lg font-black uppercase tracking-tight text-foreground">
+                      Products
+                    </h3>
+                  </div>
+                  <div className="flex flex-wrap gap-2">
+                    {selectedRecipeForAnalysis.ingredients.map((ing, i) => (
+                      <div 
+                        key={i} 
+                        className="px-5 py-3 bg-muted/30 border border-border/50 rounded-2xl text-sm font-bold text-foreground hover:bg-primary/5 hover:border-primary/20 transition-all"
+                      >
+                        {ing.name}
                       </div>
                     ))}
                   </div>
-                </div>
+                </section>
+
+                <section>
+                  <div className="flex items-center gap-3 mb-8">
+                    <div className="w-8 h-8 bg-primary/10 text-primary rounded-xl flex items-center justify-center">
+                      <ChefHat className="w-4 h-4" />
+                    </div>
+                    <h3 className="text-lg font-black uppercase tracking-tight text-foreground">
+                      Preparation
+                    </h3>
+                  </div>
+                  <div className="space-y-8 relative">
+                    {/* Vertical Line Connector */}
+                    <div className="absolute left-4 top-4 bottom-4 w-px bg-gradient-to-b from-primary/30 via-primary/5 to-transparent" />
+                    
+                    {selectedRecipeForAnalysis.instructions.map((step, i) => (
+                      <div key={i} className="flex gap-6 relative group">
+                        <div className="shrink-0 w-8 h-8 bg-background border-2 border-primary/20 rounded-full flex items-center justify-center text-[10px] font-black text-primary shadow-sm group-hover:bg-primary group-hover:text-white transition-all z-10">
+                          {i + 1}
+                        </div>
+                        <div className="pt-1">
+                          <p className="text-base font-medium leading-relaxed text-foreground group-hover:text-primary transition-colors">
+                            {step}
+                          </p>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </section>
               </div>
             </div>
           </div>
