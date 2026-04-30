@@ -105,23 +105,25 @@ export default function Recipes() {
             <ArrowLeft className="w-6 h-6" />
           </button>
           <div className="flex-1 relative group">
-            <Search className="absolute left-6 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground group-focus-within:text-[#FFB800] transition-colors" />
+            <Search className="absolute left-6 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground group-focus-within:text-primary transition-colors" />
             <input
               type="text"
               placeholder="Search healthy recipes..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full bg-card border-2 border-border pl-14 pr-14 py-5 rounded-[2rem] text-sm font-bold shadow-xl focus:border-[#FFB800]/20 outline-none transition-all group-focus-within:ring-4 group-focus-within:ring-[#FFB800]/10"
+              className="w-full bg-background border-2 border-border pl-14 pr-24 py-5 rounded-[2rem] text-sm font-bold shadow-xl focus:border-primary/20 outline-none transition-all group-focus-within:ring-4 group-focus-within:ring-primary/10"
             />
-            <button
-              onClick={startListening}
-              className={cn(
-                "absolute right-3 top-1/2 -translate-y-1/2 p-3 rounded-2xl transition-all",
-                isListening ? "bg-destructive text-white animate-pulse" : "hover:bg-primary/10 text-primary"
-              )}
-            >
-              {isListening ? <MicOff className="w-5 h-5" /> : <Mic className="w-5 h-5" />}
-            </button>
+            <div className="absolute right-3 top-1/2 -translate-y-1/2 flex items-center gap-1">
+              <button
+                onClick={startListening}
+                className={cn(
+                  "p-3 rounded-2xl transition-all",
+                  isListening ? "bg-destructive text-white animate-pulse" : "hover:bg-primary/10 text-primary"
+                )}
+              >
+                {isListening ? <MicOff className="w-5 h-5" /> : <Mic className="w-5 h-5" />}
+              </button>
+            </div>
           </div>
         </div>
 
@@ -137,7 +139,14 @@ export default function Recipes() {
         {/* Recipe Grid - First 6 */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
           {firstSixRecipes.map((recipe) => (
-            <RecipeCard key={recipe.id} recipe={recipe} adding={adding} handleAddToCart={handleAddToCart} handleAddToMealPlan={handleAddToMealPlan} />
+            <RecipeCard 
+              key={recipe.id} 
+              recipe={recipe} 
+              adding={adding} 
+              handleAddToCart={handleAddToCart} 
+              handleAddToMealPlan={handleAddToMealPlan} 
+              onAnalyse={setSelectedRecipeForAnalysis}
+            />
           ))}
         </div>
 
@@ -167,7 +176,14 @@ export default function Recipes() {
         {remainingRecipes.length > 0 && (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 pt-8">
             {remainingRecipes.map((recipe) => (
-              <RecipeCard key={recipe.id} recipe={recipe} adding={adding} handleAddToCart={handleAddToCart} handleAddToMealPlan={handleAddToMealPlan} />
+              <RecipeCard 
+                key={recipe.id} 
+                recipe={recipe} 
+                adding={adding} 
+                handleAddToCart={handleAddToCart} 
+                handleAddToMealPlan={handleAddToMealPlan} 
+                onAnalyse={setSelectedRecipeForAnalysis}
+              />
             ))}
           </div>
         )}
@@ -251,11 +267,12 @@ export default function Recipes() {
   );
 }
 
-function RecipeCard({ recipe, adding, handleAddToCart, handleAddToMealPlan }: { 
+function RecipeCard({ recipe, adding, handleAddToCart, handleAddToMealPlan, onAnalyse }: { 
   recipe: Recipe; 
   adding: string | null; 
   handleAddToCart: (r: Recipe) => void;
   handleAddToMealPlan: (r: Recipe) => void;
+  onAnalyse: (r: Recipe) => void;
 }) {
   return (
     <div className="bg-card border border-border rounded-[2.5rem] overflow-hidden shadow-sm hover:shadow-xl transition-all group">
@@ -308,7 +325,7 @@ function RecipeCard({ recipe, adding, handleAddToCart, handleAddToMealPlan }: {
 
         <div className="flex flex-col gap-2 pt-2">
           <button
-            onClick={() => setSelectedRecipeForAnalysis(recipe)}
+            onClick={() => onAnalyse(recipe)}
             className="w-full bg-primary/10 text-primary py-3 rounded-2xl text-[10px] font-black uppercase tracking-widest hover:bg-primary hover:text-white transition-all flex items-center justify-center gap-2 border-2 border-primary/20"
           >
             <Sparkles className="w-3.5 h-3.5" /> Analyse with AI
