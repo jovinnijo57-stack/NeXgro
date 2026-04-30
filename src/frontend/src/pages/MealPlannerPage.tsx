@@ -128,8 +128,11 @@ export default function MealPlannerPage() {
 
   const filteredMealPlans = mealPlans?.filter(mp => mp.plannedDate === selectedDate);
 
-  const displayDate = new Date(selectedDate).toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" });
-  const displayDayName = new Date(selectedDate).toLocaleDateString("en-US", { weekday: "short" });
+  // Safe date parsing to avoid timezone shifts
+  const [year, month, day] = selectedDate.split('-').map(Number);
+  const dateObj = new Date(year, month - 1, day);
+  const displayDate = dateObj.toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" });
+  const displayDayName = dateObj.toLocaleDateString("en-US", { weekday: "short" });
 
   return (
     <div className="max-w-2xl mx-auto px-4 sm:px-6 py-6 space-y-8 pb-24">

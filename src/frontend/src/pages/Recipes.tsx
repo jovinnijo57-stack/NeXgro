@@ -117,13 +117,13 @@ export default function Recipes() {
               placeholder="Search groceries, essentials..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full bg-[#f0f9f0]/50 border-2 border-[#007000]/20 pl-14 pr-14 py-5 rounded-[2rem] text-sm font-bold shadow-[0_0_20px_rgba(0,112,0,0.02)] focus:border-[#007000]/40 focus:bg-white outline-none transition-all group-focus-within:ring-4 group-focus-within:ring-[#007000]/5"
+              className="w-full bg-[#f4faf4] border-2 border-[#007000]/10 pl-14 pr-14 py-5 rounded-full text-sm font-bold shadow-[0_4px_20px_rgba(0,112,0,0.03)] focus:border-[#007000]/30 focus:bg-white outline-none transition-all group-focus-within:ring-4 group-focus-within:ring-[#007000]/5"
             />
             <button
               onClick={startListening}
               className={cn(
-                "absolute right-3 top-1/2 -translate-y-1/2 p-3 rounded-2xl transition-all",
-                isListening ? "bg-destructive text-white animate-pulse" : "hover:bg-[#007000]/10 text-[#007000]"
+                "absolute right-4 top-1/2 -translate-y-1/2 p-2.5 rounded-full transition-all",
+                isListening ? "bg-destructive text-white animate-pulse" : "text-[#007000] hover:bg-[#007000]/5"
               )}
             >
               {isListening ? <MicOff className="w-5 h-5" /> : <Mic className="w-5 h-5" />}
