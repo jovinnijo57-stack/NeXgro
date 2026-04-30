@@ -63,7 +63,11 @@ export default function MealPlannerPage() {
         const recipe = mp.recipeDetails || recipes?.find((r: any) => r.id === mp.recipeId);
         if (recipe && recipe.ingredients) {
           for (const ing of recipe.ingredients) {
-            await addToCart.mutateAsync({ productId: ing.id, qty: ing.qty });
+            const pId = ing.id || (ing as any).productId;
+            const pQty = ing.qty || (ing as any).quantity || 1;
+            if (pId) {
+              await addToCart.mutateAsync({ productId: pId, qty: pQty });
+            }
           }
         }
       }
@@ -90,7 +94,11 @@ export default function MealPlannerPage() {
     try {
       const ingredients = recipe.ingredients || [];
       for (const ing of ingredients) {
-        await addToCart.mutateAsync({ productId: ing.id, qty: ing.qty });
+        const pId = ing.id || (ing as any).productId;
+        const pQty = ing.qty || (ing as any).quantity || 1;
+        if (pId) {
+          await addToCart.mutateAsync({ productId: pId, qty: pQty });
+        }
       }
       toast.success(`Ingredients for "${recipe.title || recipe.name}" added to cart! 🛒`);
     } catch {
@@ -164,16 +172,26 @@ export default function MealPlannerPage() {
             <h2 className="font-black text-foreground tracking-tight">Weekly Schedule</h2>
           </div>
           <div className="relative group overflow-hidden rounded-xl">
+            <button
+              onClick={(e) => {
+                const input = (e.currentTarget.nextElementSibling as HTMLInputElement);
+                if (input && 'showPicker' in input) {
+                  input.showPicker();
+                } else if (input) {
+                  input.click();
+                }
+              }}
+              className="p-2.5 bg-muted group-hover:bg-muted/80 transition-all flex items-center gap-2"
+            >
+              <Calendar className="w-4 h-4 text-[#007000]" />
+              <span className="text-[10px] font-black uppercase tracking-widest">Pick Date</span>
+            </button>
             <input 
               type="date" 
               value={selectedDate}
               onChange={handleDateChange}
-              className="absolute inset-0 opacity-0 cursor-pointer z-10"
+              className="absolute inset-0 opacity-0 -z-10"
             />
-            <div className="p-2.5 bg-muted group-hover:bg-muted/80 transition-all flex items-center gap-2">
-              <Calendar className="w-4 h-4 text-[#007000]" />
-              <span className="text-[10px] font-black uppercase tracking-widest">Pick Date</span>
-            </div>
           </div>
         </div>
         <div className="grid grid-cols-7 gap-2">

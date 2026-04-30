@@ -362,7 +362,7 @@ function RecipeCard({ recipe, adding, handleAddToCart, handleAddToMealPlan, onAn
             </button>
             <input 
               type="date"
-              className="absolute inset-0 opacity-0 pointer-events-none"
+              className="absolute inset-0 opacity-0 -z-10"
               onChange={(e) => {
                 if (e.target.value) handleAddToMealPlan(recipe, e.target.value);
               }}
