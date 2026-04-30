@@ -98,8 +98,14 @@ export default function Recipes() {
         {/* Navigation & Search Bar at Top */}
         <div className="flex items-center gap-3">
           <button
-            onClick={() => navigate({ to: "/meal-planner" })}
-            className="shrink-0 w-14 h-14 bg-card border-2 border-primary/20 rounded-2xl flex items-center justify-center text-primary hover:bg-primary/5 transition-all shadow-xl active:scale-95"
+            onClick={() => {
+              navigate({ to: "/meal-planner" });
+              // Fallback for immediate redirection
+              if (window.location.pathname !== "/meal-planner") {
+                window.location.href = "/meal-planner";
+              }
+            }}
+            className="shrink-0 w-14 h-14 bg-white border-2 border-[#007000]/10 rounded-2xl flex items-center justify-center text-[#007000] hover:bg-[#f0f9f0] transition-all shadow-lg active:scale-95"
             title="Back to Meal Planner"
           >
             <ArrowLeft className="w-6 h-6" />
@@ -111,13 +117,13 @@ export default function Recipes() {
               placeholder="Search groceries, essentials..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full bg-white border-2 border-[#007000]/20 pl-14 pr-14 py-5 rounded-[2rem] text-sm font-bold shadow-[0_0_20px_rgba(0,112,0,0.05)] focus:border-[#007000]/40 outline-none transition-all group-focus-within:ring-4 group-focus-within:ring-[#007000]/5"
+              className="w-full bg-[#f0f9f0]/50 border-2 border-[#007000]/20 pl-14 pr-14 py-5 rounded-[2rem] text-sm font-bold shadow-[0_0_20px_rgba(0,112,0,0.02)] focus:border-[#007000]/40 focus:bg-white outline-none transition-all group-focus-within:ring-4 group-focus-within:ring-[#007000]/5"
             />
             <button
               onClick={startListening}
               className={cn(
                 "absolute right-3 top-1/2 -translate-y-1/2 p-3 rounded-2xl transition-all",
-                isListening ? "bg-destructive text-white animate-pulse" : "hover:bg-primary/5 text-[#007000]"
+                isListening ? "bg-destructive text-white animate-pulse" : "hover:bg-[#007000]/10 text-[#007000]"
               )}
             >
               {isListening ? <MicOff className="w-5 h-5" /> : <Mic className="w-5 h-5" />}
