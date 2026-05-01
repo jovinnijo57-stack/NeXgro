@@ -8,7 +8,8 @@ import {
   Navigation,
 } from "lucide-react";
 import OSMMapPicker from "@/components/OSMMapPicker";
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { toast } from "sonner";
 
 type LocationState =
   | { status: "idle" }
@@ -45,6 +46,11 @@ export default function LocationSetup() {
         const { latitude: lat, longitude: lng } = pos.coords;
         const displayAddress = `${lat.toFixed(5)}° N, ${lng.toFixed(5)}° E`;
         setState({ status: "located", lat, lng, displayAddress });
+        toast.success("Location detected! Verifying delivery...");
+        // Auto-proceed for "Detect" button
+        setTimeout(() => {
+          handleFinalSaveWithCoords(lat, lng, displayAddress);
+        }, 500);
       },
       (err) => {
         setState({
@@ -54,9 +60,54 @@ export default function LocationSetup() {
               ? "Location permission denied. Please allow location access and try again."
               : "Unable to determine your location. Please try again.",
         });
+        toast.error("Could not detect location.");
       },
       { timeout: 10000, maximumAge: 0 },
     );
+  }
+
+  async function handleFinalSaveWithCoords(lat: number, lng: number, displayAddress: string) {
+    setState({ status: "checking" });
+
+    try {
+      await setLocationMutation.mutateAsync({ lat, lng });
+      
+      let result;
+      try {
+        result = await checkRadiusMutation.mutateAsync({ lat, lng });
+      } catch (err) {
+        console.error("Radius check failed", err);
+        result = { tag: "InRange", distanceKm: 0 };
+      }
+
+      if (result.tag === "InRange" || result.tag === "withinRadius") {
+        const zoneName = (result as any).zoneName || "Standard Delivery Zone";
+        localStorage.setItem("nexgro_user_location", JSON.stringify({ 
+          lat, 
+          lng, 
+          address: displayAddress,
+          zoneName
+        }));
+        setState({ status: "in_range", distanceKm: (result as any).distanceKm || 0 });
+        toast.success(`Welcome to NeXgro! Delivery available in ${zoneName}`);
+        setTimeout(() => { 
+          window.location.href = "/home";
+        }, 1500);
+      } else {
+        setState({
+          status: "out_of_range",
+          distanceKm: (result as any).nearestDistanceKm || 0,
+        });
+        toast.error("We don't deliver to this location yet.");
+      }
+    } catch (err) {
+      console.error("Final save failed", err);
+      localStorage.setItem("nexgro_user_location", JSON.stringify({ lat, lng, address: displayAddress }));
+      setState({ status: "in_range", distanceKm: 0 });
+      setTimeout(() => { 
+        window.location.href = "/home";
+      }, 1500);
+    }
   }
 
   async function handleConfirmLocation() {
@@ -66,46 +117,7 @@ export default function LocationSetup() {
 
   async function handleFinalSave() {
     if (state.status !== "located") return;
-    const { lat, lng } = state;
-    setState({ status: "checking" });
-
-    try {
-      await setLocationMutation.mutateAsync({ lat, lng });
-      
-      let result;
-      try {
-        result = await checkRadiusMutation.mutateAsync({ lat, lng });
-      } catch {
-        // Backend not connected — treat location as valid in demo mode
-        result = { tag: "InRange", distanceKm: 0 };
-      }
-
-      if (result.tag === "InRange" || result.tag === "withinRadius") {
-        const zoneName = (result as any).zoneName || "Standard Delivery Zone";
-        localStorage.setItem("nexgro_user_location", JSON.stringify({ 
-          lat, 
-          lng, 
-          address: state.displayAddress,
-          zoneName
-        }));
-        setState({ status: "in_range", distanceKm: (result as any).distanceKm || 0 });
-        setTimeout(() => { 
-          window.location.href = "/home";
-        }, 1500);
-      } else {
-        setState({
-          status: "out_of_range",
-          distanceKm: (result as any).nearestDistanceKm || 0,
-        });
-      }
-    } catch {
-      // Final fallback — just go to home
-      localStorage.setItem("nexgro_user_location", JSON.stringify({ lat, lng, address: state.displayAddress }));
-      setState({ status: "in_range", distanceKm: 0 });
-      setTimeout(() => { 
-        window.location.href = "/home";
-      }, 1500);
-    }
+    handleFinalSaveWithCoords(state.lat, state.lng, state.displayAddress);
   }
 
   function handleRetry() {

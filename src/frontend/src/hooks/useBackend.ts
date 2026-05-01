@@ -1734,8 +1734,12 @@ export function useCheckDeliveryRadius() {
       let nearestDistanceKm = Number.POSITIVE_INFINITY;
       let matchingZone: DeliveryZone | null = null;
 
+      console.log(`Checking location: ${lat}, ${lng} against ${activeZones.length} zones`);
+
       for (const zone of activeZones) {
         const dist = haversineKm(lat, lng, zone.centerLat, zone.centerLng);
+        console.log(`Zone ${zone.name}: dist ${dist.toFixed(2)}km, radius ${zone.radiusKm}km`);
+        
         if (dist <= zone.radiusKm) {
           if (dist < nearestDistanceKm) {
             nearestDistanceKm = dist;
@@ -1751,6 +1755,7 @@ export function useCheckDeliveryRadius() {
       if (matchingZone) {
         // Calculate fee based on distance: distance * perKmFee
         const calculatedFee = nearestDistanceKm * matchingZone.perKmFee;
+        console.log(`Matched zone: ${matchingZone.name}. Distance: ${nearestDistanceKm.toFixed(2)}km. Fee: $${calculatedFee.toFixed(2)}`);
         
         return {
           tag: "InRange",
@@ -1761,7 +1766,8 @@ export function useCheckDeliveryRadius() {
         };
       }
       
-      return { tag: "OutOfRange", nearestDistanceKm };
+      console.log(`Out of range. Nearest zone is ${nearestDistanceKm.toFixed(2)}km away`);
+      return { tag: "OutOfRange", nearestDistanceKm: nearestDistanceKm === Number.POSITIVE_INFINITY ? 0 : nearestDistanceKm };
     },
   });
 }
