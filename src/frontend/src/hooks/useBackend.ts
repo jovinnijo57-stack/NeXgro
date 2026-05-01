@@ -1757,6 +1757,7 @@ export function useCheckDeliveryRadius() {
           shopId: 1, // Legacy compatibility
           distanceKm: nearestDistanceKm,
           deliveryFee: Math.max(calculatedFee, 1.00), // Minimum $1.00 delivery fee
+          zoneName: matchingZone.name,
         };
       }
       

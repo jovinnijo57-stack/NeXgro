@@ -81,10 +81,14 @@ export default function LocationSetup() {
       }
 
       if (result.tag === "InRange" || result.tag === "withinRadius") {
-        console.log("✅ Location in range:", result);
-        localStorage.setItem("nexgro_user_location", JSON.stringify({ lat, lng, address: state.displayAddress }));
+        const zoneName = (result as any).zoneName || "Standard Delivery Zone";
+        localStorage.setItem("nexgro_user_location", JSON.stringify({ 
+          lat, 
+          lng, 
+          address: state.displayAddress,
+          zoneName
+        }));
         setState({ status: "in_range", distanceKm: (result as any).distanceKm || 0 });
-        console.log("🚀 Redirecting to dashboard...");
         setTimeout(() => { 
           window.location.href = "/home";
         }, 1500);

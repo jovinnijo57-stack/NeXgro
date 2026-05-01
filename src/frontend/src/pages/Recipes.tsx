@@ -1,4 +1,4 @@
-import { useState, useMemo, useEffect } from "react";
+import { useState, useMemo } from "react";
 import { 
   ArrowLeft, Search, Clock, Users, Flame, ShoppingCart, 
   Plus, Calendar, Mic, MicOff, Info, BookOpen, ChefHat, Utensils,
@@ -137,7 +137,7 @@ export default function Recipes() {
         <div className="flex items-center gap-3 mb-8">
           <button 
             onClick={() => {
-              navigate({ to: "/meal-planner", search: { date: undefined } });
+              navigate({ to: "/meal-planner" });
               // Direct fallback if router fails
               window.location.href = "/meal-planner";
             }}
@@ -361,8 +361,7 @@ function RecipeCard({
   adding, 
   handleAddToCart, 
   handleAddToMealPlan,
-  onAnalyse,
-  defaultDate
+  onAnalyse 
 }: { 
   recipe: Recipe; 
   adding: string | null; 
@@ -443,11 +442,11 @@ function RecipeCard({
           <div className="relative">
             <button
               onClick={(e) => {
-                const input = e.currentTarget.nextElementSibling as HTMLInputElement | null;
+                const input = (e.currentTarget.nextElementSibling as HTMLInputElement);
                 if (input && 'showPicker' in input) {
-                  (input as any).showPicker();
+                  input.showPicker();
                 } else if (input) {
-                  (input as any).click();
+                  input.click();
                 }
               }}
               className={cn(
