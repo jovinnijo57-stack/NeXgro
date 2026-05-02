@@ -91,7 +91,7 @@ export default function LocationSetup() {
         setState({ status: "in_range", distanceKm: (result as any).distanceKm || 0 });
         toast.success(`Welcome to NeXgro! Delivery available in ${zoneName}`);
         setTimeout(() => { 
-          window.location.href = "/home";
+          navigate({ to: "/home" } as any);
         }, 1500);
       } else {
         setState({
@@ -105,7 +105,7 @@ export default function LocationSetup() {
       localStorage.setItem("nexgro_user_location", JSON.stringify({ lat, lng, address: displayAddress }));
       setState({ status: "in_range", distanceKm: 0 });
       setTimeout(() => { 
-        window.location.href = "/home";
+        navigate({ to: "/home" } as any);
       }, 1500);
     }
   }

@@ -83,30 +83,34 @@ const BannedSupportPage = lazy(() => import("@/pages/BannedSupport"));
 
 // ─── Auth guard component ────────────────────────────────────────────────────
 function AuthGuard({ children }: { children: React.ReactNode }) {
+  const navigate = useNavigate();
   const { identity } = useInternetIdentity();
   const isAuthenticated = localStorage.getItem("isLoggedIn") === "true" || !!identity;
   const currentUserEmail = localStorage.getItem("currentUserEmail");
   const bannedEmails = JSON.parse(localStorage.getItem("nexgro_banned_users") || "[]");
   const isDeviceRestricted = localStorage.getItem("nexgro_device_restricted") === "true";
 
+  const hasLocation = localStorage.getItem("nexgro_user_location");
+  const path = window.location.pathname;
+  const isLocationPage = path === "/location-setup";
+  const isAdminPage = path.startsWith("/admin");
+  const isAdmin = currentUserEmail?.toLowerCase() === "admin@nexgro.com";
+
+  console.log("[AuthGuard] Checking path:", path, { isAuthenticated, hasLocation: !!hasLocation, isAdmin });
+
   if ((currentUserEmail && bannedEmails.includes(currentUserEmail.toLowerCase())) || isDeviceRestricted) {
-    window.location.href = "/banned";
+    useEffect(() => { navigate({ to: "/banned" } as any); }, [navigate]);
     return null;
   }
   
   if (!isAuthenticated) {
-    window.location.href = "/register";
+    useEffect(() => { navigate({ to: "/register" } as any); }, [navigate]);
     return null;
   }
 
-  const hasLocation = localStorage.getItem("nexgro_user_location");
-  const isLocationPage = window.location.pathname === "/location-setup";
-  const isAdminPage = window.location.pathname.startsWith("/admin");
-
-  const isAdmin = currentUserEmail?.toLowerCase() === "admin@nexgro.com";
-  
   if (!hasLocation && !isLocationPage && !isAdminPage && !isAdmin) {
-    window.location.href = "/location-setup";
+    console.log("[AuthGuard] Redirecting to location setup...");
+    useEffect(() => { navigate({ to: "/location-setup" } as any); }, [navigate]);
     return null;
   }
 

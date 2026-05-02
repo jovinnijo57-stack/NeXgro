@@ -674,22 +674,6 @@ export default function Layout({ children }: LayoutProps) {
   const loc = useLocation();
   const year = new Date().getFullYear();
 
-  useEffect(() => {
-    const isPublicPath = 
-      loc.pathname === "/login" || 
-      loc.pathname === "/register" || 
-      loc.pathname === "/location-setup" || 
-      loc.pathname === "/" ||
-      loc.pathname.startsWith("/verify-phone");
-    
-    const isAdminPath = loc.pathname.startsWith("/admin");
-    const hasLocation = localStorage.getItem("nexgro_user_location");
-
-    if (!isPublicPath && !isAdminPath && !hasLocation) {
-      window.location.href = "/location-setup";
-    }
-  }, [loc.pathname]);
-
   return (
     <div className="min-h-screen flex flex-col bg-background pt-[env(safe-area-inset-top)]">
       {/* Top Header */}
