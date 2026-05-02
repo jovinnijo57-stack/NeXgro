@@ -41,6 +41,7 @@ import {
   SAMPLE_PRODUCTS,
 } from "@/types";
 import type { BuyXGetYRule, SeasonalCollection, MealPlan, Referral } from "@/types";
+import { getRecipes as getCustomRecipes } from "@/data/recipes";
 import { useActor, useInternetIdentity } from "@caffeineai/core-infrastructure";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 // Re-export for convenience
@@ -3049,18 +3050,20 @@ const STATIC_RECIPES: Recipe[] = [
 ];
 
 export function useRecipes() {
+  const custom = getCustomRecipes();
   return useQuery<Recipe[]>({
     queryKey: ["recipes"],
-    queryFn: async () => STATIC_RECIPES,
-    initialData: STATIC_RECIPES,
+    queryFn: async () => custom,
+    initialData: custom,
     staleTime: 5 * 60 * 1000,
   });
 }
 
 export function useRecipeById(id: string) {
+  const recipes = getCustomRecipes();
   return useQuery<Recipe | null>({
     queryKey: ["recipe", id],
-    queryFn: async () => STATIC_RECIPES.find((r) => r.id === id) ?? null,
+    queryFn: async () => recipes.find((r) => r.id === id) ?? null,
     enabled: !!id,
     initialData: null,
   });

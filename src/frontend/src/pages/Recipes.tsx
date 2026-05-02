@@ -11,7 +11,7 @@ import { cn } from "@/lib/utils";
 import { useQueryClient } from "@tanstack/react-query";
 import { Badge } from "@/components/ui/badge";
 import { useSearch } from "@tanstack/react-router";
-import { ALL_RECIPES, type Recipe } from "@/data/recipes";
+import { ALL_RECIPES, type Recipe, getRecipes } from "@/data/recipes";
 import { useMealPlans } from "@/hooks/useBackend";
 
 export default function Recipes() {
@@ -23,8 +23,47 @@ export default function Recipes() {
   const [searchQuery, setSearchQuery] = useState("");
   const [adding, setAdding] = useState<string | null>(null);
   const [isListening, setIsListening] = useState(false);
-  const [recipes] = useState(() => ALL_RECIPES); // Or call getRecipes() directly
+  const [recipes] = useState(() => getRecipes()); // Use getRecipes to include custom recipes
   const [selectedRecipeForAnalysis, setSelectedRecipeForAnalysis] = useState<Recipe | null>(null);
+  const [isAddModalOpen, setIsAddModalOpen] = useState(false);
+  const [newRecipeForm, setNewRecipeForm] = useState<Partial<Recipe>>({
+    title: "",
+    category: "Lunch",
+    time: "20 min",
+    serves: 2,
+    calories: "200 kcal",
+    protein: "10g",
+    fat: "5g",
+    carbs: "30g",
+    image: "https://images.unsplash.com/photo-1546833999-b9f581a1996d?w=800&q=80",
+    ingredients: [],
+    instructions: []
+  });
+  const [newIngredient, setNewIngredient] = useState({ name: "", qty: 1 });
+  const [newStep, setNewStep] = useState("");
+
+  const handleAddRecipe = () => {
+    if (!newRecipeForm.title) {
+      toast.error("Please enter a title");
+      return;
+    }
+    const recipes_ = getRecipes();
+    const newRecipe = {
+      ...newRecipeForm,
+      id: "custom-" + Date.now(),
+      ingredients: newRecipeForm.ingredients || [],
+      instructions: newRecipeForm.instructions || []
+    } as Recipe;
+    
+    const updated = [...recipes_, newRecipe];
+    const custom = updated.filter(r => !ALL_RECIPES.some(ir => ir.id === r.id));
+    localStorage.setItem("nexgro_custom_recipes", JSON.stringify(custom));
+    
+    // Refresh local state
+    window.location.reload(); // Quickest way to refresh all references
+    toast.success("New recipe added to your collection! 👨‍🍳");
+    setIsAddModalOpen(false);
+  };
 
   const startListening = () => {
     const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
@@ -167,6 +206,13 @@ export default function Recipes() {
               {isListening ? <MicOff className="w-4 h-4" /> : <Mic className="w-4 h-4" />}
             </button>
           </div>
+          <button 
+            onClick={() => setIsAddModalOpen(true)}
+            className="w-12 h-12 bg-[#007000] text-white rounded-2xl flex items-center justify-center hover:opacity-90 transition-all shadow-lg shadow-[#007000]/20 shrink-0 active:scale-95"
+            title="Add Custom Recipe"
+          >
+            <Plus className="w-6 h-6" />
+          </button>
         </div>
 
         {/* Banner Image Below Search */}
@@ -337,6 +383,144 @@ export default function Recipes() {
                     ))}
                   </div>
                 </section>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Add Custom Recipe Modal */}
+      {isAddModalOpen && (
+        <div className="fixed inset-0 z-[110] flex items-center justify-center p-4">
+          <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={() => setIsAddModalOpen(false)} />
+          <div className="relative bg-background w-full max-w-xl max-h-[90vh] overflow-hidden rounded-[2.5rem] shadow-2xl border border-border flex flex-col animate-in fade-in zoom-in duration-200">
+            <div className="p-8 border-b border-border flex items-center justify-between">
+              <h2 className="text-2xl font-black tracking-tight text-foreground">Create New Recipe</h2>
+              <button onClick={() => setIsAddModalOpen(false)} className="p-2 hover:bg-muted rounded-full transition-colors">
+                <X className="w-6 h-6" />
+              </button>
+            </div>
+            
+            <div className="p-8 overflow-y-auto flex-1 space-y-6">
+              <div className="space-y-4">
+                <label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground block">Title</label>
+                <input 
+                  type="text" 
+                  placeholder="e.g. Grandma's Secret Pasta" 
+                  className="w-full bg-muted/50 border-2 border-border p-4 rounded-2xl font-bold focus:border-[#007000] outline-none transition-all"
+                  value={newRecipeForm.title}
+                  onChange={e => setNewRecipeForm(f => ({ ...f, title: e.target.value }))}
+                />
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground block">Category</label>
+                  <select 
+                    className="w-full bg-muted/50 border-2 border-border p-4 rounded-2xl font-bold focus:border-[#007000] outline-none transition-all"
+                    value={newRecipeForm.category}
+                    onChange={e => setNewRecipeForm(f => ({ ...f, category: e.target.value }))}
+                  >
+                    <option>Breakfast</option>
+                    <option>Lunch</option>
+                    <option>Dinner</option>
+                    <option>Snacks</option>
+                    <option>Desserts</option>
+                    <option>Drinks</option>
+                    <option>Indian Favorites</option>
+                    <option>Street Food</option>
+                  </select>
+                </div>
+                <div className="space-y-2">
+                  <label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground block">Time</label>
+                  <input 
+                    type="text" 
+                    placeholder="e.g. 25 min" 
+                    className="w-full bg-muted/50 border-2 border-border p-4 rounded-2xl font-bold focus:border-[#007000] outline-none transition-all"
+                    value={newRecipeForm.time}
+                    onChange={e => setNewRecipeForm(f => ({ ...f, time: e.target.value }))}
+                  />
+                </div>
+              </div>
+
+              {/* Ingredients */}
+              <div className="space-y-4">
+                <label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground block">Ingredients</label>
+                <div className="flex gap-2">
+                  <input 
+                    type="text" 
+                    placeholder="Ingredient name" 
+                    className="flex-1 bg-muted/50 border-2 border-border p-4 rounded-2xl font-bold focus:border-[#007000] outline-none transition-all"
+                    value={newIngredient.name}
+                    onChange={e => setNewIngredient(i => ({ ...i, name: e.target.value }))}
+                  />
+                  <input 
+                    type="number" 
+                    className="w-24 bg-muted/50 border-2 border-border p-4 rounded-2xl font-bold focus:border-[#007000] outline-none transition-all"
+                    value={newIngredient.qty}
+                    onChange={e => setNewIngredient(i => ({ ...i, qty: Number(e.target.value) }))}
+                  />
+                  <button 
+                    onClick={() => {
+                      if (!newIngredient.name) return;
+                      setNewRecipeForm(f => ({ ...f, ingredients: [...(f.ingredients || []), { ...newIngredient, id: "p-" + Date.now() }] }));
+                      setNewIngredient({ name: "", qty: 1 });
+                    }}
+                    className="bg-[#007000] text-white p-4 rounded-2xl"
+                  >
+                    <Plus className="w-5 h-5" />
+                  </button>
+                </div>
+                <div className="flex flex-wrap gap-2">
+                  {newRecipeForm.ingredients?.map((ing, i) => (
+                    <div key={i} className="bg-muted px-4 py-2 rounded-xl text-xs font-bold flex items-center gap-2">
+                      {ing.name} ({ing.qty})
+                      <button onClick={() => setNewRecipeForm(f => ({ ...f, ingredients: f.ingredients?.filter((_, idx) => idx !== i) }))} className="text-destructive"><X className="w-3 h-3" /></button>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Steps */}
+              <div className="space-y-4">
+                <label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground block">Cooking Steps</label>
+                <div className="flex gap-2">
+                  <input 
+                    type="text" 
+                    placeholder="Describe step..." 
+                    className="flex-1 bg-muted/50 border-2 border-border p-4 rounded-2xl font-bold focus:border-[#007000] outline-none transition-all"
+                    value={newStep}
+                    onChange={e => setNewStep(e.target.value)}
+                  />
+                  <button 
+                    onClick={() => {
+                      if (!newStep) return;
+                      setNewRecipeForm(f => ({ ...f, instructions: [...(f.instructions || []), newStep] }));
+                      setNewStep("");
+                    }}
+                    className="bg-[#007000] text-white p-4 rounded-2xl"
+                  >
+                    <Plus className="w-5 h-5" />
+                  </button>
+                </div>
+                <div className="space-y-2">
+                  {newRecipeForm.instructions?.map((step, i) => (
+                    <div key={i} className="bg-muted/30 p-3 rounded-xl text-xs font-medium flex items-start gap-3">
+                      <span className="w-5 h-5 bg-primary text-white rounded-full flex items-center justify-center shrink-0 text-[10px]">{i+1}</span>
+                      <span className="flex-1">{step}</span>
+                      <button onClick={() => setNewRecipeForm(f => ({ ...f, instructions: f.instructions?.filter((_, idx) => idx !== i) }))} className="text-destructive"><X className="w-4 h-4" /></button>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              <div className="pt-4">
+                <button 
+                  onClick={handleAddRecipe}
+                  className="w-full bg-[#007000] text-white py-5 rounded-3xl font-black uppercase tracking-widest shadow-xl shadow-[#007000]/20 hover:scale-[1.02] active:scale-95 transition-all"
+                >
+                  Save Recipe to My Collection
+                </button>
               </div>
             </div>
           </div>
