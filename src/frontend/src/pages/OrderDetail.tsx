@@ -92,6 +92,8 @@ const DEMO_ORDERS: Order[] = [
     ],
     createdAt: BigInt(Date.now() - 3 * 86400000) * BigInt(1_000_000),
     estimatedDelivery: BigInt(Date.now() - 21600000) * BigInt(1_000_000),
+    paymentMethod: "Online",
+    paymentStatus: "Paid",
   },
   {
     id: "ORD-20240421-002",
@@ -145,6 +147,8 @@ const DEMO_ORDERS: Order[] = [
     ],
     createdAt: BigInt(Date.now() - 86400000) * BigInt(1_000_000),
     estimatedDelivery: BigInt(Date.now() + 14400000) * BigInt(1_000_000),
+    paymentMethod: "Online",
+    paymentStatus: "Paid",
   },
 ];
 
@@ -909,7 +913,7 @@ export default function OrderDetail() {
           <div className="flex gap-2 shrink-0">
             {order.status === "Pending" && (
               <Link
-                to="/admin-chat" // Assuming this is the support chat route
+                to="/admin-nexgro-secret-2024/chat" // Assuming this is the support chat route
                 className="flex items-center gap-2 px-4 py-2 bg-muted text-foreground border border-border rounded-xl text-xs font-semibold hover:bg-muted/80 transition-all"
                 data-ocid="order_detail.support_cancel_button"
               >

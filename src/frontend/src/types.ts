@@ -74,6 +74,9 @@ export interface Product {
   createdAt: bigint;
   ageRestricted: boolean;
   ageCategory: string | null;
+  bundleId?: string;
+  harvestDate?: string;
+  bestBeforeDate?: string;
 }
 
 export interface Review {

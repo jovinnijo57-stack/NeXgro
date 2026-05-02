@@ -33,7 +33,6 @@ import {
   ShieldCheck,
   Mic,
   MicOff,
-  MapPin,
 } from "lucide-react";
 import { toast } from "sonner";
 import { useEffect, useRef, useState } from "react";
@@ -155,52 +154,6 @@ function LanguageSwitcher() {
         </div>
       )}
     </div>
-  );
-}
-
-// ─── Location Indicator ───────────────────────────────────────────────────────
-
-function LocationIndicator() {
-  const [location, setLocation] = useState<{ address: string; zoneName: string } | null>(null);
-
-  useEffect(() => {
-    const stored = localStorage.getItem("nexgro_user_location");
-    if (stored) {
-      try {
-        const parsed = JSON.parse(stored);
-        setLocation({
-          address: parsed.address || "Unknown Address",
-          zoneName: parsed.zoneName || "Standard Zone",
-        });
-      } catch (e) {
-        console.error("Failed to parse location", e);
-      }
-    }
-  }, []);
-
-  if (!location) return null;
-
-  return (
-    <Link
-      to="/location-setup"
-      className="flex items-center gap-2 px-3 py-1.5 rounded-xl hover:bg-muted transition-all duration-200 group"
-      data-ocid="nav.location_indicator"
-    >
-      <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center group-hover:scale-110 transition-transform">
-        <MapPin className="w-4 h-4 text-primary" />
-      </div>
-      <div className="flex flex-col">
-        <div className="flex items-center gap-1">
-          <span className="text-[10px] font-bold text-primary uppercase tracking-wider leading-none">
-            {location.zoneName}
-          </span>
-          <ChevronDown className="w-2.5 h-2.5 text-muted-foreground group-hover:translate-y-0.5 transition-transform" />
-        </div>
-        <span className="text-xs text-foreground/70 font-medium max-w-[120px] truncate leading-tight mt-0.5">
-          {location.address}
-        </span>
-      </div>
-    </Link>
   );
 }
 
@@ -607,12 +560,6 @@ function MobileBottomNav() {
       ocid: "mobile_nav.orders",
     },
     {
-      to: "/recipes",
-      icon: Utensils,
-      label: "Chef Corner",
-      ocid: "mobile_nav.recipes",
-    },
-    {
       to: "/profile",
       icon: User,
       label: t("nav.profile"),
@@ -696,9 +643,6 @@ export default function Layout({ children }: LayoutProps) {
                 Ne<span className="text-primary">X</span>gro
               </span>
             </Link>
-
-            {/* Location Selector */}
-            <LocationIndicator />
 
             {/* Desktop nav links */}
             <nav className="hidden lg:flex items-center gap-5 ml-2">

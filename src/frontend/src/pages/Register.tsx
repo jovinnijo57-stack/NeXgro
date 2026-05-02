@@ -3,7 +3,7 @@ import { useNavigate } from "@tanstack/react-router";
 import { Gift, ShieldCheck, Star, Truck, Zap, Eye, EyeOff } from "lucide-react";
 import { useState } from "react";
 import { sendOTP } from "@/services/emailService";
-import { getRegisteredUsers, findEmailByPhone, hashPassword, isUserRegistered } from "@/lib/auth";
+import { getRegisteredUsers, findEmailByPhone, hashPassword } from "@/lib/auth";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 
@@ -87,13 +87,10 @@ export default function Register() {
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     
-    // Check if required fields are filled (referral is optional)
-    const requiredFields = { ...form };
-    delete (requiredFields as any).referral;
-    const allRequiredFilled = Object.values(requiredFields).every(val => val.trim() !== "");
-    
-    if (!allRequiredFilled) {
-      toast.error("Please fill every required detail to register");
+    // Check if any field is empty
+    const allFieldsFilled = Object.values(form).every(val => val.trim() !== "");
+    if (!allFieldsFilled) {
+      toast.error("Please fill every detail to register");
       setErrors(validate());
       return;
     }
@@ -115,11 +112,17 @@ export default function Register() {
       return;
     }
 
-    const { registered, type } = isUserRegistered(form.email, form.phone);
-    if (registered) {
-      const msg = type === "email" ? "Email is already registered" : "Phone number is already registered";
-      toast.error(msg);
-      setErrors({ [type!]: msg });
+    const registeredUsers = getRegisteredUsers();
+    if (registeredUsers[form.email.toLowerCase().trim()]) {
+      toast.error("Already registered with this email");
+      setErrors({ email: "Already registered" });
+      return;
+    }
+    
+    const existingEmailForPhone = findEmailByPhone(form.phone);
+    if (existingEmailForPhone) {
+      toast.error("Already registered with this phone number");
+      setErrors({ phone: "Already registered" });
       return;
     }
 

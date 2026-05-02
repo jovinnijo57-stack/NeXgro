@@ -90,7 +90,7 @@ const DEMO_ORDERS: Order[] = [
       },
     ],
     createdAt: BigInt(Date.now() - 3 * 86400000) * BigInt(1_000_000),
-    paymentMethod: "Credit Card",
+    paymentMethod: "Online",
     paymentStatus: "Paid",
   },
   {
@@ -140,7 +140,7 @@ const DEMO_ORDERS: Order[] = [
       },
     ],
     createdAt: BigInt(Date.now() - 86400000) * BigInt(1_000_000),
-    paymentMethod: "PayPal",
+    paymentMethod: "Online",
     paymentStatus: "Paid",
   },
   {
@@ -183,7 +183,7 @@ const DEMO_ORDERS: Order[] = [
       },
     ],
     createdAt: BigInt(Date.now() - 21600000) * BigInt(1_000_000),
-    paymentMethod: "Apple Pay",
+    paymentMethod: "Online",
     paymentStatus: "Pending",
   },
 ];

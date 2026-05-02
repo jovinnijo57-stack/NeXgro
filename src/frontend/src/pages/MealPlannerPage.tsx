@@ -29,7 +29,7 @@ const getLocalDateString = (d: Date) => {
 import { useSearch } from "@tanstack/react-router";
 
 export default function MealPlannerPage() {
-  const search = useSearch({ from: "/meal-planner" }) as any;
+  const search = useSearch({ from: "/meal-planner" }) as { date?: string };
   const navigate = useNavigate();
   const qc = useQueryClient();
   const { data: recipes } = useRecipes();
@@ -71,11 +71,11 @@ export default function MealPlannerPage() {
     try {
       const allIngredients: { productId: string; qty: number }[] = [];
       for (const mp of filteredMealPlans) {
-        const recipe = mp.recipeDetails || recipes?.find((r: any) => r.id === mp.recipeId);
+        const recipe = recipes?.find((r: any) => r.id === mp.recipeId);
         if (recipe && recipe.ingredients) {
           for (const ing of recipe.ingredients) {
-            const pId = ing.id || (ing as any).productId;
-            const pQty = ing.qty || (ing as any).quantity || 1;
+            const pId = ing.productId;
+            const pQty = ing.quantity || 1;
             if (pId) {
               allIngredients.push({ productId: pId, qty: pQty });
             }
@@ -111,8 +111,8 @@ export default function MealPlannerPage() {
     try {
       const ingredients = recipe.ingredients || [];
       const itemsToAdd = ingredients.map((ing: any) => ({
-        productId: ing.id || ing.productId,
-        qty: ing.qty || ing.quantity || 1
+        productId: ing.productId,
+        qty: ing.quantity || 1
       })).filter((i: any) => i.productId);
 
       if (itemsToAdd.length > 0) {
@@ -132,7 +132,7 @@ export default function MealPlannerPage() {
     if (aiAnalysis[recipe.id]) return;
     setAnalyzing(recipe.id);
     try {
-      const analysis = await analyzeRecipe(recipe.title, recipe.ingredients);
+      const analysis = await analyzeRecipe(recipe.name, recipe.ingredients);
       if (analysis && Array.isArray(analysis.steps)) {
         setAiAnalysis(prev => ({ ...prev, [recipe.id]: analysis }));
         toast.success("AI Analysis Complete! ✨");
@@ -199,9 +199,9 @@ export default function MealPlannerPage() {
               onClick={(e) => {
                 const input = (e.currentTarget.nextElementSibling as HTMLInputElement);
                 if (input && 'showPicker' in input) {
-                  input.showPicker();
+                  (input as any).showPicker();
                 } else if (input) {
-                  input.click();
+                  (input as any).click();
                 }
               }}
               className="p-2.5 bg-muted group-hover:bg-muted/80 transition-all flex items-center gap-2"
@@ -261,21 +261,21 @@ export default function MealPlannerPage() {
         {filteredMealPlans && filteredMealPlans.length > 0 ? (
           <div className="space-y-8">
             {filteredMealPlans.map((mp: any) => {
-              const recipe = mp.recipeDetails || recipes?.find(r => r.id === mp.recipeId);
-              const analysis = aiAnalysis[recipe?.id];
+              const recipe = recipes?.find(r => r.id === mp.recipeId);
+              const analysis = recipe ? aiAnalysis[recipe.id] : undefined;
 
               return (
                 <div key={mp.id} className="bg-card border border-border rounded-[2.5rem] overflow-hidden shadow-sm hover:shadow-md transition-all">
                   <div className="flex flex-col sm:row">
                     <div className="sm:w-full h-48 bg-muted relative">
                       <img 
-                        src={recipe?.image || recipe?.imageUrl} 
+                        src={recipe?.imageUrl} 
                         className="w-full h-full object-cover" 
-                        alt={recipe?.title}
+                        alt={recipe?.name}
                       />
                       <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
                       <div className="absolute bottom-4 left-6 right-6 flex items-end justify-between">
-                        <h4 className="font-black text-white text-2xl tracking-tight leading-tight">{recipe?.title}</h4>
+                        <h4 className="font-black text-white text-2xl tracking-tight leading-tight">{recipe?.name}</h4>
                         <button 
                           onClick={() => handleDeletePlan(mp.id)}
                           className="p-2.5 rounded-xl bg-destructive/20 backdrop-blur-md text-white border border-white/20 hover:bg-destructive transition-all"
@@ -289,11 +289,11 @@ export default function MealPlannerPage() {
                       <div className="flex flex-wrap gap-4">
                         <div className="flex items-center gap-2 text-muted-foreground">
                           <Clock className="w-4 h-4 text-[#007000]" />
-                          <span className="text-xs font-bold">{recipe?.time || "25 min"}</span>
+                          <span className="text-xs font-bold">{recipe?.cookTimeMinutes || "25"} min</span>
                         </div>
                         <div className="flex items-center gap-2 text-muted-foreground">
                           <Flame className="w-4 h-4 text-orange-500" />
-                          <span className="text-xs font-bold">{recipe?.calories || "400 kcal"}</span>
+                          <span className="text-xs font-bold">Balanced kcal</span>
                         </div>
                         <div className="ml-auto flex items-center gap-1 bg-[#007000]/10 px-3 py-1 rounded-full">
                           <Sparkles className="w-3 h-3 text-[#007000]" />
@@ -319,8 +319,8 @@ export default function MealPlannerPage() {
                                 <img src={matchedProduct?.imageUrl || "/assets/placeholder.png"} className="w-full h-full object-cover" alt={ing.name} />
                               </div>
                               <div className="flex-1 min-w-0">
-                                <span className="text-xs font-bold text-foreground block truncate">{ing.name}</span>
-                                <span className="text-[10px] font-black text-[#007000] uppercase tracking-widest">Qty: {ing.qty}</span>
+                                <span className="text-xs font-bold text-foreground block truncate">{ing.productId}</span>
+                                <span className="text-[10px] font-black text-[#007000] uppercase tracking-widest">Qty: {ing.quantity}</span>
                               </div>
                             </div>
                           )})}
@@ -410,15 +410,7 @@ export default function MealPlannerPage() {
             <p className="text-muted-foreground font-bold tracking-tight">
               Your menu for this day is empty.
             </p>
-            <button 
-              onClick={() => {
-                navigate({ to: "/recipes", search: { date: selectedDate } });
-                window.location.href = `/recipes?date=${selectedDate}`;
-              }}
-              className="bg-[#007000] text-white px-6 py-3 rounded-2xl text-[11px] font-black uppercase tracking-widest mt-6 inline-block shadow-lg shadow-[#007000]/20 transition-all active:scale-95"
-            >
-              Browse Recipes
-            </button>
+            <Link to="/recipes" search={{ date: selectedDate }} className="bg-[#007000] text-white px-6 py-3 rounded-2xl text-[11px] font-black uppercase tracking-widest mt-6 inline-block shadow-lg shadow-[#007000]/20 transition-all active:scale-95">Browse Recipes</Link>
           </div>
         )}
       </div>

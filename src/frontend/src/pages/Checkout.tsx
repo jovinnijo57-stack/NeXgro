@@ -214,7 +214,7 @@ export default function Checkout() {
       let lng = (profile as any)?.userLong;
       
       if (!lat || !lng) {
-        const stored = localStorage.getItem("nexgro_user_location");
+        const stored = localStorage.getItem("nexgro-selected-location");
         if (stored) {
           const { lat: sLat, lng: sLng } = JSON.parse(stored);
           lat = sLat;

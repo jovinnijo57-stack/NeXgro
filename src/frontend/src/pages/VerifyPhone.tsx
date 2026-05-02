@@ -41,26 +41,7 @@ export default function VerifyPhone() {
   }, [phone]);
 
   async function handleSendOtp() {
-    if (!phone) {
-      toast.error("No phone number found in session.");
-      return;
-    }
-
-    if (!auth) {
-      const isDemoHost = 
-        window.location.hostname === "localhost" || 
-        window.location.hostname === "127.0.0.1" || 
-        window.location.hostname === "nexgro-app.onrender.com";
-
-      console.warn("Firebase Auth not initialized. Using Demo Mode.");
-      if (isDemoHost) {
-        toast.info("Demo Mode: Use code 123456 to verify.");
-        setConfirmationResult({ confirm: async (code: string) => { if (code !== "123456") throw new Error("Invalid code"); } });
-        return;
-      }
-      toast.error("Firebase Authentication is not configured. Please add your API keys to Render.");
-      return;
-    }
+    if (!auth || !phone) return;
     
     try {
       if (!recaptchaVerifierRef.current) {
@@ -70,8 +51,6 @@ export default function VerifyPhone() {
       }
 
       const formattedPhone = phone.startsWith('+') ? phone : `+91${phone.replace(/\s/g, '')}`;
-      console.log("Sending OTP to:", formattedPhone);
-      
       const confirmation = await signInWithPhoneNumber(auth, formattedPhone, recaptchaVerifierRef.current);
       setConfirmationResult(confirmation);
       toast.success("Phone verification code sent!");
@@ -79,20 +58,7 @@ export default function VerifyPhone() {
       setIsExpired(false);
     } catch (err: any) {
       console.error("Phone OTP send error:", err);
-      const isDemoHost = 
-        window.location.hostname === "localhost" || 
-        window.location.hostname === "127.0.0.1" || 
-        window.location.hostname === "nexgro-app.onrender.com";
-
-      if (isDemoHost) {
-        toast.info("Firebase SMS failed. Falling back to Demo Mode: Use 123456");
-        setConfirmationResult({ confirm: async (code: string) => { if (code !== "123456") throw new Error("Invalid code"); } });
-        return;
-      }
-
-      const msg = err.message || "Failed to send SMS.";
-      toast.error(`Firebase Error: ${msg}`);
-      setError(`SMS Error: ${msg}. Check Firebase Console.`);
+      toast.error("Failed to send SMS. Please try again.");
     }
   }
 

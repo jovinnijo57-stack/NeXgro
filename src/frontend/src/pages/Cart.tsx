@@ -392,6 +392,7 @@ function CartItemRow({
 // ─── Main cart page ───────────────────────────────────────────────────────────
 
 export default function Cart() {
+  const qc = useQueryClient();
   useFamilyJoin();
   const { data: rawCart, isLoading } = useCart();
   const { data: coupons } = useAdminCoupons();

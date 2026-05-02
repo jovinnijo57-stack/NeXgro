@@ -113,6 +113,10 @@ import {
 } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 
+const addNotification = (title: string, message: string, _type?: string) => {
+  toast.info(title, { description: message });
+};
+
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -137,7 +141,7 @@ type AdminSection =
 // ─── Constants ────────────────────────────────────────────────────────────────
 
 const NAV_ITEMS: {
-  id: string;
+  id: AdminSection;
   label: string;
   icon: React.FC<{ className?: string }>;
 }[] = [
@@ -1371,7 +1375,7 @@ function RecipesView() {
 // ─── Section: Orders ──────────────────────────────────────────────────────────
 
 
-import { sendOrderUpdateWhatsApp } from "@/services/whatsappService";
+
 
 function OrdersView() {
   const { data: backendOrders } = useAdminOrders();

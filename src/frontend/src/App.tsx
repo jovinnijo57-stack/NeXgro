@@ -8,7 +8,6 @@ import Login from "@/pages/Login";
 import Register from "@/pages/Register";
 import VerifyEmail from "@/pages/VerifyEmail";
 import VerifyPhone from "@/pages/VerifyPhone";
-import Recipes from "@/pages/Recipes";
 import { useActor, useInternetIdentity } from "@caffeineai/core-infrastructure";
 import {
   RouterProvider,
@@ -38,7 +37,7 @@ const LocationSetup = lazy(() => import("@/pages/LocationSetup"));
 const BundlesPage = lazy(() => import("@/pages/BundlesPage"));
 const BundleDetail = lazy(() => import("@/pages/BundleDetail"));
 const WalletPage = lazy(() => import("@/pages/WalletPage"));
-const RecipesPage = Recipes;
+const RecipesPage = lazy(() => import("@/pages/Recipes"));
 const SubscriptionsPage = lazy(() => import("@/pages/SubscriptionsPage"));
 const ComparisonPage = lazy(() => import("@/pages/ComparisonPage"));
 const SmartPantryPage = lazy(() => import("@/pages/SmartPantry"));
@@ -83,34 +82,30 @@ const BannedSupportPage = lazy(() => import("@/pages/BannedSupport"));
 
 // ─── Auth guard component ────────────────────────────────────────────────────
 function AuthGuard({ children }: { children: React.ReactNode }) {
-  const navigate = useNavigate();
   const { identity } = useInternetIdentity();
   const isAuthenticated = localStorage.getItem("isLoggedIn") === "true" || !!identity;
   const currentUserEmail = localStorage.getItem("currentUserEmail");
   const bannedEmails = JSON.parse(localStorage.getItem("nexgro_banned_users") || "[]");
   const isDeviceRestricted = localStorage.getItem("nexgro_device_restricted") === "true";
 
-  const hasLocation = localStorage.getItem("nexgro_user_location");
-  const path = window.location.pathname;
-  const isLocationPage = path === "/location-setup";
-  const isAdminPage = path.startsWith("/admin");
-  const isAdmin = currentUserEmail?.toLowerCase() === "admin@nexgro.com";
-
-  console.log("[AuthGuard] Checking path:", path, { isAuthenticated, hasLocation: !!hasLocation, isAdmin });
-
   if ((currentUserEmail && bannedEmails.includes(currentUserEmail.toLowerCase())) || isDeviceRestricted) {
-    useEffect(() => { navigate({ to: "/banned" } as any); }, [navigate]);
+    window.location.href = "/banned";
     return null;
   }
   
   if (!isAuthenticated) {
-    useEffect(() => { navigate({ to: "/register" } as any); }, [navigate]);
+    window.location.href = "/register";
     return null;
   }
 
+  const hasLocation = localStorage.getItem("nexgro_user_location");
+  const isLocationPage = window.location.pathname === "/location-setup";
+  const isAdminPage = window.location.pathname.startsWith("/admin");
+
+  const isAdmin = currentUserEmail?.toLowerCase() === "admin@nexgro.com";
+  
   if (!hasLocation && !isLocationPage && !isAdminPage && !isAdmin) {
-    console.log("[AuthGuard] Redirecting to location setup...");
-    useEffect(() => { navigate({ to: "/location-setup" } as any); }, [navigate]);
+    window.location.href = "/location-setup";
     return null;
   }
 

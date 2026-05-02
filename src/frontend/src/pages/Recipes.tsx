@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect, useRef } from "react";
 import { 
   ArrowLeft, Search, Clock, Users, Flame, ShoppingCart, 
   Plus, Calendar, Mic, MicOff, Info, BookOpen, ChefHat, Utensils,
@@ -137,7 +137,10 @@ export default function Recipes() {
         <div className="flex items-center gap-3 mb-8">
           <button 
             onClick={() => {
-              navigate({ to: "/meal-planner" });
+              navigate({ 
+                to: "/meal-planner",
+                search: { date: initialDate || undefined }
+              });
               // Direct fallback if router fails
               window.location.href = "/meal-planner";
             }}
@@ -361,7 +364,8 @@ function RecipeCard({
   adding, 
   handleAddToCart, 
   handleAddToMealPlan,
-  onAnalyse 
+  onAnalyse,
+  defaultDate
 }: { 
   recipe: Recipe; 
   adding: string | null; 
@@ -371,6 +375,7 @@ function RecipeCard({
   defaultDate?: string;
 }) {
   const [plannedDate, setPlannedDate] = useState<string>(defaultDate || "");
+  const dateInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     if (defaultDate) setPlannedDate(defaultDate);
@@ -441,12 +446,13 @@ function RecipeCard({
           </button>
           <div className="relative">
             <button
-              onClick={(e) => {
-                const input = (e.currentTarget.nextElementSibling as HTMLInputElement);
-                if (input && 'showPicker' in input) {
-                  input.showPicker();
-                } else if (input) {
-                  input.click();
+              onClick={() => {
+                if (dateInputRef.current) {
+                  if ('showPicker' in dateInputRef.current) {
+                    (dateInputRef.current as any).showPicker();
+                  } else {
+                    (dateInputRef.current as any).click();
+                  }
                 }
               }}
               className={cn(
@@ -460,6 +466,7 @@ function RecipeCard({
               <Calendar className="w-5 h-5" />
             </button>
             <input 
+              ref={dateInputRef}
               type="date"
               className="absolute inset-0 opacity-0 -z-10"
               onChange={(e) => {

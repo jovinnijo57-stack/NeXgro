@@ -64,10 +64,3 @@ export function findEmailByPhone(phone: string): string | null {
   return null;
 }
 
-export function isUserRegistered(email: string, phone: string): { registered: boolean; type?: "email" | "phone" } {
-  const users = getRegisteredUsers();
-  if (users[email.toLowerCase().trim()]) return { registered: true, type: "email" };
-  if (findEmailByPhone(phone)) return { registered: true, type: "phone" };
-  return { registered: false };
-}
-

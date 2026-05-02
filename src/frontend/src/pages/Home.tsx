@@ -230,11 +230,6 @@ function CountdownDisplay({ h, m, s }: { h: string; m: string; s: string }) {
   );
 }
 
-function BannerTimer({ endTime }: { endTime: number }) {
-  const countdown = useCountdown(endTime);
-  return <CountdownDisplay {...countdown} />;
-}
-
 function HeroCarousel() {
   const [current, setCurrent] = useState(0);
   const [isTransitioning, setIsTransitioning] = useState(false);
@@ -315,7 +310,7 @@ function HeroCarousel() {
                 >
                   {banner.cta}
                 </Link>
-                {banner.hasTimer && <BannerTimer endTime={banner.endTime || 0} />}
+                {banner.hasTimer && <CountdownDisplay {...(useCountdown(banner.endTime || 0))} />}
               </div>
             </div>
             <div

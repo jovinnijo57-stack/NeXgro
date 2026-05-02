@@ -1,3 +1,4 @@
+import { toast } from "sonner";
 import { createActor } from "@/backend";
 import type {
   AdminStats as BackendAdminStats,
@@ -13,11 +14,9 @@ import type {
   ReviewPublic,
   SavedAddressPublic,
   UserPublic,
+  OrderStatus as BackendOrderStatus,
 } from "@/backend.d";
-import {
-  type OrderStatus as BackendOrderStatus,
-  Variant_fixed_percent,
-} from "@/backend.d";
+import { ExternalBlob, Variant_fixed_percent } from "@/backend";
 import {
   type AdminStats,
   type Banner,
@@ -42,23 +41,13 @@ import {
   SAMPLE_PRODUCTS,
 } from "@/types";
 import type { BuyXGetYRule, SeasonalCollection, MealPlan, Referral } from "@/types";
-import { useActor } from "@caffeineai/core-infrastructure";
+import { useActor, useInternetIdentity } from "@caffeineai/core-infrastructure";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-
 // Re-export for convenience
-export { useInternetIdentity } from "@caffeineai/core-infrastructure";
+export { useInternetIdentity };
 
 function useBackendActor() {
-  const actorResult = useActor(createActor);
-  
-  // If the canister ID is 'undefined' string (Render default) or empty, force null actor
-  // to trigger local fallbacks and prevent crashes.
-  const canisterId = (import.meta as any).env.CANISTER_ID_BACKEND;
-  if (!canisterId || canisterId === "undefined" || canisterId === "") {
-    return { actor: null, isFetching: false };
-  }
-
-  return actorResult;
+  return useActor(createActor);
 }
 
 function toBackendId(id: string): bigint {
@@ -126,6 +115,8 @@ function adaptOrder(o: OrderPublic): Order {
     total: Number(o.total) / 100,
     couponId: o.couponId?.toString(),
     loyaltyPointsRedeemed: Number(o.loyaltyPointsRedeemed),
+    paymentMethod: "Online", // Default for backend orders
+    paymentStatus: "Paid",   // Default for backend orders
     deliveryAddress: {
       id: "",
       userId: o.userId.toString(),
@@ -892,6 +883,7 @@ export function usePlaceOrder() {
           paymentMethod: "COD",
           paymentStatus: "Pending",
           createdAt: BigInt(Date.now()),
+          loyaltyPointsRedeemed: 0,
           deliveryAddress: { street: "Main St", city: "Kochi", state: "Kerala", zip: "682001", phone: "123", id: "1", userId: "1", label: "Home", isDefault: true }
         };
 
@@ -1462,6 +1454,7 @@ export function useCreateProduct() {
           createdAt: BigInt(Date.now()),
           ageRestricted: false,
           ageCategory: null,
+          unit: "kg",
         };
         localStorage.setItem("nexgro_products", JSON.stringify([p, ...base]));
         return p;
@@ -1473,7 +1466,7 @@ export function useCreateProduct() {
             data.description || "",
             BigInt(Math.round((data.price || 0) * 100)),
             toBackendId(data.categoryId || "0"),
-            data.imageUrl || "",
+            data.imageUrl ? ExternalBlob.fromURL(data.imageUrl) : ExternalBlob.fromBytes(new Uint8Array()),
             BigInt(data.stockQty || 0),
             !!data.isFeatured,
             !!data.isBestSeller,
@@ -1519,7 +1512,7 @@ export function useUpdateProduct() {
               data.description ?? existingResult.description,
               data.price !== undefined ? BigInt(Math.round(data.price * 100)) : existingResult.price,
               data.categoryId ? toBackendId(data.categoryId) : existingResult.categoryId,
-              data.imageUrl ?? existingResult.imageBlob,
+              data.imageUrl ? ExternalBlob.fromURL(data.imageUrl) : existingResult.imageBlob,
               data.stockQty !== undefined ? BigInt(data.stockQty) : existingResult.stockQty,
               data.isActive ?? existingResult.isActive,
               data.isFeatured ?? existingResult.isFeatured,
@@ -1734,12 +1727,8 @@ export function useCheckDeliveryRadius() {
       let nearestDistanceKm = Number.POSITIVE_INFINITY;
       let matchingZone: DeliveryZone | null = null;
 
-      console.log(`Checking location: ${lat}, ${lng} against ${activeZones.length} zones`);
-
       for (const zone of activeZones) {
         const dist = haversineKm(lat, lng, zone.centerLat, zone.centerLng);
-        console.log(`Zone ${zone.name}: dist ${dist.toFixed(2)}km, radius ${zone.radiusKm}km`);
-        
         if (dist <= zone.radiusKm) {
           if (dist < nearestDistanceKm) {
             nearestDistanceKm = dist;
@@ -1755,19 +1744,16 @@ export function useCheckDeliveryRadius() {
       if (matchingZone) {
         // Calculate fee based on distance: distance * perKmFee
         const calculatedFee = nearestDistanceKm * matchingZone.perKmFee;
-        console.log(`Matched zone: ${matchingZone.name}. Distance: ${nearestDistanceKm.toFixed(2)}km. Fee: $${calculatedFee.toFixed(2)}`);
         
         return {
           tag: "InRange",
           shopId: 1, // Legacy compatibility
           distanceKm: nearestDistanceKm,
           deliveryFee: Math.max(calculatedFee, 1.00), // Minimum $1.00 delivery fee
-          zoneName: matchingZone.name,
         };
       }
       
-      console.log(`Out of range. Nearest zone is ${nearestDistanceKm.toFixed(2)}km away`);
-      return { tag: "OutOfRange", nearestDistanceKm: nearestDistanceKm === Number.POSITIVE_INFINITY ? 0 : nearestDistanceKm };
+      return { tag: "OutOfRange", nearestDistanceKm };
     },
   });
 }
@@ -2741,6 +2727,7 @@ export function addNotification(title: string, body: string, type: InAppNotifica
       createdAt: Date.now(),
     };
     localStorage.setItem(LOCAL_NOTIF_KEY_V3, JSON.stringify([newNotif, ...current]));
+    toast.info(title, { description: body });
     // Force a small delay then invalidate if possible, but this is a static helper
   } catch {
     /* noop */
